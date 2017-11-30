@@ -1,6 +1,6 @@
 #                                       /r/MapPorn Monthly Map Contest RedditBot
 
-<img align="right" width="120" height="178"
+<img align="right" width="178" height="178"
      title="Size Limit logo" src="misc_images/01.png">
 
 
