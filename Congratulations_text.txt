@@ -1,0 +1,45 @@
+#Winner
+**Congratulations to /u/%1PLACEUSER% for [%1PLACEMAP%](%1PLACEURL%)**
+
+This map won with %1PLACEVOTES% votes.
+&nbsp;
+&nbsp;
+
+* **2nd Place:**
+[%2PLACEMAP%](%2PLACEURL%) by /u/%2PLACEUSER% with %2PLACEVOTES% votes.
+&nbsp;
+
+* **3rd Place:**
+[%3PLACEMAP%](%3PLACEURL%) by /u/%3PLACEUSER% with %3PLACEVOTES% votes.
+&nbsp;
+
+* **4th Place:**
+[%4PLACEMAP%](%4PLACEURL%) by /u/%4PLACEUSER% with %4PLACEVOTES% votes.&nbsp;
+
+
+&nbsp;
+Contest mode is now turned *off* and all [results are now visible on the original post](%VOTINGPOSTURL%)
+
+&nbsp;
+
+&nbsp;
+
+**A note about vote fuzzing:**
+*Reddit's software fuzzes the votes on posts and comments. This means that scores change unexplainably. Reddit admin's say they do this to fight spam bots. This is not something that the moderators have any control over. That said, after contest mode is turned off there may be different vote totals for different submissions. This is out of our control and simply a part of using Reddit. The map contest uses a bot to return the highest rated comments on the voting post. For all intents and purposes the results that the bot posts are the winners of the contest.*
+
+&nbsp;
+
+*For more information [check out the Reddit FAQ](https://www.reddit.com/wiki/faq)*
+
+
+&nbsp;
+
+To leave feedback [contact the moderators.](https://www.reddit.com/message/compose?to=%2Fr%2F%MYUSERID%)
+
+&nbsp;
+
+**[Click here to submit a map to the contest next month](https://www.reddit.com/r/MapPorn/wiki/meta/contest)**
+
+&nbsp;
+
+Thank you to all participants and hope to see you in next month's contest!

@@ -1,0 +1,7 @@
+facebook-sdk==2.0.0
+praw==5.2.0
+prawcore==0.12.0
+tweepy==3.5.0
+pytumblr==0.0.7
+pyperclip==1.5.32
+python-instagram=1.3.2
