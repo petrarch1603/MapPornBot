@@ -190,7 +190,7 @@ def shotgun_blast(raw_id_input, announce_input):
     ellips = ''
     hashtag = ''
     if titlelength > 106:
-        ellips = ''
+        hashtag = ' #mapporn'
     else:
         if titlelength < 77:
             hashtag = ' #Mapping #Cartography'
