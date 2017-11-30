@@ -1,6 +1,10 @@
 #                                       /r/MapPorn Monthly Map Contest RedditBot
 
-Every month we have a monthly map contest. Users can submit a map at any time. The users send a submission to a Reddit bot's inbox. A raspberry pi runs a script every hour checking that inbox. When the bot receives a submission, it parses the message and saves a csv with the following fields:
+<img align="right" width="120" height="178"
+     title="Size Limit logo" src="misc_images/01.png">
+
+
+Every month we have a monthly map contest at /r/MapPorn. Users can submit a map at any time. The users send a submission to a Reddit bot's inbox. A raspberry pi runs a script every hour checking that inbox. When the bot receives a submission, it parses the message and saves a csv with the following fields:
 
  * Map Name
  * Map Image URL
@@ -12,7 +16,7 @@ This CSV is used to create a Reddit contest post at the end of the month. The sc
 
    
    
-#####Rules and information about the contest can be found here: https://www.reddit.com/r/MapPorn/wiki/meta/contest
+####[Rules and information about the contest can be found here](https://www.reddit.com/r/MapPorn/wiki/meta/contest)
 
 
 _Created by /u/Petrarch1603   
