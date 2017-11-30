@@ -26,4 +26,4 @@ This CSV is used to create a Reddit contest post at the end of the month. The sc
 
 
 _Created by [/u/Petrarch1603](https://www.reddit.com/user/Petrarch1603/)   
-2017 November_
+2017 October_
