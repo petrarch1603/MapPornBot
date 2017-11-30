@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://www.reddit.com/r/MapPorn/">
+    <img width=100% src="misc_images/header.png">
+  </a>
+</p>
+
 #                                       /r/MapPorn Monthly Map Contest RedditBot
 
 <img align="right" width="178" height="178"
