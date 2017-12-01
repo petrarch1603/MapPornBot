@@ -9,10 +9,11 @@ import datetime
 print(datetime.datetime.now())
 
 r = praw.Reddit('bot1')
-MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting for the contest soon.    '\
-               + '\n' + '&nbsp;       ' + '\n' + '>This reply is coming from a bot. If you have any feedback ' \
-                '[contact the /r/MapPorn Moderators](https://www.reddit.com/message/compose/?to=' + my_reddit_ID + '&subject=MapPorn%20bot%20feedback)'
-
+MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting post for the contest soon.    ' + '\n' + \
+               '&nbsp;       ' + '\n' + 'This reply is coming from a bot. If you have any feedback [contact the ' \
+                                        '/r/MapPorn Moderators](https://www.reddit.com/message/compose/?to=' + \
+               my_reddit_ID + '&subject=MapPorn%20bot%20feedback)     ' + '\n\n----\n\n' + \
+               '^^^Bot ^^^by ^^^/u/Petrarch1603 ^^^[Github](https://github.com/petrarch1603/MapPornBot)'
                 # To Do: add contest date to the MessageReply, that way users know when the contest is.
 
 for message in r.inbox.unread():
