@@ -33,8 +33,8 @@ While this is going on the CSV is renamed to submissions_current. That way if th
    
    
 [Rules and information about the contest can be found here](https://www.reddit.com/r/MapPorn/wiki/meta/contest)
-
-#Social Media Tools
+    
+## Social Media Tools
 Part of MapPorn's mission is to share maps across the internet. This means using platforms other than Reddit. In the python file [functions.py](functions.py) there are functions for taking posts from [/r/MapPorn](https://www.reddit.com/r/MapPorn/) and posting to [Twitter](https://twitter.com/MapPornTweet/), [Tumblr](https://mappornofficial.tumblr.com/) and [Facebook](https://www.facebook.com/OfficialMapPorn) simultaneously. These functions use official APIs to interact with and post a link to a reddit post to those accounts.
 
 Some other social media scripts include:
@@ -44,8 +44,8 @@ Some other social media scripts include:
 * [WeeklySubmit.py](WeeklySubmit.py): posts an image to social media to advertise the map contest and solicit submissions
 * [papertowns_topoftheday.py](papertowns_topoftheday.py): shares the top post of the day from [/r/Papertowns](https://www.reddit.com/r/papertowns/) to social media
 * [oldmaps_topoftheday.py](oldmaps_topoftheday.py): same idea but for [/r/OldMaps](https://www.reddit.com/r/oldmaps/)
-
-# Notes
+    
+## Notes
 See [requirements.txt](requirements.txt) for full list of requirements. These scripts utilize [PRAW](http://praw.readthedocs.io/en/latest/), [Tweepy](http://www.tweepy.org/), [PyTumblr](https://github.com/tumblr/pytumblr) and [Facebook-sdk](http://facebook-sdk.readthedocs.io/en/latest/api.html). These packages require authorization tokens that are not provided in this repository.
 
 _Created by [/u/Petrarch1603](https://www.reddit.com/user/Petrarch1603/)   
