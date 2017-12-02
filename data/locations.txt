@@ -235,3 +235,5 @@ Quebec
 Newfoundland
 Labrador
 Nunavut
+Europe
+

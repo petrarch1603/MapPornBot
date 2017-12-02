@@ -38,7 +38,10 @@ def parse_reddit(raw_id, twitter_char_limit):
     title = remove_text_inside_brackets(str(raw_id.title))
     url = raw_id.url
     messageshort = title[:twitter_char_limit]
-    twitted_message = message_for_twitter(message=messageshort, twitter_char_limit=twitter_char_limit)
+    if len(messageshort) < twitter_char_limit:
+        twitted_message = message_for_twitter(message=messageshort, twitter_char_limit=twitter_char_limit)
+    else:
+        twitted_message = messageshort
     raw_id = raw_id
     messagelong = title
     return url, twitted_message, raw_id, messagelong
