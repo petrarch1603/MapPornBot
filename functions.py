@@ -230,14 +230,14 @@ def message_for_twitter(message, twitter_char_limit):
 
 
 def hashtag_locations(message, twitter_char_limit):
-    messagelen = len(message)
+    messageLen = len(message)
     term = message.split(' ')
     LocationsText = open('data/locations.txt').read()
     LocationsText = LocationsText.split()
     for s in term:
         s = str(s)
         if s in LocationsText:
-            if messagelen + len(s) <= twitter_char_limit:
+            if messageLen + len(s) <= twitter_char_limit:
                 message = message + ' #' + s
-                messagelen = messagelen + len(s)
+                messageLen = messageLen + len(s)
     return message

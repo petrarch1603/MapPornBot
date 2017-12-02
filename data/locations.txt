@@ -226,3 +226,12 @@ Wisconsin
 Wyoming
 Britain
 London
+Yukon
+Alberta
+Saskatchewan
+Manitoba
+Ontario
+Quebec
+Newfoundland
+Labrador
+Nunavut
