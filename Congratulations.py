@@ -32,7 +32,7 @@ data = congratulations_text.read()
 
 # Sort top comments from the voting post
 submission.comment_sort = 'top'
-submission.comments.replace_more(limit=0) # This gets the top level comments in the submission
+submission.comments.replace_more(limit=0)  # This gets the top level comments in the submission
 
 # Prepare a regex script to find the unique ID on each comment.
 id_regex = re.compile(r'\^\^\^\^\w\w\w\w\w\w')
@@ -42,8 +42,8 @@ n = 0
 # Gets top four highest upvoted comments and iterates thru them doing operations each time.
 for comment in submission.comments[:4]:
     n = n+1
-    mylist = [] # For each comment, we will create a list. Start with a blank list each time.
-    mo = id_regex.search(comment.body) # Find those ID's
+    mylist = []  # For each comment, we will create a list. Start with a blank list each time.
+    mo = id_regex.search(comment.body)  # Find those ID's
     message_id = str(mo.group()).replace('^^^^', '')
     # Open the CSV of submissions and index each field
     with open('submissions_current.csv') as current_csv:
@@ -85,9 +85,13 @@ data = data.replace('%VOTINGPOSTURL%', submission.shortlink)
 data = data.replace('%MYUSERID%', my_reddit_ID)
 post_title = ('Congratulations to /u/' + winner + ': winner of ' + contest_month_pretty + '\'s Monthly Map Contest!')
 submission = r.subreddit('mapporn').submit(post_title, selftext=data)  # Submits the post to Reddit
-submission.mod.distinguish()
-submission.mod.sticky()
 congrats_shortlink = submission.shortlink
+submission.mod.distinguish()
+try:
+    submission.mod.sticky()
+except:
+    send_reddit_message_to_self('Error encountered', message=('Could not sticky this post: ' + congrats_shortlink))
+    pass
 
 # # 6) Turn contest mode OFF on the original voting post
 submission = r.submission(id=raw_id)
