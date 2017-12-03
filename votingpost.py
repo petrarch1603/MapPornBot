@@ -36,8 +36,6 @@ post_message = 'Vote Now for the ' + str(contest_month) + ' ' + str(contest_year
 submission = r.subreddit('mapporn').submit(post_message, selftext=VotingText)  # Submits the post to Reddit
 submission.mod.contest_mode()
 submission.mod.distinguish()
-# submission.mod.sticky()  #Gives an error when I try to sticky here
-# submission.mod.approve()
 shortlink = submission.shortlink
 
 # # 4) One by one add a comment to the post, each comment being a map to vote on
@@ -111,6 +109,6 @@ send_reddit_message_to_self('New Voting Post Posted', 'A new votingpost.py has b
                                    '   \nHere\'s the link to the post: ' + shortlink + '   \nHere\'s the social media '
                                                                                        'links:    \n' + socialmedialinks)
 
-submission.mod.sticky()
 submission.mod.approve()
+submission.mod.sticky()
 
