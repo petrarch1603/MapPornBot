@@ -34,6 +34,30 @@ r = praw.Reddit('bot1')
 my_reddit_ID = 'petrarch1603'  # This is the human reddit user name, NOT the bot's user name.
 
 
+def shotgun_blast(raw_id_input, announce_input):
+    announce = str(announce_input)
+    announce_len = len(str(announce))
+    twitter_char_len = (106-announce_len)  # 106 puts the len(messageshort) right at 140
+    (url, messageshort, raw_id, messagelong) = parse_reddit(raw_id_input, twitter_char_len)
+    shortlink = str('http://redd.it/' + str(raw_id))
+    titlelength = len(messagelong)
+    ellips = ''
+    hashtag = ''
+    if titlelength > 106:
+        hashtag = ' #mapporn'
+    else:
+        if titlelength < 77:
+            hashtag = ' #Mapping #Cartography'
+        else:
+            hashtag = ' #Mapping'
+    messagelong = announce + messagelong + '\n' + shortlink + '\n#MapPorn #Mapping'
+    messageshort = announce + messageshort + ellips + hashtag + '\n' + shortlink
+    print('Message Long = ' + str(messagelong) + ' (' + str(len(messagelong)) + ')')
+    print('Message Short Length = ' + str(messageshort) + ' (' + str(len(messageshort)) + ')')
+    xy = post_from_reddit(url, messageshort, raw_id, messagelong)
+    return xy
+
+
 def parse_reddit(raw_id, twitter_char_limit):
     title = remove_text_inside_brackets(str(raw_id.title))
     url = raw_id.url
@@ -45,6 +69,37 @@ def parse_reddit(raw_id, twitter_char_limit):
     raw_id = raw_id
     messagelong = title
     return url, twitted_message, raw_id, messagelong
+
+
+def remove_text_inside_brackets(text, brackets="[]"): #()
+    count = [0] * (len(brackets) // 2) # count open/close brackets
+    saved_chars = []
+    for character in text:
+        for i, b in enumerate(brackets):
+            if character == b: # found bracket
+                kind, is_close = divmod(i, 2)
+                count[kind] += (-1)**is_close # `+1`: open, `-1`: close
+                if count[kind] < 0: # unbalanced bracket
+                    count[kind] = 0  # keep it
+                else:  # found bracket to remove
+                    break
+        else: # character is not a [balanced] bracket
+            if not any(count): # outside brackets
+                saved_chars.append(character)
+    return ''.join(saved_chars)
+
+
+# A function to shorten or extend a string for posting to Twitter
+def message_for_twitter(message, twitter_char_limit):
+    raw_length = len(message)
+    if raw_length < twitter_char_limit:
+        message = message + ' #MapPorn'
+        message = hashtag_locations(message, twitter_char_limit=twitter_char_limit)
+        raw_length = len(message)
+        return (message)
+    else:
+        message = ((message[:106]) + '...')
+        return message
 
 
 def post_to_all_social(filename, messageshort, url, messagelong):
@@ -110,24 +165,6 @@ class Color:
    END = '\033[0m'
 
 
-def remove_text_inside_brackets(text, brackets="[]"): #()
-    count = [0] * (len(brackets) // 2) # count open/close brackets
-    saved_chars = []
-    for character in text:
-        for i, b in enumerate(brackets):
-            if character == b: # found bracket
-                kind, is_close = divmod(i, 2)
-                count[kind] += (-1)**is_close # `+1`: open, `-1`: close
-                if count[kind] < 0: # unbalanced bracket
-                    count[kind] = 0  # keep it
-                else:  # found bracket to remove
-                    break
-        else: # character is not a [balanced] bracket
-            if not any(count): # outside brackets
-                saved_chars.append(character)
-    return ''.join(saved_chars)
-
-
 def tweet_image_generic(imagefile, message):
     tweeted = api.update_with_media(imagefile, status=message)  # Post to Twitter
     tweet_id = str(tweeted._json['id'])  # This took way too long to figure out.
@@ -183,30 +220,6 @@ def next_weekday(d, weekday):
     return d + timedelta(days_ahead)
 
 
-def shotgun_blast(raw_id_input, announce_input):
-    announce = str(announce_input)
-    announce_len = len(str(announce))
-    twitter_char_len = (106-announce_len)  # 106 puts the len(messageshort) right at 140
-    (url, messageshort, raw_id, messagelong) = parse_reddit(raw_id_input, twitter_char_len)
-    shortlink = str('http://redd.it/' + str(raw_id))
-    titlelength = len(messagelong)
-    ellips = ''
-    hashtag = ''
-    if titlelength > 106:
-        hashtag = ' #mapporn'
-    else:
-        if titlelength < 77:
-            hashtag = ' #Mapping #Cartography'
-        else:
-            hashtag = ' #Mapping'
-    messagelong = announce + messagelong + '\n' + shortlink + '\n#MapPorn #Mapping'
-    messageshort = announce + messageshort + ellips + hashtag + '\n' + shortlink
-    print('Message Long = ' + str(messagelong) + ' (' + str(len(messagelong)) + ')')
-    print('Message Short Length = ' + str(messageshort) + ' (' + str(len(messageshort)) + ')')
-    xy = post_from_reddit(url, messageshort, raw_id, messagelong)
-    return xy
-
-
 def subreddit_top_post(subreddit, time_window):
     top = r.subreddit(subreddit).top(time_window, limit=1)
     top = list(top)
@@ -216,22 +229,8 @@ def subreddit_top_post(subreddit, time_window):
     return subreddit, sub.title, social_media_post
 
 
-# A function to shorten or extend a string for posting to Twitter
-def message_for_twitter(message, twitter_char_limit):
-    raw_length = len(message)
-    if raw_length < twitter_char_limit:
-        message = message + ' #MapPorn'
-        message = hashtag_locations(message, twitter_char_limit=twitter_char_limit)
-        raw_length = len(message)
-        return (message)
-    else:
-        message = ((message[:106]) + '...')
-        return message
-
 # A function to take a string, search the locations.txt file for a matching string and add a
 # hashtag to the string.
-
-
 def hashtag_locations(message, twitter_char_limit):
     messageLen = len(message)
     term = message.split(' ')
