@@ -6,7 +6,7 @@ input('Are you ready?')
 
 # # 1) Get the raw ID of the voting post.
 # When the voting post is created the id is written to data/votingpostdata.txt
-# That id brought here to interact with that post.
+# That id is brought here to interact with that post.
 votingpostdata = open('data/votingpostdata.txt', 'r')
 raw_id = (votingpostdata.read())
 submission = r.submission(id=raw_id)
@@ -14,12 +14,11 @@ submission = r.submission(id=raw_id)
 # # 2) Prepare a new CSV with the top four maps.
 # This will be referenced at the end of the year for the
 # Annual map contest of best map of the year.
-# Leave this hashed out until ready to go live.
 # # Get some month and year data for the previous month
-date_7_days_ago = datetime.now() - timedelta(days=7)
-contest_month = str(date_7_days_ago.strftime("%m"))
-contest_month_pretty = str(date_7_days_ago.strftime("%B"))
-contest_year = str(date_7_days_ago.date().year)
+date_10_days_ago = datetime.now() - timedelta(days=10)
+contest_month = str(date_10_days_ago.strftime("%m"))
+contest_month_pretty = str(date_10_days_ago.strftime("%B"))
+contest_year = str(date_10_days_ago.date().year)
 new_csv = str(contest_year + contest_month + 'TOP.csv')
 submitFile = open('SubmissionsArchive/' + new_csv, 'w+').close()
 
