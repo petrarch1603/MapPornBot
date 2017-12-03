@@ -19,7 +19,7 @@ date_10_days_ago = datetime.now() - timedelta(days=10)
 contest_month = str(date_10_days_ago.strftime("%m"))
 contest_month_pretty = str(date_10_days_ago.strftime("%B"))
 contest_year = str(date_10_days_ago.date().year)
-new_csv = str(contest_year + contest_month + 'TOP.csv')
+new_csv = str(contest_year + contest_month + 'WINNERS.csv')
 submitFile = open('SubmissionsArchive/' + new_csv, 'w+').close()
 
 # # 3) Prepare the loop for parsing contestant maps
@@ -109,17 +109,17 @@ if request.status_code == 200:
         os.remove(filename)
         filename = 'misc_images/01.png' # This is a backup image to post in lieu of the winning map.
 else:
-    filename='misc_images/01.png'
+    filename = 'misc_images/01.png'
 
 # Post to social media.
 # Now that we have the image we can run the function to post it to the social media sites
-thing = generic_post(imagefile='filename', message=(post_title + ' ' + congrats_shortlink))
+generic_message = generic_post(imagefile='filename', message=(post_title + ' ' + congrats_shortlink))
 
 
 # # 8) Send message to me with shortlinks for QC and social media URLs
 message_to_me = ('The new Congratulations post has just posted.    \nThe congrats post is here: ' + congrats_shortlink + '   \n' + 'Verify that the original post has contest mode turned OFF: ' +
-                 submission.shortlink + '   \n' + thing + '\nCheck the new CSV in the archives folder and make sure there is a description for each map. Pycharm was giving me trouble in assigning local variables during the FOR loop')
-r.redditor(my_reddit_ID).message('Congratulation post posted', message_to_me)
+                 contestSubmission.shortlink + '   \n' + generic_message + '\nCheck the new CSV in the archives folder and make sure there is a description for each map. Pycharm was giving me trouble in assigning local variables during the FOR loop')
+send_reddit_message_to_self(title='Congratulation post posted', message=message_to_me)
 
 # # 9) Rename and move the submissions_current.csv to a new name in the archive directory
 source = 'submissions_current.csv'
