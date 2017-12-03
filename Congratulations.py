@@ -9,7 +9,7 @@ input('Are you ready?')
 # That id is brought here to interact with that post.
 votingpostdata = open('data/votingpostdata.txt', 'r')
 raw_id = (votingpostdata.read())
-submission = r.submission(id=raw_id)
+contestSubmission = r.submission(id=raw_id)
 
 # # 2) Prepare a new CSV with the top four maps.
 # This will be referenced at the end of the year for the
@@ -31,8 +31,8 @@ congratulations_text = open('Congratulations_text.txt', 'r')
 data = congratulations_text.read()
 
 # Sort top comments from the voting post
-submission.comment_sort = 'top'
-submission.comments.replace_more(limit=0)  # This gets the top level comments in the submission
+contestSubmission.comment_sort = 'top'
+contestSubmission.comments.replace_more(limit=0)  # This gets the top level comments in the submission
 
 # Prepare a regex script to find the unique ID on each comment.
 id_regex = re.compile(r'\^\^\^\^\w\w\w\w\w\w')
@@ -40,7 +40,7 @@ n = 0
 
 # # 4) The Loop
 # Gets top four highest upvoted comments and iterates thru them doing operations each time.
-for comment in submission.comments[:4]:
+for comment in contestSubmission.comments[:4]:
     n = n+1
     mylist = []  # For each comment, we will create a list. Start with a blank list each time.
     mo = id_regex.search(comment.body)  # Find those ID's
@@ -81,21 +81,20 @@ with open('SubmissionsArchive/' + new_csv, 'r') as submitFile:
     win_map_url = reader[0][1]
 
 # Put the contest post URL into the congratulations template.
-data = data.replace('%VOTINGPOSTURL%', submission.shortlink)
+data = data.replace('%VOTINGPOSTURL%', contestSubmission.shortlink)
 data = data.replace('%MYUSERID%', my_reddit_ID)
 post_title = ('Congratulations to /u/' + winner + ': winner of ' + contest_month_pretty + '\'s Monthly Map Contest!')
-submission = r.subreddit('mapporn').submit(post_title, selftext=data)  # Submits the post to Reddit
-congrats_shortlink = submission.shortlink
-submission.mod.distinguish()
+congratsSubmission = r.subreddit('mapporn').submit(post_title, selftext=data)  # Submits the post to Reddit
+congrats_shortlink = congratsSubmission.shortlink
+congratsSubmission.mod.distinguish()
 try:
-    submission.mod.sticky()
+    congratsSubmission.mod.sticky()
 except:
     send_reddit_message_to_self('Error encountered', message=('Could not sticky this post: ' + congrats_shortlink))
     pass
 
 # # 6) Turn contest mode OFF on the original voting post
-submission = r.submission(id=raw_id)
-submission.mod.contest_mode(state=False)
+contestSubmission.mod.contest_mode(state=False)
 
 # # 7) Post congratulations post to social media
 # Download the image locally
@@ -108,7 +107,7 @@ if request.status_code == 200:
     filesize = os.path.getsize('temp.jpg')
     if filesize > 3070000:  # If it's too big social media sites won't like it.
         os.remove(filename)
-        filename='misc_images/01.png' # This is a backup image to post in lieu of the winning map.
+        filename = 'misc_images/01.png' # This is a backup image to post in lieu of the winning map.
 else:
     filename='misc_images/01.png'
 
