@@ -33,6 +33,7 @@ submission = r.subreddit('mapporn').submit(post_message, selftext=VotingText)  #
 submission.mod.contest_mode()
 submission.mod.distinguish()
 submission.mod.sticky()
+submission.mod.approve()
 shortlink = submission.shortlink
 
 # # 4) One by one add a comment to the post, each comment being a map to vote on
