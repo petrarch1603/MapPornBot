@@ -39,8 +39,9 @@ Part of MapPorn's mission is to share maps across the internet. This means using
 
 Some other social media scripts include:
 
-* [Multi-post_top_of_week.py](multi-post_top_of_week.py): a script to share the top [/r/MapPorn](https://www.reddit.com/r/MapPorn/) post of the week to social media
-* [Top_of_month.py](top_of_month.py): same idea but shares top post of the month
+* [shotgunblast.py](shotgunblast.py): A simple script that takes the shortlink to a Reddit post and shares it on social media
+* [multi-post_top_of_week.py](multi-post_top_of_week.py): a script to share the top [/r/MapPorn](https://www.reddit.com/r/MapPorn/) post of the week to social media
+* [top_of_month.py](top_of_month.py): same idea but shares top post of the month
 * [WeeklySubmit.py](WeeklySubmit.py): posts an image to social media to advertise the map contest and solicit submissions
 * [papertowns_topoftheday.py](papertowns_topoftheday.py): shares the top post of the day from [/r/Papertowns](https://www.reddit.com/r/papertowns/) to social media
 * [oldmaps_topoftheday.py](oldmaps_topoftheday.py): same idea but for [/r/OldMaps](https://www.reddit.com/r/oldmaps/)
