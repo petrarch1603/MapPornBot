@@ -11,7 +11,7 @@ botDisclaimerText = bot_disclaimer()
 
 # Include the number of submissions and the contest end date in the text of the post.
 # This code makes the end date next Sunday.
-next_sunday = next_weekday(datetime.now(), 6) # Pycharm doesn't like the .now(), but in testing seems it should work.
+next_sunday = next_weekday(datetime.now(), 6)  # Pycharm doesn't like the .now(), but in testing seems it should work.
 next_sunday = next_sunday.strftime('%A %B %d, %Y')
 numbersubmitted = sum(1 for line in open('submissions.csv'))
 VotingText = VotingText.replace('%NUMBERSUBMITTED%', str(numbersubmitted))
