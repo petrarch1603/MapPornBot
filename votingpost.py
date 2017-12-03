@@ -122,4 +122,7 @@ submission.mod.sticky()
 #
 #       Also next time, make sure that the submissions.csv is renamed to submissions_current.
 #       Make a copy of submissions.csv before executing script next time!
-
+#
+#
+# # TODO
+# The small characters ('^^^^') looks pretty ugly. Is there any way to make this invisible?
