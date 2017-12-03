@@ -112,3 +112,14 @@ send_reddit_message_to_self('New Voting Post Posted', 'A new votingpost.py has b
 submission.mod.approve()
 submission.mod.sticky()
 
+
+# # Notes
+#
+#   2017/12/02
+#       Mostly successful execution. Social media post failed due to not having the images ready.
+#       Fixed this for next time. I'm still unsure if the submission.mod.approve() and
+#       submission.mod.sticky() functions will work. Will have to check that next month.
+#
+#       Also next time, make sure that the submissions.csv is renamed to submissions_current.
+#       Make a copy of submissions.csv before executing script next time!
+
