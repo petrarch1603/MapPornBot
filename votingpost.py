@@ -71,7 +71,7 @@ file.close()
 
 # SubmissionsCurrent will be the index of what is being voted on during the voting period. That way after the vote
 # we know who is the winner.
-os.rename('submissions.csv', 'submissions_current.csv')
+os.replace('submissions.csv', 'submissions_current.csv')
 # Create a new submissions.csv, so that if we get submissions during the contest, they will be acquired without
 # creating conflicts. This code creates an empty file.
 open('submissions.csv', 'w').close()
