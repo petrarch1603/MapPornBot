@@ -14,7 +14,7 @@ To leave feedback [contact the
 moderators.](https://www.reddit.com/message/compose?to=%MYREDDITID%)
 
 [Full contest rules and information here](https://www.reddit.com/r/MapPorn/wiki/meta/contest)
-If you'd like to see the voting from last month's contest, [it is linked here](https://redd.it/73jogg)
+If you'd like to see the voting from last month's contest, [it is linked here](%LASTMONTH%)
 
 
 If you'd like to [submit a map for the next contest, click here](https://www.reddit.com/r/MapPorn/wiki/meta/contest#wiki_submit_a_map)

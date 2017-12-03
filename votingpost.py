@@ -11,12 +11,16 @@ botDisclaimerText = bot_disclaimer()
 
 # Include the number of submissions and the contest end date in the text of the post.
 # This code makes the end date next Sunday.
+
+lastmonthfile = open('data/lastmonth.txt', 'r')
+last_month_url = (lastmonthfile.read())
 next_sunday = next_weekday(datetime.now(), 6)  # Pycharm doesn't like the .now(), but in testing seems it should work.
 next_sunday = next_sunday.strftime('%A %B %d, %Y')
 numbersubmitted = sum(1 for line in open('submissions.csv'))
 VotingText = VotingText.replace('%NUMBERSUBMITTED%', str(numbersubmitted))
 VotingText = VotingText.replace('%ENDDATE%', str(next_sunday))
 VotingText = VotingText.replace('%MYREDDITID%', my_reddit_ID)
+VotingText = VotingText.replace('%LASTMONTH%', last_month_url)
 
 # # 2) Get date from 7 days ago
 # We need to get the month from the previous month. Most of the contests are towards the end of the month.
@@ -28,12 +32,12 @@ contest_month = date_7_days_ago.strftime("%B")
 contest_year = date_7_days_ago.date().year
 
 # # 3) Submit the post to Reddit
-post_message = 'Vote Now for the ' + str(contest_month) + ', ' + str(contest_year) + ' Map Contest!'
+post_message = 'Vote Now for the ' + str(contest_month) + ' ' + str(contest_year) + ' Map Contest!'
 submission = r.subreddit('mapporn').submit(post_message, selftext=VotingText)  # Submits the post to Reddit
 submission.mod.contest_mode()
-submission.mod.distinguish(how='Yes', sticky=True)
-# submission.mod.sticky()
-submission.mod.approve()
+submission.mod.distinguish()
+# submission.mod.sticky()  #Gives an error when I try to sticky here
+# submission.mod.approve()
 shortlink = submission.shortlink
 
 # # 4) One by one add a comment to the post, each comment being a map to vote on
@@ -106,3 +110,7 @@ socialmedialinks = generic_post(image_file_name, post_message_url)
 send_reddit_message_to_self('New Voting Post Posted', 'A new votingpost.py has been run. Check the post to make sure the bot did it right.'
                                    '   \nHere\'s the link to the post: ' + shortlink + '   \nHere\'s the social media '
                                                                                        'links:    \n' + socialmedialinks)
+
+submission.mod.sticky()
+submission.mod.approve()
+
