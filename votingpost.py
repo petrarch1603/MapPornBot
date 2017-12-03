@@ -31,8 +31,8 @@ contest_year = date_7_days_ago.date().year
 post_message = 'Vote Now for the ' + str(contest_month) + ', ' + str(contest_year) + ' Map Contest!'
 submission = r.subreddit('mapporn').submit(post_message, selftext=VotingText)  # Submits the post to Reddit
 submission.mod.contest_mode()
-submission.mod.distinguish()
-submission.mod.sticky()
+submission.mod.distinguish(how='Yes', sticky=True)
+# submission.mod.sticky()
 submission.mod.approve()
 shortlink = submission.shortlink
 
