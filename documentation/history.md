@@ -1,5 +1,11 @@
 # MapPornBot Version History
 
+_2017 December_
+
+* First live execution of [votingpost.py](votingpost.py). Encountered some small hiccups with making the post a sticky and approving it. Further testing required in coming months.
+ 
+    [Link to post here.](https://redd.it/7h9zo3)
+
 _2017 November_
 
 * [Created repository on GitHub](https://github.com/petrarch1603/mappornbot)
