@@ -109,7 +109,7 @@ send_reddit_message_to_self('New Voting Post Posted', 'A new votingpost.py has b
                                    '   \nHere\'s the link to the post: ' + shortlink + '   \nHere\'s the social media '
                                                                                        'links:    \n' + socialmedialinks)
 
-submission.mod.approve()
+submission.mod.approve()  # Unsure if these two work
 submission.mod.sticky()
 
 
