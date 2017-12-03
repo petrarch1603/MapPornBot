@@ -244,3 +244,16 @@ def hashtag_locations(message, twitter_char_limit):
                 message = message + ' #' + s
                 messageLen = messageLen + len(s)
     return message
+
+
+def bot_disclaimer():
+    bot_disclaimer_message = '>This is coming from a bot. If you have any feedback [contact the /r/MapPorn Moderators]' \
+                             '(https://www.reddit.com/message/compose/?to=' + my_reddit_ID + \
+                             '&subject=MapPorn%20bot%20feedback)' + '\n\n----\n\n ^^^Bot ^^^by ^^^/u/Petrarch1603 ^^^[Github](https://github.com/petrarch1603/MapPornBot)'
+    return bot_disclaimer_message
+
+
+def send_reddit_message_to_self(message):
+    r.redditor(my_reddit_ID).message("New Message", message)
+
+
