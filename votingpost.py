@@ -7,7 +7,7 @@ input('Are you ready?')
 
 # # 1) Prepare the self text of the voting post
 VotingText = open('VotingText.txt', 'r').read()
-BotDisclaimer = open('BotDisclaimer.txt', 'r').read()
+botDisclaimerText = bot_disclaimer()
 
 # Include the number of submissions and the contest end date in the text of the post.
 # This code makes the end date next Sunday.
@@ -49,7 +49,7 @@ for row in reader:
     r.redditor(row[3]).message('The monthly map contest is live!', 'Thank you for contributing a map. '
                                                                    '[The voting on the monthly contest is '
                                                                    'open now at this link.]('
-                               + shortlink + ')    \n' + BotDisclaimer)
+                               + shortlink + ')    \n' + botDisclaimerText)
 generalcomment = submission.reply('General Comment Thread')  # Have a general comment thread so
                                                              # people don't post top level comments.
 generalcomment.mod.distinguish(sticky=True)
