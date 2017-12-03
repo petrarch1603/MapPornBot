@@ -253,7 +253,7 @@ def bot_disclaimer():
     return bot_disclaimer_message
 
 
-def send_reddit_message_to_self(message):
-    r.redditor(my_reddit_ID).message("New Message", message)
+def send_reddit_message_to_self(title, message):
+    r.redditor(my_reddit_ID).message(title, message)
 
 
