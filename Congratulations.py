@@ -121,7 +121,7 @@ if request.status_code == 200:
     filesize = os.path.getsize('temp.jpg')
     if filesize > 3070000:  # If it's too big social media sites won't like it.
         os.remove(filename)
-        filename = 'misc_images/01.png' # This is a backup image to post in lieu of the winning map.
+        filename = 'misc_images/01.png'  # This is a backup image to post in lieu of the winning map.
 else:
     filename = 'misc_images/01.png'
 
