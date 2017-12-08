@@ -31,10 +31,6 @@ submitFile = open('SubmissionsArchive/' + new_csv, 'w+').close()
 congratulations_text = open('Congratulations_text.txt', 'r')
 data = congratulations_text.read()
 
-# Sort top comments from the voting post
-contestSubmission.comment_sort = 'top'
-contestSubmission.comments.replace_more(limit=0)  # This gets the top level comments in the submission
-
 # Prepare a regex script to find the unique ID on each comment.
 id_regex = re.compile(r'\^\^\^\^\w\w\w\w\w\w')
 
