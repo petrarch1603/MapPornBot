@@ -11,6 +11,10 @@ votingpostdata = open('data/votingpostdata.txt', 'r')
 raw_id = (votingpostdata.read())
 contestSubmission = r.submission(id=raw_id)
 
+# # 2) Turn contest mode OFF on the original voting post
+# Need to do this in order to count the votes, otherwise all posts show 1 vote.
+contestSubmission.mod.contest_mode(state=False)
+
 # # 2) Prepare a new CSV with the top four maps.
 # This will be referenced at the end of the year for the
 # Annual map contest of best map of the year.
@@ -93,8 +97,7 @@ except:
     send_reddit_message_to_self('Error encountered', message=('Could not sticky this post: ' + congrats_shortlink))
     pass
 
-# # 6) Turn contest mode OFF on the original voting post
-contestSubmission.mod.contest_mode(state=False)
+
 
 # # 7) Post congratulations post to social media
 # Download the image locally
