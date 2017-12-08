@@ -14,6 +14,11 @@ import pyperclip
 from functions import *
 
 paste = pyperclip.paste()
+if paste.startswith("https://redd.it/"):
+    pass
+else:
+    print("That is not a Reddit shortlink")
+    exit()
 print("\n")
 print("\n")
 print(paste)

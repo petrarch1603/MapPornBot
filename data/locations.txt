@@ -240,3 +240,5 @@ Boston
 Venice
 America
 Oceania
+Persia
+Berlin
