@@ -11,9 +11,6 @@ votingpostdata = open('data/votingpostdata.txt', 'r')
 raw_id = (votingpostdata.read())
 contestSubmission = r.submission(id=raw_id)
 
-# # 2) Turn contest mode OFF on the original voting post
-# Need to do this in order to count the votes, otherwise all posts show 1 vote.
-contestSubmission.mod.contest_mode(state=False)
 
 # # 2) Prepare a new CSV with the top four maps.
 # This will be referenced at the end of the year for the
@@ -40,10 +37,10 @@ contestSubmission.comments.replace_more(limit=0)  # This gets the top level comm
 
 # Prepare a regex script to find the unique ID on each comment.
 id_regex = re.compile(r'\^\^\^\^\w\w\w\w\w\w')
-n = 0
 
 # # 4) The Loop
 # Gets top four highest upvoted comments and iterates thru them doing operations each time.
+n = 0
 for comment in contestSubmission.comments[:4]:
     n = n+1
     mylist = []  # For each comment, we will create a list. Start with a blank list each time.
@@ -97,6 +94,9 @@ except:
     send_reddit_message_to_self('Error encountered', message=('Could not sticky this post: ' + congrats_shortlink))
     pass
 
+# # 6) Turn contest mode OFF on the original voting post
+# Need to do this in order to count the votes, otherwise all posts show 1 vote.
+contestSubmission.mod.contest_mode(state=False)
 
 
 # # 7) Post congratulations post to social media
