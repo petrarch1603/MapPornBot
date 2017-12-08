@@ -40,36 +40,51 @@ id_regex = re.compile(r'\^\^\^\^\w\w\w\w\w\w')
 
 # # 4) The Loop
 # Gets top four highest upvoted comments and iterates thru them doing operations each time.
-n = 0
-for comment in contestSubmission.comments[:4]:
-    n = n+1
-    mylist = []  # For each comment, we will create a list. Start with a blank list each time.
+allSubmissionsList = []
+for comment in contestSubmission.comments:
+    singleMapList = []
+    score = int(comment.score)
     mo = id_regex.search(comment.body)  # Find those ID's
+    if mo is None:
+        continue
     message_id = str(mo.group()).replace('^^^^', '')
-    # Open the CSV of submissions and index each field
+    singleMapList.append(score)
+    singleMapList.append(message_id)
+    allSubmissionsList.append(singleMapList)
+
+sortedList = sorted(allSubmissionsList, reverse=True, key=lambda x: x[0])
+
+n = 0
+allWinnerList = []
+for item in sortedList[:4]:
+    n = n + 1
+    winnerList = []
     with open('submissions_current.csv') as current_csv:
         csvreader = csv.reader(current_csv)
         for row in csvreader:
-            if message_id == row[4]:
+            if item[1] == row[4]:
                 placemap = row[0]  # Get name of the map
                 placeurl = row[1]  # Get URL of the map
                 placedesc = row[2]  # Get description of the map
-                placeuser = row[3]  # Get author of the map
-    dummy = placedesc  # Pycharm is giving me a local variable error if I don't assign a variable to placedesc
+                placeuser = row[3]  # Get user (creator) of the map
+    placeVotes = item[0]
+    winnerList.append(str(placemap))  # These lines create a list for the top posts of the month csv
+    winnerList.append(str(placeurl))
+    winnerList.append(str(placedesc))
+    winnerList.append(str(placeuser))
+    winnerList.append(str(item[1]))  # Unique ID
+    winnerList.append(str(placeVotes))
     data = str(data)  # Data is the Congratulations text template, now we're going to replace variables
     data = data.replace(str('%' + str(n) + 'PLACEUSER%'), str(placeuser))
-    data = data.replace(str('%' + str(n) + 'PLACEVOTES%'), str(comment.score))
+    data = data.replace(str('%' + str(n) + 'PLACEVOTES%'), str(placeVotes))
+    # Remove "Map Name"
+    placemap = placemap.replace('Map Name: ', '')
     data = data.replace(str('%' + str(n) + 'PLACEMAP%'), str(placemap))
     data = data.replace(str('%' + str(n) + 'PLACEURL%'), str(placeurl))
-    mylist.append(str(placemap))  # These lines create a list for the top posts of the month csv
-    mylist.append(str(placeurl))
-    mylist.append(str(placedesc))
-    mylist.append(str(placeuser))
-    mylist.append(message_id)
     with open('SubmissionsArchive/' + new_csv, 'a') as submitFile:
         reader = csv.reader(submitFile)
         wr = csv.writer(submitFile)  # Write the list in a comma delimited format
-        wr.writerow(mylist)
+        wr.writerow(winnerList)
 
 # # 5) Post congratulations post to reddit
 
