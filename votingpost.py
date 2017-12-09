@@ -42,7 +42,7 @@ shortlink = submission.shortlink
 f = open('submissions.csv', 'r')
 reader = csv.reader(f)
 for row in reader:
-    submission.reply('[' + row[0] + '](' + row[1] + ')   \n' + row[2] + '^^^^' + row[4])
+    submission.reply('[' + row[0] + '](' + row[1] + ')   \n' + row[2] + '\n\n----\n\n^^^^' + row[4])
     # the brackets and parentheses are for hyperlinking the name, row[4] is the unique ID of the submission message,
     # in the congratulations.py program the bot will parse these comments looking for this code and use it to determine
     # the winners.
