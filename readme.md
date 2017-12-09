@@ -35,7 +35,7 @@ While this is going on the CSV is renamed to submissions_current. That way if th
 [Rules and information about the contest can be found here](https://www.reddit.com/r/MapPorn/wiki/meta/contest)
     
 ## Social Media Tools
-Part of MapPorn's mission is to share maps across the internet. This means using platforms other than Reddit. In the python file [functions.py](functions.py) there are functions for taking posts from [/r/MapPorn](https://www.reddit.com/r/MapPorn/) and posting to [Twitter](https://twitter.com/MapPornTweet/), [Tumblr](https://mappornofficial.tumblr.com/) and [Facebook](https://www.facebook.com/OfficialMapPorn) simultaneously. These functions use official APIs to interact with and post a link to a reddit post to those accounts.
+Part of MapPorn's mission is to share maps across the internet. This means using platforms other than Reddit. In the python file [functions.py](functions.py) there are functions for taking posts from [/r/MapPorn](https://www.reddit.com/r/MapPorn/) and posting to [Twitter](https://twitter.com/MapPornTweet/), [Tumblr](https://mappornofficial.tumblr.com/) and [Facebook](https://www.facebook.com/OfficialMapPorn) simultaneously. These functions use official APIs to interact with and post a link to a Reddit post to those accounts.
 
 Some other social media scripts include:
 
