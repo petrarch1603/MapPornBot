@@ -9,7 +9,7 @@ input('Are you ready?')
 # That id is brought here to interact with that post.
 votingpostdata = open('congratsData/votingpostdata.txt', 'r')
 raw_id = (votingpostdata.read())
-contestSubmission = r.submission(id=raw_id)
+votingPost = r.submission(id=raw_id)
 
 
 # # 2) Prepare a new CSV with the top four maps.
@@ -36,7 +36,7 @@ id_regex = re.compile(r'\^\^\^\^\w\w\w\w\w\w')
 # # 4) The Loop
 # Gets top four highest upvoted comments and iterates thru them doing operations each time.
 allSubmissionsList = []
-for comment in contestSubmission.comments:
+for comment in votingPost.comments:
     singleMapList = []
     score = int(comment.score)
     foundID = id_regex.search(comment.body)  # Find those ID's
@@ -90,7 +90,7 @@ with open('SubmissionsArchive/' + winners_csv, 'r') as winnerFile:
     win_map_url = winnerReader[0][1]
 
 # Put the contest post URL into the congratulations template.
-congratsData = congratsData.replace('%VOTINGPOSTURL%', contestSubmission.shortlink)
+congratsData = congratsData.replace('%VOTINGPOSTURL%', votingPost.shortlink)
 congratsData = congratsData.replace('%MYUSERID%', my_reddit_ID)
 post_title = ('Congratulations to /u/' + winner + ': winner of ' + contest_month_pretty + '\'s Monthly Map Contest!')
 congratsSubmission = r.subreddit('mapporn').submit(post_title, selftext=congratsData)  # Submits the post to Reddit
@@ -105,7 +105,7 @@ except:
 
 # # 6) Turn contest mode OFF on the original voting post
 # Need to do this in order to count the votes, otherwise all posts show 1 vote.
-contestSubmission.mod.contest_mode(state=False)
+votingPost.mod.contest_mode(state=False)
 
 
 # # 7) Post congratulations post to social media
@@ -129,7 +129,7 @@ generic_message = generic_post(imagefile='filename', message=(post_title + ' ' +
 
 # # 8) Send message to me with shortlinks for QC and social media URLs
 message_to_me = ('The new Congratulations post has just posted.    \nThe congrats post is here: ' + congrats_shortlink + '   \n' + 'Verify that the original post has contest mode turned OFF: ' +
-                 contestSubmission.shortlink + '   \n' + generic_message + '\nCheck the new CSV in the archives folder and make sure there is a description for each map. Pycharm was giving me trouble in assigning local variables during the FOR loop')
+                 votingPost.shortlink + '   \n' + generic_message + '\nCheck the new CSV in the archives folder and make sure there is a description for each map. Pycharm was giving me trouble in assigning local variables during the FOR loop')
 send_reddit_message_to_self(title='Congratulation post posted', message=message_to_me)
 
 # # 9) Rename and move the submissions_current.csv to a new name in the archive directory
