@@ -39,37 +39,36 @@ allSubmissionsList = []
 for comment in contestSubmission.comments:
     singleMapList = []
     score = int(comment.score)
-    mo = id_regex.search(comment.body)  # Find those ID's
-    if mo is None:
+    foundID = id_regex.search(comment.body)  # Find those ID's
+    if foundID is None:
         continue
-    message_id = str(mo.group()).replace('^^^^', '')
+    message_id = str(foundID.group()).replace('^^^^', '')
     singleMapList.append(score)
     singleMapList.append(message_id)
     allSubmissionsList.append(singleMapList)
 
-sortedList = sorted(allSubmissionsList, reverse=True, key=lambda x: x[0])
+sortedWinnerList = sorted(allSubmissionsList, reverse=True, key=lambda x: x[0])
 
 n = 0
 allWinnerList = []
-for item in sortedList[:4]:
+for sortedItem in sortedWinnerList[:4]:
     n = n + 1
     winnerList = []
     with open('submissions_current.csv') as current_csv:
         csvreader = csv.reader(current_csv)
         for row in csvreader:
-            if item[1] == row[4]:
+            if sortedItem[1] == row[4]:
                 placemap = row[0]  # Get name of the map
                 placeurl = row[1]  # Get URL of the map
                 placedesc = row[2]  # Get description of the map
                 placeuser = row[3]  # Get user (creator) of the map
-    placeVotes = item[0]
     winnerList.append(str(placemap))  # These lines create a list for the top posts of the month csv
     winnerList.append(str(placeurl))
     winnerList.append(str(placedesc))
     winnerList.append(str(placeuser))
-    winnerList.append(str(item[1]))  # Unique ID
-    winnerList.append(str(placeVotes))
-    congratsData = str(congratsData)  # Data is the Congratulations text template, now we're going to replace variables
+    winnerList.append(str(sortedItem[1]))  # Unique ID
+    winnerList.append(str(sortedItem[0]))  # Number of votes
+    congratsData = str(congratsData)  # congratsData is the Congratulations text template, now we're going to replace variables
     congratsData = congratsData.replace(str('%' + str(n) + 'PLACEUSER%'), str(placeuser))
     congratsData = congratsData.replace(str('%' + str(n) + 'PLACEVOTES%'), str(placeVotes))
     # Remove "Map Name"
