@@ -97,6 +97,7 @@ congratsData = congratsData.replace('%VOTINGPOSTURL%', contestSubmission.shortli
 congratsData = congratsData.replace('%MYUSERID%', my_reddit_ID)
 post_title = ('Congratulations to /u/' + winner + ': winner of ' + contest_month_pretty + '\'s Monthly Map Contest!')
 congratsSubmission = r.subreddit('mapporn').submit(post_title, selftext=congratsData)  # Submits the post to Reddit
+congratulations_text.close()
 congrats_shortlink = congratsSubmission.shortlink
 congratsSubmission.mod.distinguish()
 try:
