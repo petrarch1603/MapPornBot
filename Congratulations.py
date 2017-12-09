@@ -21,7 +21,6 @@ contest_month = str(date_10_days_ago.strftime("%m"))
 contest_month_pretty = str(date_10_days_ago.strftime("%B"))
 contest_year = str(date_10_days_ago.date().year)
 winners_csv = str(contest_year + contest_month + 'WINNERS.csv')
-submitFile = open('SubmissionsArchive/' + winners_csv, 'w+').close()
 
 # # 3) Prepare the loop for parsing contestant maps
 # Prepare the text of the post.
