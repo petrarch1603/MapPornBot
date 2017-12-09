@@ -5,9 +5,9 @@ from functions import *
 input('Are you ready?')
 
 # # 1) Get the raw ID of the voting post.
-# When the voting post is created the id is written to data/votingpostdata.txt
+# When the voting post is created the id is written to congratsData/votingpostdata.txt
 # That id is brought here to interact with that post.
-votingpostdata = open('data/votingpostdata.txt', 'r')
+votingpostdata = open('congratsData/votingpostdata.txt', 'r')
 raw_id = (votingpostdata.read())
 contestSubmission = r.submission(id=raw_id)
 
@@ -15,7 +15,7 @@ contestSubmission = r.submission(id=raw_id)
 # # 2) Prepare a new CSV with the top four maps.
 # This will be referenced at the end of the year for the
 # Annual map contest of best map of the year.
-# # Get some month and year data for the previous month
+# # Get some month and year congratsData for the previous month
 date_10_days_ago = datetime.now() - timedelta(days=10)
 contest_month = str(date_10_days_ago.strftime("%m"))
 contest_month_pretty = str(date_10_days_ago.strftime("%B"))
@@ -29,7 +29,7 @@ submitFile = open('SubmissionsArchive/' + winners_csv, 'w+').close()
 # There are a number of variables that need to be changed on this template though.
 # We will do that in the for loop.
 congratulations_text = open('Congratulations_text.txt', 'r')
-data = congratulations_text.read()
+congratsData = congratulations_text.read()
 
 # Prepare a regex script to find the unique ID on each comment.
 id_regex = re.compile(r'\^\^\^\^\w\w\w\w\w\w')
@@ -70,13 +70,13 @@ for item in sortedList[:4]:
     winnerList.append(str(placeuser))
     winnerList.append(str(item[1]))  # Unique ID
     winnerList.append(str(placeVotes))
-    data = str(data)  # Data is the Congratulations text template, now we're going to replace variables
-    data = data.replace(str('%' + str(n) + 'PLACEUSER%'), str(placeuser))
-    data = data.replace(str('%' + str(n) + 'PLACEVOTES%'), str(placeVotes))
+    congratsData = str(congratsData)  # Data is the Congratulations text template, now we're going to replace variables
+    congratsData = congratsData.replace(str('%' + str(n) + 'PLACEUSER%'), str(placeuser))
+    congratsData = congratsData.replace(str('%' + str(n) + 'PLACEVOTES%'), str(placeVotes))
     # Remove "Map Name"
     placemap = placemap.replace('Map Name: ', '')
-    data = data.replace(str('%' + str(n) + 'PLACEMAP%'), str(placemap))
-    data = data.replace(str('%' + str(n) + 'PLACEURL%'), str(placeurl))
+    congratsData = congratsData.replace(str('%' + str(n) + 'PLACEMAP%'), str(placemap))
+    congratsData = congratsData.replace(str('%' + str(n) + 'PLACEURL%'), str(placeurl))
     with open('SubmissionsArchive/' + winners_csv, 'a') as winnerFile:
         reader = csv.reader(winnerFile)
         wr = csv.writer(winnerFile)  # Write the list in a comma delimited format
@@ -93,10 +93,10 @@ with open('SubmissionsArchive/' + winners_csv, 'r') as submitFile:
     win_map_url = reader[0][1]
 
 # Put the contest post URL into the congratulations template.
-data = data.replace('%VOTINGPOSTURL%', contestSubmission.shortlink)
-data = data.replace('%MYUSERID%', my_reddit_ID)
+congratsData = congratsData.replace('%VOTINGPOSTURL%', contestSubmission.shortlink)
+congratsData = congratsData.replace('%MYUSERID%', my_reddit_ID)
 post_title = ('Congratulations to /u/' + winner + ': winner of ' + contest_month_pretty + '\'s Monthly Map Contest!')
-congratsSubmission = r.subreddit('mapporn').submit(post_title, selftext=data)  # Submits the post to Reddit
+congratsSubmission = r.subreddit('mapporn').submit(post_title, selftext=congratsData)  # Submits the post to Reddit
 congrats_shortlink = congratsSubmission.shortlink
 congratsSubmission.mod.distinguish()
 try:

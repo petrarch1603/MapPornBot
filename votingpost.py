@@ -12,7 +12,7 @@ botDisclaimerText = bot_disclaimer()
 # Include the number of submissions and the contest end date in the text of the post.
 # This code makes the end date next Sunday.
 
-lastmonthfile = open('data/lastmonth.txt', 'r')
+lastmonthfile = open('congratsData/lastmonth.txt', 'r')
 last_month_url = (lastmonthfile.read())
 next_sunday = next_weekday(datetime.now(), 6)  # Pycharm doesn't like the .now(), but in testing seems it should work.
 next_sunday = next_sunday.strftime('%A %B %d, %Y')
@@ -63,7 +63,7 @@ f.close()
 
 # # 5) Need to save the voting post raw_id for use in parsing the winner after a few days.
 raw_id = submission.id_from_url(shortlink)
-file = open('data/votingpostdata.txt', 'w')
+file = open('congratsData/votingpostdata.txt', 'w')
 file.write(raw_id)
 file.close()
 
