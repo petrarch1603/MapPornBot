@@ -57,7 +57,7 @@ generalcomment = submission.reply('General Comment Thread')  # Have a general co
 generalcomment.mod.distinguish(sticky=True)
 generalcomment.reply('**What is with the ^^^small characters?**    \n'
                      'This contest is automated with a bot. The bot uses these random characters to index the maps and '
-                     'to calculate the winner at the end of the contest.')
+                     'to calculate the winner at the end of the contest.\n\n----\n\n ^^^[Github](https://github.com/petrarch1603/MapPornBot)')
 f.close()
 
 
