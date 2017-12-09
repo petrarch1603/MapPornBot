@@ -83,7 +83,7 @@ open('submissions.csv', 'w').close()
 
 # Get random image_file_name
 imagecount = len([name for name in os.listdir('voteimages/')]) # counts how many images are in the directory
-randraw = random.randint(1, imagecount) # Creates a random number between 1 and the image count.
+randraw = random.randint(1, imagecount)  # Creates a random number between 1 and the image count.
 # Return a random number with a leading zero if necessary. (i.e. 02 instead of 2)
 image_file_name = str(randraw).zfill(2)
 # Look in the directory and create a list of files with the name of the image.
