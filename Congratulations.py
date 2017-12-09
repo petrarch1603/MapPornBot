@@ -20,8 +20,8 @@ date_10_days_ago = datetime.now() - timedelta(days=10)
 contest_month = str(date_10_days_ago.strftime("%m"))
 contest_month_pretty = str(date_10_days_ago.strftime("%B"))
 contest_year = str(date_10_days_ago.date().year)
-new_csv = str(contest_year + contest_month + 'WINNERS.csv')
-submitFile = open('SubmissionsArchive/' + new_csv, 'w+').close()
+winners_csv = str(contest_year + contest_month + 'WINNERS.csv')
+submitFile = open('SubmissionsArchive/' + winners_csv, 'w+').close()
 
 # # 3) Prepare the loop for parsing contestant maps
 # Prepare the text of the post.
@@ -77,16 +77,16 @@ for item in sortedList[:4]:
     placemap = placemap.replace('Map Name: ', '')
     data = data.replace(str('%' + str(n) + 'PLACEMAP%'), str(placemap))
     data = data.replace(str('%' + str(n) + 'PLACEURL%'), str(placeurl))
-    with open('SubmissionsArchive/' + new_csv, 'a') as submitFile:
-        reader = csv.reader(submitFile)
-        wr = csv.writer(submitFile)  # Write the list in a comma delimited format
+    with open('SubmissionsArchive/' + winners_csv, 'a') as winnerFile:
+        reader = csv.reader(winnerFile)
+        wr = csv.writer(winnerFile)  # Write the list in a comma delimited format
         wr.writerow(winnerList)
 
 # # 5) Post congratulations post to reddit
 
 # Get the winner in a variable 'winner'
 # Seems the easiest way to do this is to just get it from the first line of the CSV that we just created.
-with open('SubmissionsArchive/' + new_csv, 'r') as submitFile:
+with open('SubmissionsArchive/' + winners_csv, 'r') as submitFile:
     reader = csv.reader(submitFile)
     reader = list(reader)
     winner = reader[0][3]
