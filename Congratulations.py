@@ -10,6 +10,7 @@ input('Are you ready?')
 votingpostdata = open('congratsData/votingpostdata.txt', 'r')
 raw_id = (votingpostdata.read())
 votingPost = r.submission(id=raw_id)
+bot_disclaimer_text = bot_disclaimer()
 
 
 # # 2) Prepare a new CSV with the top four maps.
@@ -70,7 +71,7 @@ for sortedItem in sortedWinnerList[:4]:
     winnerList.append(str(sortedItem[0]))  # Number of votes
     congratsData = str(congratsData)  # congratsData is the Congratulations text template, now we're going to replace variables
     congratsData = congratsData.replace(str('%' + str(n) + 'PLACEUSER%'), str(placeuser))
-    congratsData = congratsData.replace(str('%' + str(n) + 'PLACEVOTES%'), str(placeVotes))
+    congratsData = congratsData.replace(str('%' + str(n) + 'PLACEVOTES%'), str(sortedItem[0]))
     # Remove "Map Name"
     placemap = placemap.replace('Map Name: ', '')
     congratsData = congratsData.replace(str('%' + str(n) + 'PLACEMAP%'), str(placemap))
@@ -136,3 +137,7 @@ send_reddit_message_to_self(title='Congratulation post posted', message=message_
 source = 'submissions_current.csv'
 destination = ('SubmissionsArchive/' + contest_year + '-' + contest_month + '-AllSubmissions.csv')
 shutil.move(source, destination)
+
+# # 10) Send message to winner congratulating them
+congratsMessage = ('[Congratulations, you won this month\'s Map Contest!](' + congrats_shortlink + ')    \n' + bot_disclaimer_text)
+r.redditor(winner).message('Congratulations', congratsMessage)
