@@ -187,7 +187,7 @@ def facebook_image_generic(imagefile, message):
     rq = requests.get(
        'https://graph.facebook.com/v2.11/me/accounts?access_token=EAAB5zddLiesBABHZB9iOgZAmuuapdSvLvfmwB2jkDvxjFySOOXeMdRDozYkAZAaxMNGUT8EMNZABtIgTmC8tDgIzYoleEAK5g7EN8k73YdD80Ic1FPUTp3NZBkofGYgzM802KNA3JenjYRUGJ27vKQTV2RF1ZB3fGNSUNxs1bMwwZDZD%27')
     stuff = rq.json()
-    bloody_access_token = (stuff['congratsData'][0]['access_token'])
+    bloody_access_token = (stuff['data'][0]['access_token'])
     graph = facebook.GraphAPI(access_token=bloody_access_token)
     faced = graph.put_photo(image=open(imagefile, 'rb').read(), message=message)
     fb_post_id = faced['post_id']
@@ -234,7 +234,7 @@ def subreddit_top_post(subreddit, time_window):
 def hashtag_locations(message, twitter_char_limit):
     messageLen = len(message)
     term = message.split(' ')
-    LocationsText = open('congratsData/locations.txt').read()
+    LocationsText = open('data/locations.txt').read()
     LocationsText = LocationsText.split()
     for s in term:
         s = str(s)
