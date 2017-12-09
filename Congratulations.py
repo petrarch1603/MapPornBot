@@ -78,7 +78,6 @@ for item in sortedList[:4]:
     congratsData = congratsData.replace(str('%' + str(n) + 'PLACEMAP%'), str(placemap))
     congratsData = congratsData.replace(str('%' + str(n) + 'PLACEURL%'), str(placeurl))
     with open('SubmissionsArchive/' + winners_csv, 'a') as winnerFile:
-        reader = csv.reader(winnerFile)
         wr = csv.writer(winnerFile)  # Write the list in a comma delimited format
         wr.writerow(winnerList)
 
@@ -86,11 +85,11 @@ for item in sortedList[:4]:
 
 # Get the winner in a variable 'winner'
 # Seems the easiest way to do this is to just get it from the first line of the CSV that we just created.
-with open('SubmissionsArchive/' + winners_csv, 'r') as submitFile:
-    reader = csv.reader(submitFile)
-    reader = list(reader)
-    winner = reader[0][3]
-    win_map_url = reader[0][1]
+with open('SubmissionsArchive/' + winners_csv, 'r') as winnerFile:
+    winnerReader = csv.reader(winnerFile)
+    winnerReader = list(winnerReader)
+    winner = winnerReader[0][3]
+    win_map_url = winnerReader[0][1]
 
 # Put the contest post URL into the congratulations template.
 congratsData = congratsData.replace('%VOTINGPOSTURL%', contestSubmission.shortlink)
@@ -137,5 +136,5 @@ send_reddit_message_to_self(title='Congratulation post posted', message=message_
 
 # # 9) Rename and move the submissions_current.csv to a new name in the archive directory
 source = 'submissions_current.csv'
-destination = ('SubmissionsArchive/' + contest_year + '-' + contest_month + '-Submissions.csv')
+destination = ('SubmissionsArchive/' + contest_year + '-' + contest_month + '-AllSubmissions.csv')
 shutil.move(source, destination)
