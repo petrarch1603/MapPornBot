@@ -72,7 +72,6 @@ for sortedItem in sortedWinnerList[:4]:
     congratsData = str(congratsData)  # congratsData is the Congratulations text template, now we're going to replace variables
     congratsData = congratsData.replace(str('%' + str(n) + 'PLACEUSER%'), str(placeuser))
     congratsData = congratsData.replace(str('%' + str(n) + 'PLACEVOTES%'), str(sortedItem[0]))
-    # Remove "Map Name"
     placemap = placemap.replace('Map Name: ', '')
     congratsData = congratsData.replace(str('%' + str(n) + 'PLACEMAP%'), str(placemap))
     congratsData = congratsData.replace(str('%' + str(n) + 'PLACEURL%'), str(placeurl))
@@ -111,22 +110,22 @@ votingPost.mod.contest_mode(state=False)
 
 # # 7) Post congratulations post to social media
 # Download the image locally
-filename = 'temp.jpg'
+winningImage = 'temp.jpg'
 request = requests.get(win_map_url, stream=True)
 if request.status_code == 200:
-    with open(filename, 'wb') as image:
+    with open(winningImage, 'wb') as image:
         for chunk in request:
             image.write(chunk)
     filesize = os.path.getsize('temp.jpg')
     if filesize > 3070000:  # If it's too big social media sites won't like it.
-        os.remove(filename)
-        filename = 'misc_images/01.png'  # This is a backup image to post in lieu of the winning map.
+        os.remove(winningImage)
+        winningImage = 'misc_images/01.png'  # This is a backup image to post in lieu of the winning map.
 else:
-    filename = 'misc_images/01.png'
+    winningImage = 'misc_images/01.png'
 
 # Post to social media.
 # Now that we have the image we can run the function to post it to the social media sites
-generic_message = generic_post(imagefile='filename', message=(post_title + ' ' + congrats_shortlink))
+generic_message = generic_post(imagefile=winningImage, message=(post_title + ' ' + congrats_shortlink))
 
 # # 8) Send message to me with shortlinks for QC and social media URLs
 message_to_me = ('The new Congratulations post has just posted.    \nThe congrats post is here: ' + congrats_shortlink + '   \n' + 'Verify that the original post has contest mode turned OFF: ' +
