@@ -15,6 +15,7 @@ from secrets import *
 import shutil
 from secret_tumblr import *
 import tweepy
+import signal
 
 # Reddit Bot Login
 r = praw.Reddit('bot1')
@@ -54,6 +55,16 @@ def shotgun_blast(raw_id_input, announce_input):
     messageshort = announce + messageshort + ellips + hashtag + '\n' + shortlink
     print('Message Long = ' + str(messagelong) + ' (' + str(len(messagelong)) + ')')
     print('Message Short Length = ' + str(messageshort) + ' (' + str(len(messageshort)) + ')')
+    if len(messageshort) <= 130:
+        charactersLeft = (140-int(len(messageshort)))
+        print("Would you like to add another hashtag? You have " + str(charactersLeft) + 'characters left:')
+        extraHashtag = inputHashtagWithTimeout()
+        if extraHashtag is None:
+            pass
+        elif len(extraHashtag) < charactersLeft:
+            messageshort = (messageshort + ' ' + extraHashtag)
+        else:
+            pass
     xy = post_from_reddit(url, messageshort, raw_id, messagelong)
     return xy
 
@@ -254,5 +265,25 @@ def bot_disclaimer():
 
 def send_reddit_message_to_self(title, message):
     r.redditor(my_reddit_ID).message(title, message)
+
+class AlarmException(Exception):
+    pass
+
+
+def alarmHandler(signum, frame):
+    raise AlarmException
+
+
+def inputHashtagWithTimeout(prompt='', timeout=15):
+    signal.signal(signal.SIGALRM, alarmHandler)
+    signal.alarm(timeout)
+    try:
+        extraHashtag = input(prompt)
+        signal.alarm(0)
+        return extraHashtag
+    except AlarmException:
+        print('\nPrompt timeout. Continuing...')
+    signal.signal(signal.SIGALRM, signal.SIG_IGN)
+    return ''
 
 
