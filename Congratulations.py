@@ -11,7 +11,7 @@ votingpostdata = open('data/votingpostdata.txt', 'r')
 raw_id = (votingpostdata.read())
 votingPost = r.submission(id=raw_id)
 bot_disclaimer_text = bot_disclaimer()
-
+votingPost.mod.sticky(state=False)
 
 # # 2) Prepare a new CSV with the top four maps.
 # This will be referenced at the end of the year for the
