@@ -246,3 +246,4 @@ Caribbean
 Warsaw
 Asia
 Dutch
+Europe
