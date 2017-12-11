@@ -7,7 +7,7 @@ input('Are you ready?')
 # # 1) Get the raw ID of the voting post.
 # When the voting post is created the id is written to congratsData/votingpostdata.txt
 # That id is brought here to interact with that post.
-votingpostdata = open('congratsData/votingpostdata.txt', 'r')
+votingpostdata = open('data/votingpostdata.txt', 'r')
 raw_id = (votingpostdata.read())
 votingPost = r.submission(id=raw_id)
 bot_disclaimer_text = bot_disclaimer()
