@@ -53,17 +53,17 @@ def shotgun_blast(raw_id_input, announce_input):
             hashtag = ' #Mapping'
     messagelong = announce + messagelong + '\n' + shortlink + '\n#MapPorn #Mapping'
     print(announce + messageshort + ellips + hashtag)
-    if len(messageshort) <= 109:
-        charactersLeft = (119-int(len(messageshort)))
-        print("Would you like to add another hashtag? You have " + str(charactersLeft) + ' characters left:')
-        extraHashtag = inputHashtagWithTimeout()
-        if extraHashtag is None:
-            pass
-        elif len(extraHashtag) < charactersLeft:
-            messageshort = (messageshort + ' ' + extraHashtag)
-            print(messageshort)
-        else:
-            pass
+    # if len(messageshort) <= 109:
+    #     charactersLeft = (119-int(len(messageshort)))
+    #     print("Would you like to add another hashtag? You have " + str(charactersLeft) + ' characters left:')
+    #     extraHashtag = inputHashtagWithTimeout()
+    #     if extraHashtag is None:
+    #         pass
+    #     elif len(extraHashtag) < charactersLeft:
+    #         messageshort = (messageshort + ' ' + extraHashtag)
+    #         print(messageshort)
+    #     else:
+    #         pass
     messageshort = messageshort + '\n' + shortlink
     print('Message Long = ' + str(messagelong) + ' (' + str(len(messagelong)) + ')')
     xy = post_from_reddit(url, messageshort, raw_id, messagelong)
