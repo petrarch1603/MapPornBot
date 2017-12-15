@@ -1,0 +1,22 @@
+#Voting
+
+*  This is the Map Contest for **Best Map of the Year**
+*  The entries are posted in the comments below.
+*  The thread is shown in **contest mode** until the voting is over. This means the maps will be presented in random order, vote counts will be secret and comments on posts are hidden by default.
+*  Be sure to go through all the submissions!
+*  Upvote as many maps as you'd like.
+*  Remember you're voting for **good, quality maps.** Consider the amount of effort that went into the map, the aesthetics, level of detail and content of the map.
+*  You may comment on the maps, but **do not post top level comments**, these comments will be removed. If you want to comment on the contest, there will be a comment thread for general discussion.
+*  Anonymity is part of the fun, so revealing that a submission is yours will result in a disqualification. After voting is over, submitters are encouraged to claim their maps and we will announce the top maps. The winner will get special flair.
+*  %NUMBERSUBMITTED% finalists.
+*  Voting ends on %ENDDATE% at 9PM Eastern US time.
+
+To leave feedback [contact the
+moderators.](https://www.reddit.com/message/compose?to=%MYREDDITID%)
+
+[Full contest rules and information here](https://www.reddit.com/r/MapPorn/wiki/meta/contest)
+
+
+If you'd like to [submit a map for the next contest, click here](https://www.reddit.com/r/MapPorn/wiki/meta/contest#wiki_submit_a_map)
+
+Good luck, thanks to everybody for participating!
