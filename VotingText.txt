@@ -12,6 +12,8 @@
 
 To leave feedback [contact the
 moderators.](https://www.reddit.com/message/compose?to=%MYREDDITID%)
+This contest was automated with a bot. [GitHub](https://github.com/petrarch1603/MapPornBot)
+
 
 [Full contest rules and information here](https://www.reddit.com/r/MapPorn/wiki/meta/contest)
 If you'd like to see the voting from last month's contest, [it is linked here](%LASTMONTH%)

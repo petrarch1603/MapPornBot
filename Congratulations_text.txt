@@ -35,6 +35,7 @@ Contest mode is now turned *off* and all [results are now visible on the origina
 &nbsp;
 
 To leave feedback [contact the moderators.](https://www.reddit.com/message/compose?to=%2Fr%2F%MYUSERID%)
+This contest was automated with a bot. [GitHub](https://github.com/petrarch1603/MapPornBot)
 
 &nbsp;
 
