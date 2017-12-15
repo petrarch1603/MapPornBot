@@ -43,6 +43,7 @@ submission = r.subreddit('mapporn').submit(post_message, selftext=YearVotingText
 submission.mod.contest_mode()
 submission.mod.distinguish()
 shortlink = submission.shortlink
+send_reddit_message_to_self(title='Reminder', message='[Remember to request Reddit Gold](https://redd.it/7gqgak)    +\n/r/MapPorn /u/Petrarch1603 ' + shortlink)
 
 # # One by one add a comment to the post, each comment being a map to vote on
 f = open(finalistsCSV, 'r')
