@@ -265,6 +265,7 @@ def bot_disclaimer():
 def send_reddit_message_to_self(title, message):
     r.redditor(my_reddit_ID).message(title, message)
 
+
 class AlarmException(Exception):
     pass
 
