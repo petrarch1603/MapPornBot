@@ -108,7 +108,7 @@ def message_for_twitter(message, twitter_char_limit):
         message = hashtag_locations(message, twitter_char_limit=twitter_char_limit)
         return message
     else:
-        message = ((message[:106]) + '...')
+        message = ((message[:108]) + '…')
         return message
 
 
