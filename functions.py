@@ -43,7 +43,6 @@ def shotgun_blast(raw_id_input, announce_input):
     shortlink = str('http://redd.it/' + str(raw_id))
     titlelength = len(messagelong)
     ellips = ''
-    hashtag = ''
     if titlelength > 106:
         hashtag = ' #mapporn'
     else:
@@ -83,7 +82,7 @@ def parse_reddit(raw_id, twitter_char_limit):
     return url, twitted_message, raw_id, messagelong
 
 
-def remove_text_inside_brackets(text, brackets="[]"): #()
+def remove_text_inside_brackets(text, brackets="[]"):
     count = [0] * (len(brackets) // 2)  # count open/close brackets
     saved_chars = []
     for character in text:
@@ -107,8 +106,7 @@ def message_for_twitter(message, twitter_char_limit):
     if raw_length < twitter_char_limit:
         message = message + ' #MapPorn'
         message = hashtag_locations(message, twitter_char_limit=twitter_char_limit)
-        raw_length = len(message)
-        return (message)
+        return message
     else:
         message = ((message[:106]) + '...')
         return message
@@ -140,7 +138,7 @@ def post_from_reddit(url, messageshort, raw_id, messagelong):
             os.remove(filename)
             filename = 'temp.jpg'
             submission = r.submission(id=raw_id)
-            url = submission.preview['images'][0]['resolutions'][3]['url'] # This is the smaller image. Using this because Twitter doesn't like huge files.
+            url = submission.preview['images'][0]['resolutions'][3]['url']  # This is the smaller image. Using this because Twitter doesn't like huge files.
             request = requests.get(url, stream=True)
             if request.status_code == 200:
                 with open(filename, 'wb') as image:
@@ -165,16 +163,16 @@ def tumblr_image(url, message, shortlink):
 
 
 class Color:
-   PURPLE = '\033[95m'
-   CYAN = '\033[96m'
-   DARKCYAN = '\033[36m'
-   BLUE = '\033[94m'
-   GREEN = '\033[92m'
-   YELLOW = '\033[93m'
-   RED = '\033[91m'
-   BOLD = '\033[1m'
-   UNDERLINE = '\033[4m'
-   END = '\033[0m'
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
 
 
 def tweet_image_generic(imagefile, message):
