@@ -59,6 +59,8 @@ for row in reader:
 
     # Now send a message to each contestant letting them know it's live.
     print(str(row[3]))
+    #r.redditor(row[3]).message(title_to_finalist, message_to_finalist)
+for row in reader:
     r.redditor(row[3]).message(title_to_finalist, message_to_finalist)
 generalcomment = submission.reply('General Comment Thread')  # Have a general comment thread so
                                                              # people don't post top level comments.
