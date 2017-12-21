@@ -61,7 +61,10 @@ for row in reader:
     print(str(row[3]))
     #r.redditor(row[3]).message(title_to_finalist, message_to_finalist)
 for row in reader:
-    r.redditor(row[3]).message(title_to_finalist, message_to_finalist)
+    try:
+        r.redditor(row[3]).message(title_to_finalist, message_to_finalist)
+    except:
+        pass
 generalcomment = submission.reply('General Comment Thread')  # Have a general comment thread so
                                                              # people don't post top level comments.
 generalcomment.mod.distinguish(sticky=True)
