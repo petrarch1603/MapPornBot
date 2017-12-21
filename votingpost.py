@@ -48,10 +48,13 @@ for row in reader:
     # the winners.
 
     # Now send a message to each contestant letting them know it's live.
-    r.redditor(row[3]).message('The monthly map contest is live!', 'Thank you for contributing a map. '
+    try:
+        r.redditor(row[3]).message('The monthly map contest is live!', 'Thank you for contributing a map. '
                                                                    '[The voting on the monthly contest is '
                                                                    'open now at this link.]('
-                               + shortlink + ')    \n' + botDisclaimerText)
+                                                                   + shortlink + ')    \n' + botDisclaimerText)
+    except:
+        print('Could not send message to ' + row[3])
 generalcomment = submission.reply('General Comment Thread')  # Have a general comment thread so
                                                              # people don't post top level comments.
 generalcomment.mod.distinguish(sticky=True)
