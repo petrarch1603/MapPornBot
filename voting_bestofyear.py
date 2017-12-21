@@ -10,17 +10,17 @@ contest_year = (datetime.now() - timedelta(days=10)).year
 
 ## REMOVE HASHTAGS AFTER 2017 CONTEST GOES LIVE
 # Create CSV with all final contestants from current year
-finalistsCSV = "./SubmissionsArchive/finalists" + str(contest_year) + ".csv"
-# finalists = open(finalistsCSV, "a")
-# submdir = './SubmissionsArchive'
-# for filename in os.listdir(submdir):
-#     if fnmatch.fnmatch(filename, '2017*.csv'):
-#         print(filename)
-#         f = open(submdir + "/" + filename)
-#         for line in f:
-#             finalists.write(line)
-#         f.close()
-# finalists.close()
+finalistsCSV = "/SubmissionsArchive/finalists" + str(contest_year) + ".csv"
+finalists = open(finalistsCSV, "a")
+submdir = './SubmissionsArchive'
+for filename in os.listdir(submdir):
+    if fnmatch.fnmatch(filename, '2017*.csv'):
+        print(filename)
+        f = open(submdir + "/" + filename)
+        for line in f:
+            finalists.write(line)
+        f.close()
+finalists.close()
 
 # # Prepare the self text of the voting post
 YearVotingText = open('data/year_end_votingtext.txt', 'r').read()
@@ -59,12 +59,10 @@ for row in reader:
 
     # Now send a message to each contestant letting them know it's live.
     print(str(row[3]))
-    #r.redditor(row[3]).message(title_to_finalist, message_to_finalist)
-for row in reader:
     try:
         r.redditor(row[3]).message(title_to_finalist, message_to_finalist)
     except:
-        pass
+        print('Error sending message to ' + row[3])
 generalcomment = submission.reply('General Comment Thread')  # Have a general comment thread so
                                                              # people don't post top level comments.
 generalcomment.mod.distinguish(sticky=True)
