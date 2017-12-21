@@ -19,3 +19,4 @@ for row in reader:
         #r.redditor(row[3]).message(title_to_finalist, message_to_finalist)
     except:
         print('Error sending message to ' + row[3])
+print(shortlink)
