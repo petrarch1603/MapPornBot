@@ -16,7 +16,7 @@ message_to_finalist = ('**The Annual Best Map of the Year contest is now live!**
 for row in reader:
     try:
         print(row[3])
-        #r.redditor(row[3]).message(title_to_finalist, message_to_finalist)
+        r.redditor(row[3]).message(title_to_finalist, message_to_finalist)
     except:
         print('Error sending message to ' + row[3])
 print(shortlink)
