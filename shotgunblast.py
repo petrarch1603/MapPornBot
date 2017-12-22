@@ -22,8 +22,7 @@ else:
 print("\n")
 print("\n")
 print(paste)
-input('Press enter if this is the shortlink, otherwise press Ctrl+C to quit')
 raw_id_input = paste[-6:]  # This takes the last 6 characters of the shortlink URL which is also a unique ID
 raw_id_input = r.submission(id=raw_id_input)
-feg = shotgun_blast(raw_id_input, '')
-print(feg)
+soc_media = shotgun_blast(raw_id_input, '')
+print(soc_media)
