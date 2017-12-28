@@ -1,4 +1,4 @@
-from functions import *
+from functions.py import *
 
 
 # # 1) Get the raw ID of the voting post.
