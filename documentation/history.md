@@ -10,6 +10,8 @@ _2017 December_
 
     * [Voting post here](https://redd.it/7l5yax)   
     * [Congratulations post here](https://redd.it/7mjjz9)
+    
+* [Discussion](https://redd.it/7l6nec) on [/r/LearnPython](https://www.reddit.com/r/learnpython/) about the MapPorn bot
 
 _2017 November_
 
