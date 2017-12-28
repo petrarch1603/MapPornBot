@@ -25,7 +25,7 @@ Contest mode is now turned *off* and all [results are now visible on the origina
 &nbsp;
 
 **A note about vote fuzzing:**
-*Reddit's software fuzzes the votes on posts and comments. This means that scores change unexplainably. Reddit admin's say they do this to fight spam bots. This is not something that the moderators have any control over. That said, after contest mode is turned off there may be different vote totals for different submissions. This is out of our control and simply a part of using Reddit. The map contest uses a bot to return the highest rated comments on the voting post. For all intents and purposes the results that the bot posts are the winners of the contest.*
+*Reddit's software fuzzes the votes on posts and comments. This means that scores change unexplainably. Reddit admins say they do this to fight spam bots. This is not something that the moderators have any control over. That said, after contest mode is turned off there may be different vote totals for different submissions. This is out of our control and simply a part of using Reddit. The map contest uses a bot to return the highest rated comments on the voting post. For all intents and purposes the results that the bot posts are the winners of the contest.*
 
 &nbsp;
 
