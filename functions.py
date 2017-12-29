@@ -63,7 +63,7 @@ def shotgun_blast(raw_id_input, announce_input):
     #         print(messageshort)
     #     else:
     #         pass
-    messageshort = messageshort + '\n' + shortlink
+    messageshort = announce + messageshort + '\n' + shortlink
     print('Message Long = ' + str(messagelong) + ' (' + str(len(messagelong)) + ')')
     xy = post_from_reddit(url, messageshort, raw_id, messagelong)
     return xy
