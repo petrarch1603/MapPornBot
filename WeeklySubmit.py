@@ -11,6 +11,8 @@ from functions import *
 
 from PIL import Image # This is only for testing
 
+loglist = []
+loglist.append(datetime.datetime.now())
 
 # Create a random number for choosing image
 os.chdir('submitimages')
@@ -31,5 +33,13 @@ image_file = image_file_name[0] # There should only be one image with that name,
 message = "Now taking entries for the /r/MapPorn Monthly Map Contest\nSubmit a map here:\nhttps://www.reddit.com/r/MapPorn/wiki/meta/contest#wiki_submit_a_map"
 print(message)
 print(image_file_name)
-generic_post(image_file, message)
+try:
+    output = generic_post(image_file, message)
+    loglist.append(output)
+except:
+    loglist.append('Unable to post weeklysubmit advertisement')
 
+with open('logs/prettylog.txt', 'a') as logfile:
+    for i in loglist:
+        logfile.write(str(i))
+    logfile.write('-------------')
