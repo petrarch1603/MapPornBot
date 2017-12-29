@@ -2,7 +2,7 @@ from functions import *
 import datetime
 
 # Post the top /r/MapPorn submission from the last week.
-print('Being Script to run top post of the week')
+print('Begin Script to run top post of the week')
 print(datetime.datetime.now())
 
 
