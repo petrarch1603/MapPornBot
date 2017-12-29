@@ -14,6 +14,8 @@ MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting po
                '&nbsp;       ' + '\n' + disclaimer
                 # To Do: add contest date to the MessageReply, that way users know when the contest is.
 
+loglist = []
+loglist.append(datetime.datetime.now())
 for message in r.inbox.unread():
     if message.subject == "Map Contest Submission":
         print(message.subject)
@@ -32,6 +34,7 @@ for message in r.inbox.unread():
             # Send a message to a human so that they can QC the CSV.
             r.redditor(my_reddit_ID).message('New Map added to CSV', 'A new map has been submitted. '
                                                                        'Check the CSV for formatting')
+            loglist.append(message.subject)
             submitFile.close
         message.mark_read()
     else:
@@ -43,20 +46,10 @@ for message in r.inbox.unread():
                                                 author + '* sent this message to the bot. Please check on it.    \n' +
                                                 '**Subject:** ' + subject + '     \n' + '**Message:**   \n' + msg)
         message.mark_read()
+        loglist.append(subject)
 
-
-
-# Now to run a regex to parse the URL - On hold for now.
-
-# writer = csv.writer(open(".csv", 'w'))
-#
-# with open('', 'r+') as csvfile:
-#     readCSV = csv.reader(csvfile, delimiter=',')
-#     for field in readCSV:
-#         field[1] = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
-#                               field[1])
-#         field[1] = ''.join(map(str, field[1]))
-#         writer.writerow(field)
-
-
+with open('logs/prettylog.txt', 'a') as logfile:
+    for i in loglist:
+        logfile.write(str(i))
+    logfile.write('-------------')
 

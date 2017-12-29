@@ -65,16 +65,18 @@ for sortedItem in sortedWinnerList[:4]:
         csvreader = csv.reader(current_csv)
         for row in csvreader:
             if sortedItem[1] == row[4]:
-                placemap = row[0]  # Get name of the map
-                placeurl = row[1]  # Get URL of the map
-                placedesc = row[2]  # Get description of the map
-                placeuser = row[3]  # Get user (creator) of the map
-    winnerList.append(str(placemap))  # These lines create a list for the top posts of the month csv
-    winnerList.append(str(placeurl))
-    winnerList.append(str(placedesc))
-    winnerList.append(str(placeuser))
-    winnerList.append(str(sortedItem[1]))  # Unique ID
-    winnerList.append(str(sortedItem[0]))  # Number of votes
+                placemap = str(row[0])  # Get name of the map
+                placeurl = str(row[1])  # Get URL of the map
+                placedesc = str(row[2])  # Get description of the map
+                placeuser = str(row[3])  # Get user (creator) of the map
+    winnerList.extend((
+        placemap,
+        placeurl,
+        placedesc,
+        placeuser,
+        str(sortedItem[1]),
+        str(sortedItem[0])
+    ))
     congratsData = str(congratsData)  # congratsData is the Congratulations text template, now we're going to replace variables
     congratsData = congratsData.replace(str('%' + str(n) + 'PLACEUSER%'), str(placeuser))
     congratsData = congratsData.replace(str('%' + str(n) + 'PLACEVOTES%'), str(sortedItem[0]))
