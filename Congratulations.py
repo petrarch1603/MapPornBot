@@ -47,6 +47,12 @@ for comment in votingPost.comments:
     singleMapList.append(score)
     singleMapList.append(message_id)
     allSubmissionsList.append(singleMapList)
+    with open('submissions_current.csv') as current_csv:  # Add reply in voting post with name of map creator
+        csvreader = csv.reader(current_csv)
+        for row in csvreader:
+            if message_id == row[4]:
+                mapcomment = comment.reply("Map by: " + row[3])
+                mapcomment.mod.distinguish(how='yes')
 
 sortedWinnerList = sorted(allSubmissionsList, reverse=True, key=lambda x: x[0])
 
@@ -78,6 +84,8 @@ for sortedItem in sortedWinnerList[:4]:
     with open('SubmissionsArchive/' + winners_csv, 'a') as winnerFile:
         wr = csv.writer(winnerFile)  # Write the list in a comma delimited format
         wr.writerow(winnerList)
+
+
 
 # # 5) Post congratulations post to reddit
 
