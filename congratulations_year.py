@@ -45,6 +45,12 @@ for comment in votingPost.comments:
     singleMapList.append(score)
     singleMapList.append(message_id)
     allSubmissionsList.append(singleMapList)
+    with open('SubmissionsArchive/finalists' + contest_year + '.csv') as current_csv:
+        csvreader = csv.reader(current_csv)
+        for row in csvreader:
+            if message_id == row[4]:
+                mapcomment = comment.reply("Map by: " + row[3])
+                mapcomment.mod.distinguish(how='yes')
 
 sortedWinnerList = sorted(allSubmissionsList, reverse=True, key=lambda x: x[0])
 
