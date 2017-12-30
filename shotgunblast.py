@@ -25,4 +25,7 @@ print(paste)
 raw_id_input = paste[-6:]  # This takes the last 6 characters of the shortlink URL which is also a unique ID
 raw_id_input = r.submission(id=raw_id_input)
 soc_media = shotgun_blast(raw_id_input, '')
-print(soc_media)
+print(soc_media.message)
+print('Tweet ' + soc_media.tweet_url)
+print('Tumblr ' + soc_media.tumblr_url)
+print('Facebook ' + soc_media.facebook_url)

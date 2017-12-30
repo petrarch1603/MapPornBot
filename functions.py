@@ -112,6 +112,14 @@ def message_for_twitter(message, twitter_char_limit):
         return message
 
 
+class SocialMediaPost(object):
+    def __init__(self, tweet_url, tumblr_url, facebook_url, message):
+        self.tweet_url = tweet_url
+        self.tumblr_url = tumblr_url
+        self.facebook_url = facebook_url
+        self.message = message
+
+
 def post_to_all_social(filename, messageshort, url, messagelong):
     tweeted = api.update_with_media(filename, status=messageshort)  # Post to Twitter
     tweet_id = str(tweeted._json['id']) # This took way too long to figure out.
@@ -121,9 +129,13 @@ def post_to_all_social(filename, messageshort, url, messagelong):
     tumbld_url = tumbld['id']
     tumbld_url = ('http://mappornofficial.tumblr.com/post/' + str(tumbld_url))
     fb_url = facebook_image_generic(filename, messagelong)  # Post to Facebook
-    return ('Tweet URL: https://twitter.com/MapPornTweet/status/' + tweet_id + '\n' +
-            'Tumblr URL: ' + str(tumbld_url) + '\n' +
-            'Facebook URL: ' + str(fb_url))
+    tweet_url = ('https://twitter.com/MapPornTweet/status/' + tweet_id)
+    socialmediaobject = SocialMediaPost(
+        tweet_url=tweet_url,
+        tumblr_url=tumbld_url,
+        facebook_url=fb_url,
+        message=messageshort)
+    return socialmediaobject
 
 
 def post_from_reddit(url, messageshort, raw_id, messagelong):
@@ -148,13 +160,13 @@ def post_from_reddit(url, messageshort, raw_id, messagelong):
                 os.remove(filename)
                 return abc
             else:
-               print('Unable to download photo')
+                return str('Unable to download photo')
         else:
             abc = post_to_all_social(filename, messageshort, url, messagelong)
             os.remove(filename)
             return abc
     else:
-        print("Unable to download image")
+        return str("Unable to download image")
 
 
 def tumblr_image(url, message, shortlink):

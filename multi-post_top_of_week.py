@@ -13,7 +13,13 @@ top_week = (top[0])
 announce_week = 'Top post of the week:\n'
 try:
     output = shotgun_blast(raw_id_input=top_week, announce_input=announce_week)
-    loglist.append(output)
+    d = {'type': 'socmediapost'}
+    d['script'] = 'Top Post of Week'
+    d['message'] = output.message
+    d['tweet_url'] = output.tweet_url
+    d['tumblr_url'] = output.tumblr_url
+    d['fb_url'] = output.facebook_url
+    loglist.append(d)
 except Exception as ex:
     loglist.append(ex)
 
