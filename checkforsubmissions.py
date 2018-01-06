@@ -15,16 +15,15 @@ MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting po
                '&nbsp;       ' + '\n' + disclaimer
                 # To Do: add contest date to the MessageReply, that way users know when the contest is.
 
-logdict = {'time': time.time()}
-logdict['type'] = 'inbox check'
-logdict['status'] = 'noChange'
+logdict = {}
 newMessage = 'false'
 
 for message in r.inbox.unread():
-    logdict['status'] = ''
+    # noinspection PyRedeclaration
     newMessage = 'true'
 
 if newMessage is 'false':
+    logdict['time'] = time.time():
     logdict['type'] = 'inbox check'
     logdict['status'] = 'noChange'
     with open('data/progressLog.json', 'a') as outfile:
@@ -62,7 +61,7 @@ for message in r.inbox.unread():
 
         message.mark_read()
     else:
-        logdict['status'] = ('messageToBot')
+        logdict['status'] = 'messageToBot'
         msg = message.body
         author = str(message.author)
         subject = message.subject
@@ -71,7 +70,7 @@ for message in r.inbox.unread():
                                                 '**Subject:** ' + subject + '     \n' + '**Message:**   \n' + msg)
         newMessageObject = {'author': author, 'subject': subject, 'body': msg}
         logdict['object'] = newMessageObject
-        message.mark_read()
         with open('data/progressLog.json', 'a') as outfile:
             json.dump(logdict, outfile)
+        message.mark_read()
 
