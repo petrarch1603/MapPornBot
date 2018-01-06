@@ -299,3 +299,14 @@ def inputHashtagWithTimeout(prompt='', timeout=15):
     return ''
 
 
+class SubmissionObject(object):
+    def __init__(self, map_name, map_url, map_desc, creator, unique_message):
+        self.map_name = map_name
+        self.map_url = map_url
+        self.map_desc = map_desc
+        self.creator = creator
+        self.unique_message = unique_message
+
+
+
+
