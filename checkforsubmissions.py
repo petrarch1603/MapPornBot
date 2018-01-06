@@ -23,7 +23,7 @@ for message in r.inbox.unread():
     newMessage = 'true'
 
 if newMessage is 'false':
-    logdict['time'] = time.time():
+    logdict['time'] = time.time()
     logdict['type'] = 'inbox check'
     logdict['status'] = 'noChange'
     with open('data/progressLog.json', 'a') as outfile:
