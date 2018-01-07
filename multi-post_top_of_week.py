@@ -1,5 +1,6 @@
 from functions import *
 import datetime
+import time
 
 # Post the top /r/MapPorn submission from the last week.
 print('Begin Script to run top post of the week')
@@ -11,21 +12,20 @@ top = r.subreddit('mapporn').top('week', limit=1)
 top = list(top)
 top_week = (top[0])
 announce_week = 'Top post of the week:\n'
+logdict = {'type': 'socmediapost'}
+
 try:
     output = shotgun_blast(raw_id_input=top_week, announce_input=announce_week)
-    d = {'type': 'socmediapost'}
-    d['script'] = 'Top Post of Week'
-    d['message'] = output.message
-    d['tweet_url'] = output.tweet_url
-    d['tumblr_url'] = output.tumblr_url
-    d['fb_url'] = output.facebook_url
-    loglist.append(d)
+    logdict['time'] = time.time()
+    logobject = {'script': 'Top Post of Week'}
+    logobject['message'] = str(output.message)
+    logobject['tweet_url'] = str(output.tweet_url)
+    logobject['tumblr_url'] = str(output.tumblr_url)
+    logobject['fb_url'] = str(output.facebook_url)
+    logdict['object'] = logobject
+    addToJSON(logdict)
+
 except Exception as ex:
-    loglist.append(ex)
-
-
-with open('logs/prettylog.txt', 'a') as logfile:
-    for i in loglist:
-        logfile.write(str(i))
-    logfile.write('-------------')
-
+    logdict['time'] = time.time()
+    logdict['error'] = str(ex)
+    addToJSON(logdict)
