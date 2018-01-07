@@ -1,7 +1,7 @@
 import os
 import praw
 import csv
-from functions import my_reddit_ID, bot_disclaimer, SubmissionObject
+from functions import my_reddit_ID, bot_disclaimer, SubmissionObject, addToJSON
 import datetime
 import time
 import json
@@ -26,8 +26,7 @@ if newMessage is 'false':
     logdict['time'] = time.time()
     logdict['type'] = 'inboxCheck'
     logdict['status'] = 'noChange'
-    with open('data/progressLog.json', 'a') as outfile:
-        json.dump(logdict, outfile)
+    addToJSON(logdict)
 
 for message in r.inbox.unread():
     if message.subject == "Map Contest Submission":
@@ -58,8 +57,7 @@ for message in r.inbox.unread():
         message.mark_read()
         newmap = newmap.toJSON()
         logdict['object'] = newmap
-        with open('data/progressLog.json', 'a') as outfile:
-            json.dump(logdict, outfile)
+        addToJSON(logdict)
 
     else:
         logdict['status'] = 'messageToBot'
@@ -71,7 +69,6 @@ for message in r.inbox.unread():
                                                 '**Subject:** ' + subject + '     \n' + '**Message:**   \n' + msg)
         newMessageObject = {'author': author, 'subject': subject, 'body': msg}
         logdict['object'] = newMessageObject
-        with open('data/progressLog.json', 'a') as outfile:
-            json.dump(logdict, outfile)
+        addToJSON(logdict)
         message.mark_read()
 
