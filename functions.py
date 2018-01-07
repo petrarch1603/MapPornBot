@@ -307,6 +307,7 @@ class SubmissionObject(object):
         self.map_desc = map_desc
         self.creator = creator
         self.unique_message = unique_message
+
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
