@@ -24,7 +24,7 @@ for message in r.inbox.unread():
 
 if newMessage is 'false':
     logdict['time'] = time.time()
-    logdict['type'] = 'inbox check'
+    logdict['type'] = 'inboxCheck'
     logdict['status'] = 'noChange'
     with open('data/progressLog.json', 'a') as outfile:
         json.dump(logdict, outfile)
@@ -56,12 +56,8 @@ for message in r.inbox.unread():
             r.redditor(my_reddit_ID).message('New Map added to CSV', 'A new map has been submitted. '
                                                                        'Check the CSV for formatting')
         message.mark_read()
-        logdict['object'] = newmap.__dict__
-        try:
-            print(str(newmap.unique_message))
-        except:
-            pass
-
+        newmap = newmap.toJSON()
+        logdict['object'] = newmap
         with open('data/progressLog.json', 'a') as outfile:
             json.dump(logdict, outfile)
 
