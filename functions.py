@@ -311,6 +311,16 @@ class SubmissionObject(object):
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
 
+def addToJSON(logdict):
+    with open('data/progessLog.json', 'r+') as readfile:
+        text = readfile.read()
+        text = str(text[:-1])
+        text = (text + ',')
+        jsondumper = (json.dumps(logdict))
+        text = (text + jsondumper + str("]"))
+    with open('data/progessLog.json', 'w+') as outfile:
+        outfile.write(text)
+
 
 
 
