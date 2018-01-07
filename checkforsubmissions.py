@@ -44,7 +44,7 @@ for message in r.inbox.unread():
             map_url=submission[1],
             map_desc=submission[2],
             creator=submission[3],
-            unique_message=submission[4],
+            unique_message=submission[4]
         )
         # Now make that list a row a CSV
         with open('submissions.csv', 'a') as submitFile:
