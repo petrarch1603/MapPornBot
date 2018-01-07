@@ -38,7 +38,7 @@ my_reddit_ID = 'petrarch1603'  # This is the human reddit user name, NOT the bot
 
 def shotgun_blast(raw_id_input, announce_input):
     announce = str(announce_input)
-    announce_len = len(str(announce))
+    announce_len = len(announce)
     twitter_char_len = (106-announce_len)  # 106 puts the len(messageshort) right at 140
     (url, messageshort, raw_id, messagelong) = parse_reddit(raw_id_input, twitter_char_len)
     shortlink = str('http://redd.it/' + str(raw_id))
@@ -66,7 +66,7 @@ def shotgun_blast(raw_id_input, announce_input):
     #         pass
     messageshort = announce + '\n' + messageshort + '\n' + shortlink
     print('Message Long = ' + str(messagelong) + ' (' + str(len(messagelong)) + ')')
-    xy = post_from_reddit(url, messageshort, raw_id, messagelong)
+    xy = post_from_reddit(url=url, messageshort=messageshort, raw_id=raw_id, messagelong=messagelong)
     return xy
 
 
@@ -157,7 +157,7 @@ def post_from_reddit(url, messageshort, raw_id, messagelong):
                 with open(filename, 'wb') as image:
                     for chunk in request:
                         image.write(chunk)
-                abc = post_to_all_social(filename, messageshort, url, messagelong)
+                abc = post_to_all_social(filename=filename, messageshort=messageshort, url=url, messagelong=messagelong)
                 os.remove(filename)
                 return abc
             else:

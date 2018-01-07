@@ -6,8 +6,6 @@ import time
 print('Begin Script to run top post of the week')
 print(datetime.datetime.now())
 
-loglist = []
-loglist.append(datetime.datetime.now())
 top = r.subreddit('mapporn').top('week', limit=1)
 top = list(top)
 top_week = (top[0])
@@ -15,13 +13,13 @@ announce_week = 'Top post of the week:\n'
 logdict = {'type': 'socmediapost'}
 
 try:
-    output = shotgun_blast(raw_id_input=top_week, announce_input=announce_week)
+    social_media_post = shotgun_blast(raw_id_input=top_week, announce_input=announce_week)
     logdict['time'] = time.time()
     logobject = {'script': 'Top Post of Week'}
-    logobject['message'] = str(output.message)
-    logobject['tweet_url'] = str(output.tweet_url)
-    logobject['tumblr_url'] = str(output.tumblr_url)
-    logobject['fb_url'] = str(output.facebook_url)
+    logobject['message'] = str(social_media_post.message)
+    logobject['tweet_url'] = str(social_media_post.tweet_url)
+    logobject['tumblr_url'] = str(social_media_post.tumblr_url)
+    logobject['fb_url'] = str(social_media_post.facebook_url)
     logdict['object'] = logobject
     addToJSON(logdict)
 
