@@ -312,13 +312,13 @@ class SubmissionObject(object):
                           sort_keys=True, indent=4)
 
 def addToJSON(logdict):
-    with open('data/progessLog.json', 'r+') as readfile:
+    with open('data/progressLog.json', 'r+') as readfile:
         text = readfile.read()
         text = str(text[:-1])
         text = (text + ',')
         jsondumper = (json.dumps(logdict))
         text = (text + jsondumper + str("]"))
-    with open('data/progessLog.json', 'w+') as outfile:
+    with open('data/progressLog.json', 'w+') as outfile:
         outfile.write(text)
 
 
