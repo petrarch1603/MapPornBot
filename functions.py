@@ -16,6 +16,7 @@ import shutil
 from secret_tumblr import *
 import tweepy
 import signal
+import json
 
 # Reddit Bot Login
 r = praw.Reddit('bot1')
@@ -306,6 +307,9 @@ class SubmissionObject(object):
         self.map_desc = map_desc
         self.creator = creator
         self.unique_message = unique_message
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
 
 

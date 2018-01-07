@@ -42,9 +42,9 @@ for message in r.inbox.unread():
         newmap = SubmissionObject(
             map_name=submission[0],
             map_url=submission[1],
-            map_desc=submission[2],
-            creator=submission[3],
-            unique_message=submission[4]
+            map_desc=(str(submission[2])),
+            creator=(str(submission[3])),
+            unique_message=(str(submission[4]))
         )
         # Now make that list a row a CSV
         with open('submissions.csv', 'a') as submitFile:
@@ -55,11 +55,16 @@ for message in r.inbox.unread():
             # Send a message to a human so that they can QC the CSV.
             r.redditor(my_reddit_ID).message('New Map added to CSV', 'A new map has been submitted. '
                                                                        'Check the CSV for formatting')
+        message.mark_read()
         logdict['object'] = newmap.__dict__
+        try:
+            print(str(newmap.unique_message))
+        except:
+            pass
+
         with open('data/progressLog.json', 'a') as outfile:
             json.dump(logdict, outfile)
 
-        message.mark_read()
     else:
         logdict['status'] = 'messageToBot'
         msg = message.body
