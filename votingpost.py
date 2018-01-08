@@ -71,7 +71,6 @@ file.write(raw_id)
 file.close()
 
 # # 6) Rename submissions to submissions_current (while there is voting going on).
-
 # SubmissionsCurrent will be the index of what is being voted on during the voting period. That way after the vote
 # we know who is the winner.
 os.replace('submissions.csv', 'submissions_current.csv')
@@ -85,7 +84,7 @@ open('submissions.csv', 'w').close()
 # Each month a random image will be posted to social media.
 
 # Get random image_file_name
-imagecount = len([name for name in os.listdir('voteimages/')]) # counts how many images are in the directory
+imagecount = len([name for name in os.listdir('voteimages/')])  # counts how many images are in the directory
 randraw = random.randint(1, imagecount)  # Creates a random number between 1 and the image count.
 # Return a random number with a leading zero if necessary. (i.e. 02 instead of 2)
 image_file_name = str(randraw).zfill(2)
@@ -95,14 +94,15 @@ image_file_name = str(randraw).zfill(2)
 # The problem is that there are multiple file exensions: jpg, png, jpeg, etc.
 # There is probably a better way to do it, but for now it works.
 image_file_name = fnmatch.filter(os.listdir('voteimages/'), image_file_name + '.*')
-image_file_name = image_file_name[0]  # There should only be one image with that name, so this returns the name of that file.
+image_file_name = image_file_name[0]    # There should only be one image with that name, so this returns the name of
+                                        # that file.
 
 # Post to social media
 # Change the message so it includes URL of the Reddit voting post.
 post_message_url = (post_message + '\n' + shortlink + '\n#MapPorn #Cartography #Contest')
 image_file_name = ('voteimages/' + image_file_name)
 # Run a function to post it to different social media accounts
-socialmedialinks = generic_post(image_file_name, post_message_url)
+social_media_post = generic_post(image_file_name, post_message_url)
 # The function returns a text string with the URLs of the relevant social media posts.
 # This is useful for verifying proper posting.
 
@@ -110,10 +110,16 @@ socialmedialinks = generic_post(image_file_name, post_message_url)
 # # 8) Send a Reddit message to me with a summary and links to social media posts
 send_reddit_message_to_self('New Voting Post Posted', 'A new votingpost.py has been run. Check the post to make sure the bot did it right.'
                                    '   \nHere\'s the link to the post: ' + shortlink + '   \nHere\'s the social media '
-                                                                                       'links:    \n' + socialmedialinks)
+                                                                                       'links:    \n' + social_media_post)
 
-submission.mod.approve()  # Unsure if these two work
-submission.mod.sticky()
+try:
+    submission.mod.approve()  # Unsure if these two work
+except Exception as e:
+    print('Could not approve post. Exception: ' + e)
+try:
+    submission.mod.sticky()
+except Exception as e:
+    print('Could not sticky post. Exception: ' + e)
 
 
 # # Notes
