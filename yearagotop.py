@@ -29,5 +29,6 @@ try:
 
 except Exception as ex:
     logdict['time'] = time.time()
+    logdict['post'] = 'yearagotop.py'
     logdict['error'] = str(ex)
     addToJSON(logdict)
