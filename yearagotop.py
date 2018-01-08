@@ -28,6 +28,7 @@ try:
     addToJSON(logdict)
 
 except Exception as ex:
+    print(str(ex))
     logdict['time'] = time.time()
     logdict['post'] = 'yearagotop.py'
     logdict['error'] = str(ex)
