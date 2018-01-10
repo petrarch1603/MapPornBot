@@ -24,13 +24,12 @@ for message in r.inbox.unread():
 
 if newMessage is 'false':
     logdict['time'] = time.time()
-    logdict['type'] = 'inboxCheck'
-    logdict['status'] = 'noChange'
+    logdict['type'] = 'noNewMail'
     addToJSON(logdict)
 
 for message in r.inbox.unread():
     if message.subject == "Map Contest Submission":
-        logdict['status'] = 'contestSubmission'
+        logdict['type'] = 'submissionReceived'
         logdict['time'] = time.time()
         submission = message.body
         submission = os.linesep.join([s for s in submission.splitlines() if s])  # removes extraneous line breaks
@@ -60,7 +59,7 @@ for message in r.inbox.unread():
         addToJSON(logdict)
 
     else:
-        logdict['status'] = 'messageToBot'
+        logdict['type'] = 'messageToBot'
         msg = message.body
         author = str(message.author)
         subject = message.subject
