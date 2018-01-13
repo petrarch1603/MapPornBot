@@ -38,8 +38,3 @@ try:
     loglist.append(output)
 except:
     loglist.append('Unable to post weeklysubmit advertisement')
-
-with open('logs/prettylog.txt', 'a') as logfile:
-    for i in loglist:
-        logfile.write(str(i))
-    logfile.write('-------------')
