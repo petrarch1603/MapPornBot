@@ -30,13 +30,14 @@ try:
     social_media_post = generic_post(imagefile=image_file_name, message=message)
     logdict['time'] = time.time()
     logobject = {'script': 'Top Post of Month',
-                 'message': str(social_media_post.message),
-                 'tweet_url': str(social_media_post.tweet_url),
-                 'tumblr_url': str(social_media_post.tumblr_url),
-                 'fb_url': str(social_media_post.facebook_url)}
+                 'message': social_media_post.message,
+                 'tweet_url': social_media_post.tweet_url,
+                 'tumblr_url': social_media_post.tumblr_url,
+                 'fb_url': social_media_post.facebook_url}
     logdict['object'] = logobject
     addToJSON(logdict)
-    with open('../data/locations.csv') as current_csv:
+    os.chdir('..')
+    with open('/data/locations.csv') as current_csv:
         csvreader = csv.reader(current_csv)
         for row in csvreader:
             if image_number == row[0]:
@@ -46,6 +47,7 @@ try:
                     'Where in the World is now live!\nThe correct location is: ' + true_location +
                     '\nThe Twitter thread is here: ' + str(social_media_post.tweet_url))
 except Exception as ex:
+    os.chdir('..')
     print(ex)
     logdict['time'] = time.time()
     logdict['error'] = str(ex)
