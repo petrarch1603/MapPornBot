@@ -46,10 +46,12 @@ try:
                     'Where in the World is now live!\nThe correct location is: ' + true_location +
                     '\nThe Twitter thread is here: ' + str(social_media_post.tweet_url))
 except Exception as ex:
+    print(ex)
     logdict['time'] = time.time()
     logdict['error'] = str(ex)
     logobject = {'script': 'Top Post of Month'}
     logdict['object'] = logobject
     addToJSON(logdict)
+
 
 
