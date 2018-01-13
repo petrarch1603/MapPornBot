@@ -231,6 +231,11 @@ def generic_post(imagefile, message):
     tweet_url = tweet_image_generic(imagefile, message)
     tumbld_url = tumblr_image_generic(imagefile, message)
     fb_url = facebook_image_generic(imagefile, message)
+    socialmediaobject = SocialMediaPost(
+        tweet_url=tweet_url,
+        tumblr_url=tumbld_url,
+        facebook_url=fb_url,
+        message=message)
     generic_message = ("Tweet Url: " + str(tweet_url) + "   \n"
                        + "Tumblr URL: " + str(tumbld_url) + "   \n" + "Facebook URL: " + str(fb_url))
     return generic_message
