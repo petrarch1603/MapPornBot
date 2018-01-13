@@ -12,7 +12,7 @@ import os
 message = "#WhereInTheWorld #MapPorn\n" \
           "Every week we bring you a map of an unknown location. " \
           "If you know where it's at, reply in the comments!\n" \
-          "More info at "
+          "More info at https://t.co/yCv6Ynqa4u"
 
 
 # Get the week and year as a format for indexing image
