@@ -9,7 +9,7 @@ import datetime
 import os
 
 
-message = "#WhereInTheWorld #MapPorn\n" \
+post_message = "#WhereInTheWorld #MapPorn\n" \
           "Every week we bring you a map of an unknown location. " \
           "If you know where it's at, reply in the comments!\n" \
           "More info at https://t.co/yCv6Ynqa4u"
@@ -27,7 +27,7 @@ image_file_name = (image_number + '.png')
 os.chdir('WW')
 logdict = {'type': 'socmediapost'}
 try:
-    social_media_post = generic_post(imagefile=image_file_name, message=message)
+    social_media_post = generic_post(imagefile=image_file_name, message=post_message)
     logdict['time'] = time.time()
     logobject = {'script': 'Top Post of Month',
                  'message': social_media_post.message,
@@ -42,6 +42,7 @@ try:
         for row in csvreader:
             if image_number == row[0]:
                 true_location = row[1]
+                print("True Location is: " + true_location)
                 r.redditor(my_reddit_ID).message(
                     "Where in the World Trivia Contest",
                     'Where in the World is now live!\nThe correct location is: ' + true_location +
