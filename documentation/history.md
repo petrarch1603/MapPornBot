@@ -1,5 +1,9 @@
 # MapPornBot Version History
 
+_2018 January_
+
+* Flawless execution of [votingpost.py](votingpost.py).
+
 _2017 December_
 
 * First live execution of [votingpost.py](votingpost.py). Encountered some small hiccups with making the post a sticky and approving it. Further testing required in coming months.
