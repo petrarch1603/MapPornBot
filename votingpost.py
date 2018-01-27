@@ -14,11 +14,12 @@ botDisclaimerText = bot_disclaimer()
 
 lastmonthfile = open('data/lastmonth.txt', 'r')
 last_month_url = (lastmonthfile.read())
-next_sunday = next_weekday(datetime.now(), 6)  # Pycharm doesn't like the .now(), but in testing seems it should work.
-next_sunday = next_sunday.strftime('%A %B %d, %Y')
+next_week = datetime.now() + timedelta(days=5)  # Need at least 5 days to vote.
+next_sunday = next_weekday(next_week, 6)  # Pycharm doesn't like the .now(), but in testing seems it should work.
+pretty_next_sunday = next_sunday.strftime('%A %B %d, %Y')
 numbersubmitted = sum(1 for line in open('submissions.csv'))
 VotingText = VotingText.replace('%NUMBERSUBMITTED%', str(numbersubmitted))
-VotingText = VotingText.replace('%ENDDATE%', str(next_sunday))
+VotingText = VotingText.replace('%ENDDATE%', str(pretty_next_sunday))
 VotingText = VotingText.replace('%MYREDDITID%', my_reddit_ID)
 VotingText = VotingText.replace('%LASTMONTH%', last_month_url)
 
