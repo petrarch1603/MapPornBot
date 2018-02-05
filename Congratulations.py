@@ -108,6 +108,7 @@ congratulations_text.close()
 congrats_shortlink = congratsSubmission.shortlink
 congratsSubmission.mod.distinguish()
 try:
+    congratsSubmission.mod.approve()
     congratsSubmission.mod.sticky()
 except:
     send_reddit_message_to_self('Error encountered', message=('Could not sticky this post: ' + congrats_shortlink))
