@@ -284,27 +284,6 @@ def send_reddit_message_to_self(title, message):
     r.redditor(my_reddit_ID).message(title, message)
 
 
-class AlarmException(Exception):
-    pass
-
-
-def alarmHandler(signum, frame):
-    raise AlarmException
-
-
-def inputHashtagWithTimeout(prompt='', timeout=15):
-    signal.signal(signal.SIGALRM, alarmHandler)
-    signal.alarm(timeout)
-    try:
-        extraHashtag = input(prompt)
-        signal.alarm(0)
-        return extraHashtag
-    except AlarmException:
-        print('\nPrompt timeout. Continuing...')
-    signal.signal(signal.SIGALRM, signal.SIG_IGN)
-    return ''
-
-
 class SubmissionObject(object):
     def __init__(self, map_name, map_url, map_desc, creator, unique_message):
         self.map_name = map_name
