@@ -1,7 +1,7 @@
 import os
 import praw
 import csv
-from functions import my_reddit_ID, bot_disclaimer, SubmissionObject, addToJSON, addToMongo
+from functions import my_reddit_ID, bot_disclaimer, SubmissionObject, addToMongo
 import datetime
 import time
 import json

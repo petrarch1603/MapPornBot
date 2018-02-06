@@ -318,16 +318,8 @@ class SubmissionObject(object):
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
 
-
-def addToJSON(logdict):
-    with open('data/progressLog.json') as file:
-        data = json.load(file)
-    data.append(logdict)
-    with open('data/progressLog.json', "w") as file:
-        json.dump(data, file)
-
 def addToMongo(logdictObject):
-    connection = pymongo.MongoClient("mongodb://" + mongo_id + ":"+ mongo_pw + mongo_db)
+    connection = pymongo.MongoClient("mongodb://" + mongo_id + ":" + mongo_pw + mongo_db)
     db = connection.mappornstatus
     post_id = db.mappornstatus.insert_one(logdictObject).inserted_id
     print(post_id)

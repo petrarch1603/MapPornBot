@@ -35,7 +35,7 @@ try:
                  'tumblr_url': social_media_post.tumblr_url,
                  'fb_url': social_media_post.facebook_url}
     logdict['object'] = logobject
-    addToJSON(logdict)
+    addToMongo(logdict)
     os.chdir('..')
     with open('/data/locations.csv') as current_csv:
         csvreader = csv.reader(current_csv)
@@ -54,7 +54,7 @@ except Exception as ex:
     logdict['error'] = str(ex)
     logobject = {'script': 'Top Post of Month'}
     logdict['object'] = logobject
-    addToJSON(logdict)
+    addToMongo(logdict)
 
 
 

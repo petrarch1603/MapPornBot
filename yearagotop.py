@@ -25,11 +25,11 @@ try:
                  'tumblr_url': str(social_media_post.tumblr_url),
                  'fb_url': str(social_media_post.facebook_url)}
     logdict['object'] = logobject
-    addToJSON(logdict)
+    addToMongo(logdict)
 
 except Exception as ex:
     print(str(ex))
     logdict['time'] = time.time()
     logdict['post'] = 'yearagotop.py'
     logdict['error'] = str(ex)
-    addToJSON(logdict)
+    addToMongo(logdict)
