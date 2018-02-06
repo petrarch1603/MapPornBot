@@ -17,6 +17,7 @@ from secret_tumblr import *
 import tweepy
 import signal
 import json
+import pymongo
 
 # Reddit Bot Login
 r = praw.Reddit('bot1')
@@ -325,6 +326,11 @@ def addToJSON(logdict):
     with open('data/progressLog.json', "w") as file:
         json.dump(data, file)
 
+def addToMongo(logdictObject):
+    connection = pymongo.MongoClient("mongodb://" + mongo_id + ":"+ mongo_pw + mongo_db)
+    db = connection.mappornstatus
+    post_id = db.mappornstatus.insert_one(logdictObject).inserted_id
+    print(post_id)
 
 # def addToJSON(logdict):
 #     with open('data/progressLog.json', 'r+') as readfile:
