@@ -124,9 +124,11 @@ class SocialMediaPost(object):
 def post_to_all_social(filename, messageshort, url, messagelong):
     tweeted = api.update_with_media(filename, status=messageshort)  # Post to Twitter
     tweet_id = str(tweeted._json['id'])  # This took way too long to figure out.
-    tumbld = client.create_photo('mappornofficial', state="published", tags=['#mapporn'],  # Post to Tumblr
-                        caption=messagelong + ' ' + url,
-                        source=url)
+    tumbld = client.create_photo('mappornofficial',
+                                 state="published",
+                                 tags=['#mapporn'],  # Post to Tumblr
+                                 caption=messagelong + ' ' + url,
+                                 source=url)
     tumbld_url = tumbld['id']
     tumbld_url = ('http://mappornofficial.tumblr.com/post/' + str(tumbld_url))
     fb_url = facebook_image_generic(filename, messagelong)  # Post to Facebook
@@ -157,7 +159,10 @@ def post_from_reddit(url, messageshort, raw_id, messagelong):
                 with open(filename, 'wb') as image:
                     for chunk in request:
                         image.write(chunk)
-                abc = post_to_all_social(filename=filename, messageshort=messageshort, url=url, messagelong=messagelong)
+                abc = post_to_all_social(filename=filename,
+                                         messageshort=messageshort,
+                                         url=url,
+                                         messagelong=messagelong)
                 os.remove(filename)
                 return abc
             else:
@@ -171,7 +176,10 @@ def post_from_reddit(url, messageshort, raw_id, messagelong):
 
 
 def tumblr_image(url, message, shortlink):
-    client.create_photo('mappornofficial', state="published", tags=['#mapporn'], caption=message + ' ' + shortlink,
+    client.create_photo('mappornofficial',
+                        state="published",
+                        tags=['#mapporn'],
+                        caption=message + ' ' + shortlink,
                         source=url)
 
 
@@ -220,8 +228,10 @@ def facebook_image_generic(imagefile, message):
 
 
 def tumblr_image_generic(imagefile, message):
-    tumbld = client.create_photo('mappornofficial', state="published", tags=['#mapporn'],  # Post to Tumblr
-                        caption=message, data=imagefile)
+    tumbld = client.create_photo('mappornofficial',
+                                 state="published",
+                                 tags=['#mapporn'],  # Post to Tumblr
+                                 caption=message, data=imagefile)
     tumbld_url = tumbld['id']
     tumbld_url = ('http://mappornofficial.tumblr.com/post/' + str(tumbld_url))
     return tumbld_url
