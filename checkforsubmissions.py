@@ -1,7 +1,7 @@
 import os
 import praw
 import csv
-from functions import my_reddit_ID, bot_disclaimer, SubmissionObject, addToJSON
+from functions import my_reddit_ID, bot_disclaimer, SubmissionObject, addToJSON, addToMongo
 import datetime
 import time
 import json
@@ -25,7 +25,7 @@ for message in r.inbox.unread():
 if newMessage is 'false':
     logdict['time'] = time.time()
     logdict['type'] = 'noNewMail'
-    addToJSON(logdict)
+    addToMongo(logdict)
 
 for message in r.inbox.unread():
     if message.subject == "Map Contest Submission":
@@ -56,7 +56,7 @@ for message in r.inbox.unread():
         message.mark_read()
         newmap = newmap.toJSON()
         logdict['object'] = newmap
-        addToJSON(logdict)
+        addToMongo(logdict)
 
     else:
         logdict['type'] = 'messageToBot'
@@ -68,6 +68,6 @@ for message in r.inbox.unread():
                                                 '**Subject:** ' + subject + '     \n' + '**Message:**   \n' + msg)
         newMessageObject = {'author': author, 'subject': subject, 'body': msg}
         logdict['object'] = newMessageObject
-        addToJSON(logdict)
+        addToMongo(logdict)
         message.mark_read()
 
