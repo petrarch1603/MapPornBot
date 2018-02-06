@@ -31,7 +31,6 @@ handler.setLevel(logging.DEBUG)
 logger = logging.getLogger('prawcore')
 logger.setLevel(logging.DEBUG)
 logger.addHandler(handler)
-r = praw.Reddit('bot1')
 
 
 my_reddit_ID = 'petrarch1603'  # This is the human reddit user name, NOT the bot's user name.
@@ -96,7 +95,7 @@ def remove_text_inside_brackets(text, brackets="[]"):
                     count[kind] = 0  # keep it
                 else:  # found bracket to remove
                     break
-        else: # character is not a [balanced] bracket
+        else:  # character is not a [balanced] bracket
             if not any(count):  # outside brackets
                 saved_chars.append(character)
     return ''.join(saved_chars)
@@ -124,7 +123,7 @@ class SocialMediaPost(object):
 
 def post_to_all_social(filename, messageshort, url, messagelong):
     tweeted = api.update_with_media(filename, status=messageshort)  # Post to Twitter
-    tweet_id = str(tweeted._json['id']) # This took way too long to figure out.
+    tweet_id = str(tweeted._json['id'])  # This took way too long to figure out.
     tumbld = client.create_photo('mappornofficial', state="published", tags=['#mapporn'],  # Post to Tumblr
                         caption=messagelong + ' ' + url,
                         source=url)
@@ -318,21 +317,13 @@ class SubmissionObject(object):
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
 
+
 def addToMongo(logdictObject):
     connection = pymongo.MongoClient("mongodb://" + mongo_id + ":" + mongo_pw + mongo_db)
     db = connection.mappornstatus
     post_id = db.mappornstatus.insert_one(logdictObject).inserted_id
     print(post_id)
 
-# def addToJSON(logdict):
-#     with open('data/progressLog.json', 'r+') as readfile:
-#         text = readfile.read()
-#         text = str(text[:-1])
-#         text = (text + ',')
-#         jsondumper = (json.dumps(logdict))
-#         text = (text + jsondumper + str("]"))
-#     with open('data/progressLog.json', 'w+') as outfile:
-#         outfile.write(text)
 
 
 
