@@ -3,8 +3,6 @@ import datetime
 import time
 
 # Post the top /r/MapPorn submission from the last week.
-print('Begin Script to run top post of the week')
-print(datetime.datetime.now())
 
 top = r.subreddit('mapporn').top('week', limit=1)
 top = list(top)
