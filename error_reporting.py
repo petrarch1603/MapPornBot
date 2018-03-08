@@ -19,5 +19,8 @@ for document in cursor:
                  + error + ". The script ran " + str(time) + ".\n")
     errorslist.append(error_msg)
 
-message = ("\n".join(errorslist))
-send_reddit_message_to_self("Weekly Error Reporting", message)
+if errorslist:
+    message = ("\n".join(errorslist))
+    send_reddit_message_to_self("Weekly Error Reporting", message)
+else:
+    send_reddit_message_to_self("Weekly Error Reporting", "No errors reported this week!")
