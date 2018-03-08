@@ -248,7 +248,7 @@ def generic_post(imagefile, message):
         message=message)
     generic_message = ("Tweet Url: " + str(tweet_url) + "   \n"
                        + "Tumblr URL: " + str(tumbld_url) + "   \n" + "Facebook URL: " + str(fb_url))
-    return generic_message
+    return socialmediaobject
 
 
 def next_weekday(d, weekday):
