@@ -129,8 +129,11 @@ def post_to_all_social(filename, messageshort, url, messagelong):
                                  tags=['#mapporn'],  # Post to Tumblr
                                  caption=messagelong + ' ' + url,
                                  source=url)
-    tumbld_url = tumbld['id']
-    tumbld_url = ('http://mappornofficial.tumblr.com/post/' + str(tumbld_url))
+    try:
+        tumbld_url = tumbld['id']
+        tumbld_url = ('http://mappornofficial.tumblr.com/post/' + str(tumbld_url))
+    except Exception as e:
+        tumbld_url = "Error encountered: " + str(e)
     fb_url = facebook_image_generic(filename, messagelong)  # Post to Facebook
     tweet_url = ('https://twitter.com/MapPornTweet/status/' + tweet_id)
     socialmediaobject = SocialMediaPost(
