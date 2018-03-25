@@ -29,7 +29,7 @@ logdict = {'type': 'socmediapost'}
 try:
     social_media_post = generic_post(imagefile=image_file_name, message=post_message)
     logdict['time'] = time.time()
-    logobject = {'script': 'Top Post of Month',
+    logobject = {'script': 'Where in the World',
                  'message': social_media_post.message,
                  'tweet_url': social_media_post.tweet_url,
                  'tumblr_url': social_media_post.tumblr_url,
@@ -55,7 +55,7 @@ except Exception as ex:
     print(ex)
     logdict['time'] = time.time()
     logdict['error'] = str(ex)
-    logobject = {'script': 'Top Post of Month'}
+    logobject = {'script': 'Where World'}
     logdict['object'] = logobject
     addToMongo(logdict)
 
