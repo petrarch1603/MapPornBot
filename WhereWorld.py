@@ -35,7 +35,10 @@ try:
                  'tumblr_url': social_media_post.tumblr_url,
                  'fb_url': social_media_post.facebook_url}
     logdict['object'] = logobject
-    addToMongo(logdict)
+    try:
+        addToMongo(logdict)
+    except Exception as ex:
+        print(ex)
     os.chdir('..')
     with open('/data/locations.csv') as current_csv:
         csvreader = csv.reader(current_csv)
