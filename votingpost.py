@@ -111,7 +111,7 @@ social_media_post = generic_post(image_file_name, post_message_url)
 # # 8) Send a Reddit message to me with a summary and links to social media posts
 send_reddit_message_to_self('New Voting Post Posted', 'A new votingpost.py has been run. Check the post to make sure the bot did it right.'
                                    '   \nHere\'s the link to the post: ' + shortlink + '   \nHere\'s the social media '
-                                                                                       'links:    \n' + social_media_post)
+                                                                                       'links:    \n' + str(social_media_post))
 
 try:
     submission.mod.approve()  # Unsure if these two work
