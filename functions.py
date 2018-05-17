@@ -311,6 +311,31 @@ class SubmissionObject(object):
                           sort_keys=True, indent=4)
 
 
+class StackObject(object):
+    def __init__(self, url, title=''):
+        self.url = url
+        self.title = title
+
+class Stack:
+    def __init__(self):
+        self.stack = list()
+
+    def push(self, data):
+        if data not in self.stack:
+            self.stack.append(data)
+            return True
+        return False
+
+    def pop(self):
+        if len(self.stack)<=0:
+            return ("Stack Empty!")
+        return self.stack.pop()
+
+    def size(self):
+        return len(self.stack)
+
+
+
 def addToMongo(logdictObject):
     connection = pymongo.MongoClient("mongodb://" + mongo_id + ":" + mongo_pw + mongo_db)
     db = connection.mappornstatus
