@@ -55,6 +55,9 @@ for message in r.inbox.unread():
         logdict['object'] = newmap
         addToMongo(logdict)
 
+    elif message.subject == 'socmedia':
+        continue
+
     else:
         logdict['type'] = 'messageToBot'
         msg = message.body
