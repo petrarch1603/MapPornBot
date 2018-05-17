@@ -6,9 +6,6 @@ import datetime
 import time
 import json
 
-# Print time and date for verification
-print(datetime.datetime.now())
-
 r = praw.Reddit('bot1')
 disclaimer = bot_disclaimer()
 MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting post for the contest soon.    ' + '\n' + \
