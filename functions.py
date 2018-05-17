@@ -36,11 +36,18 @@ logger.addHandler(handler)
 my_reddit_ID = 'petrarch1603'  # This is the human reddit user name, NOT the bot's user name.
 
 
-def shotgun_blast(raw_id_input, announce_input):
-    announce = str(announce_input)
-    announce_len = len(announce)
+def shotgun_blast(raw_id_input, announce_input=None, title=None):
+    if announce_input != None:
+        announce = str(announce_input)
+        announce_len = len(announce)
+    else:
+        announce = ''
+        announce_len = 0
     twitter_char_len = (200-announce_len)  # 106 puts the len(messageshort) right at 140
     (url, messageshort, raw_id, messagelong) = parse_reddit(raw_id_input, twitter_char_len)
+    if title != None:
+        messagelong = title
+        messageshort = title[:twitter_char_len]
     shortlink = str('https://redd.it/' + str(raw_id))
     titlelength = len(messagelong)
     ellips = ''
