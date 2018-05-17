@@ -39,7 +39,7 @@ my_reddit_ID = 'petrarch1603'  # This is the human reddit user name, NOT the bot
 def shotgun_blast(raw_id_input, announce_input):
     announce = str(announce_input)
     announce_len = len(announce)
-    twitter_char_len = (106-announce_len)  # 106 puts the len(messageshort) right at 140
+    twitter_char_len = (200-announce_len)  # 106 puts the len(messageshort) right at 140
     (url, messageshort, raw_id, messagelong) = parse_reddit(raw_id_input, twitter_char_len)
     shortlink = str('http://redd.it/' + str(raw_id))
     titlelength = len(messagelong)
@@ -52,7 +52,7 @@ def shotgun_blast(raw_id_input, announce_input):
         else:
             hashtag = ' #Mapping'
     messagelong = announce + messagelong + '\n' + shortlink + '\n#MapPorn #Mapping'
-    print(announce + messageshort + ellips + hashtag)
+    # print(announce + messageshort + ellips + hashtag)
     # if len(messageshort) <= 109:
     #     charactersLeft = (119-int(len(messageshort)))
     #     print("Would you like to add another hashtag? You have " + str(charactersLeft) + ' characters left:')
@@ -65,7 +65,8 @@ def shotgun_blast(raw_id_input, announce_input):
     #     else:
     #         pass
     messageshort = announce + '\n' + messageshort + '\n' + shortlink
-    print('Message Long = ' + str(messagelong) + ' (' + str(len(messagelong)) + ')')
+    print(messageshort)
+    # print('Message Long = ' + str(messagelong) + ' (' + str(len(messagelong)) + ')')
     xy = post_from_reddit(url=url, messageshort=messageshort, raw_id=raw_id, messagelong=messagelong)
     return xy
 
