@@ -41,7 +41,7 @@ def shotgun_blast(raw_id_input, announce_input):
     announce_len = len(announce)
     twitter_char_len = (200-announce_len)  # 106 puts the len(messageshort) right at 140
     (url, messageshort, raw_id, messagelong) = parse_reddit(raw_id_input, twitter_char_len)
-    shortlink = str('http://redd.it/' + str(raw_id))
+    shortlink = str('https://redd.it/' + str(raw_id))
     titlelength = len(messagelong)
     ellips = ''
     if titlelength > 106:
