@@ -18,8 +18,6 @@ with open('data/socmedia.pkl', 'rb') as f:
     mapstackold = (pickle.load(f))
 
 urllist = mapstackold.urllist()
-for item in urllist:
-    print(item)
 
 def postsocmedia(stack):
     newsocmediapost = stack.pop()
