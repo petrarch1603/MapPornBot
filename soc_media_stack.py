@@ -17,6 +17,10 @@ newMessage = 'false'
 with open('data/socmedia.pkl', 'rb') as f:
     mapstackold = (pickle.load(f))
 
+urllist = mapstackold.urllist()
+for item in urllist:
+    print(item)
+
 newsocmediapost = mapstackold.pop()
 if newsocmediapost != "Stack Empty!":
     raw_url = str(newsocmediapost.url[-6:])
@@ -47,8 +51,8 @@ for message in r.inbox.unread():
         except:
             print("No title included")
         if socmediamap[0].startswith("https://redd.it/"):
-            for item in mapstackold:
-                if item.url == socmediamap[0]:
+            for item in urllist:
+                if item == socmediamap[0]:
                     message.mark_read()
             else:
                 newStackObject = StackObject(
