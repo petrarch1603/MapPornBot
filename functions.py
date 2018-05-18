@@ -47,7 +47,7 @@ def shotgun_blast(raw_id_input, announce_input=None, title=None):
     (url, messageshort, raw_id, messagelong) = parse_reddit(raw_id_input, twitter_char_len)
     if title != None:
         messagelong = title
-        messageshort = title[:twitter_char_len]
+        messageshort = (title[:twitter_char_len] + '...')
     shortlink = str('https://redd.it/' + str(raw_id))
     titlelength = len(messagelong)
     ellips = ''
