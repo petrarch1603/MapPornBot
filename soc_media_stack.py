@@ -21,15 +21,25 @@ urllist = mapstackold.urllist()
 for item in urllist:
     print(item)
 
-newsocmediapost = mapstackold.pop()
-if newsocmediapost != "Stack Empty!":
-    raw_url = str(newsocmediapost.url[-6:])
-    redditObject = r.submission(id=raw_url)
-    x = shotgun_blast(raw_id_input=(redditObject), title=newsocmediapost.title)
-    print(x.tweet_url)
-else:
-    print('Stack Empty!')
+def postsocmedia(stack):
+    newsocmediapost = stack.pop()
+    if newsocmediapost != "Stack Empty!":
+        raw_url = str(newsocmediapost.url[-6:])
+        redditObject = r.submission(id=raw_url)
+        x = shotgun_blast(raw_id_input=(redditObject), title=newsocmediapost.title)
+        print(x.tweet_url)
+        return stack
+    else:
+        print('Stack Empty!')
 
+mapstackold = postsocmedia(mapstackold)
+
+# Post another map if the stack has more than two days worth of maps.
+if mapstackold.size() > 16:
+    mapstackold = postsocmedia(mapstackold)
+
+
+# Check Messages for new maps to add to Stack
 for message in r.inbox.unread():
     newMessage = 'true'
 if newMessage is 'false':
