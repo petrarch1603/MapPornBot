@@ -343,6 +343,21 @@ class Stack:
     def size(self):
         return len(self.stack)
 
+    def isEmpty(self):
+        return len(self.stack) == 0
+
+    def peek(self):
+        if self.isEmpty():
+            raise Exception("Nothing to peek")
+        return self.stack[len(self.stack) - 1]
+
+    def urllist(self):
+        if self.isEmpty():
+            return None
+        urllist = []
+        for item in self.stack:
+            str(urllist.append(item.url))
+        return urllist
 
 
 def addToMongo(logdictObject):
