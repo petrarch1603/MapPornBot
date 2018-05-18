@@ -22,7 +22,7 @@ if newsocmediapost != "Stack Empty!":
     raw_url = str(newsocmediapost.url[-6:])
     redditObject = r.submission(id=raw_url)
     x = shotgun_blast(raw_id_input=(redditObject), title=newsocmediapost.title)
-    print(x)
+    print(x.tweet_url)
 else:
     print('Stack Empty!')
 
