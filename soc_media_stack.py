@@ -47,12 +47,16 @@ for message in r.inbox.unread():
         except:
             print("No title included")
         if socmediamap[0].startswith("https://redd.it/"):
-            newStackObject = StackObject(
-                url=socmediamap[0],
-                title=title
-            )
-            mapstackold.push(data=newStackObject)
-        message.mark_read()
+            for item in mapstackold:
+                if item.url == socmediamap[0]:
+                    message.mark_read()
+            else:
+                newStackObject = StackObject(
+                    url=socmediamap[0],
+                    title=title
+                )
+                mapstackold.push(data=newStackObject)
+                message.mark_read()
 
 with open('data/socmedia.pkl', 'wb') as f:
     pickle.dump(mapstackold, f)
