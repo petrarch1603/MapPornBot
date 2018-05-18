@@ -39,7 +39,7 @@ my_reddit_ID = 'petrarch1603'  # This is the human reddit user name, NOT the bot
 
 
 def shotgun_blast(raw_id_input, announce_input=None, title=None):
-    if announce_input != None:
+    if announce_input is not None:
         announce = str(announce_input)
         announce_len = len(announce)
     else:
@@ -47,7 +47,7 @@ def shotgun_blast(raw_id_input, announce_input=None, title=None):
         announce_len = 0
     twitter_char_len = (200-announce_len)  # 106 puts the len(messageshort) right at 140
     (url, messageshort, raw_id, messagelong) = parse_reddit(raw_id_input, twitter_char_len)
-    if title != None:
+    if title is not None:
         messagelong = title
         messageshort = (title[:twitter_char_len] + '...')
     shortlink = str('https://redd.it/' + str(raw_id))
