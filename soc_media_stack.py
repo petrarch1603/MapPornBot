@@ -41,7 +41,6 @@ for message in r.inbox.unread():
         socmediamap = os.linesep.join([s for s in socmediamap.splitlines() if s])  # removes extraneous line breaks
         socmediamap = socmediamap.splitlines()  # Turn submission into a list
         title = None
-        # unique_id = message # Gets the message's unique ID
         try:
             if socmediamap[1]:
                 title = socmediamap[1]
