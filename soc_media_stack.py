@@ -8,13 +8,13 @@ import os
 import pickle
 import praw
 import time
-from functions import addToMongo, Stack, StackObject, shotgun_blast
+from functions import addToMongo, StackObject, shotgun_blast
 
 r = praw.Reddit('bot1')
 logdict = {}
 newMessage = 'false'
 
-with open('socmedia.pkl', 'rb') as f:
+with open('data/socmedia.pkl', 'rb') as f:
     mapstackold = (pickle.load(f))
 
 newsocmediapost = mapstackold.pop()
@@ -55,5 +55,5 @@ for message in r.inbox.unread():
             mapstackold.push(data=newStackObject)
         message.mark_read()
 
-with open('socmedia.pkl', 'wb') as f:
+with open('data/socmedia.pkl', 'wb') as f:
     pickle.dump(mapstackold, f)
