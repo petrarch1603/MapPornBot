@@ -53,6 +53,7 @@ for message in r.inbox.unread():
         if socmediamap[0].startswith("https://redd.it/"):
             for item in urllist:
                 if item == socmediamap[0]:
+                    print("Duplicate detected!")
                     message.mark_read()
             else:
                 newStackObject = StackObject(
