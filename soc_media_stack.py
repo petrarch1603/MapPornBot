@@ -19,16 +19,18 @@ with open('data/socmedia.pkl', 'rb') as f:
 
 urllist = mapstackold.urllist()
 
+
 def postsocmedia(stack):
     newsocmediapost = stack.pop()
     if newsocmediapost != "Stack Empty!":
         raw_url = str(newsocmediapost.url[-6:])
-        redditObject = r.submission(id=raw_url)
-        x = shotgun_blast(raw_id_input=(redditObject), title=newsocmediapost.title)
+        redditobject = r.submission(id=raw_url)
+        x = shotgun_blast(raw_id_input=redditobject, title=newsocmediapost.title)
         print(x.tweet_url)
         return stack
     else:
         print('Stack Empty!')
+
 
 mapstackold = postsocmedia(mapstackold)
 
