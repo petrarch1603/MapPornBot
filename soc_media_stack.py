@@ -58,7 +58,8 @@ for message in r.inbox.unread():
         try:
             if socmediamap[1]:
                 title = socmediamap[1]
-        except:
+        except Exception as e:
+            print(e)
             print("No title included")
         if socmediamap[0].startswith("https://redd.it/"):
             for item in urllist:
