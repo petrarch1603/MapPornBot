@@ -50,7 +50,8 @@ def shotgun_blast(raw_id_input, announce_input=None, title=None):
     if title is not None:
         messagelong = title
         messageshort = (title[:twitter_char_len] + '...')
-    shortlink = str('https://redd.it/' + str(raw_id))
+    #shortlink = str('https://redd.it/' + str(raw_id))
+    shortlink = raw_id_input.shortlink
     titlelength = len(messagelong)
     ellips = ''
     if titlelength > 106:
