@@ -35,6 +35,7 @@ def postsocmedia(stack):
         return stack
     else:
         print('Stack Empty!')
+        return stack
 
 
 mapstackold = postsocmedia(mapstackold)
