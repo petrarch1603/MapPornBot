@@ -41,11 +41,8 @@ def postsocmedia(stack):
 mapstackold = postsocmedia(mapstackold)
 
 # Post another map if the stack has more than two days worth of maps.
-try:
-    if mapstackold.size() > 50 and mapstackold.size() % 2 == 0:
+if mapstackold.size() > 50 and mapstackold.size() % 2 == 0:
         mapstackold = postsocmedia(mapstackold)
-except:
-    print('mapstack too small')
 
 
 # Check Messages for new maps to add to Stack
