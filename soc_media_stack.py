@@ -19,7 +19,9 @@ with open('data/socmedia.pkl', 'rb') as f:
 
 urllist = mapstackold.urllist()
 
-print(urllist)
+# When mapstack is empty it throws an error when trying to access urllist.
+if not urllist:
+    urllist = []
 
 
 
