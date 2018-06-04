@@ -139,8 +139,8 @@ else:
 generic_message = generic_post(imagefile=winningImage, message=(post_title + ' ' + congrats_shortlink))
 
 # # 8) Send message to me with shortlinks for QC and social media URLs
-message_to_me = ('The new Congratulations post has just posted.    \nThe congrats post is here: ' + congrats_shortlink + '   \n' + 'Verify that the original post has contest mode turned OFF: ' +
-                 votingPost.shortlink + '   \n' + str(generic_message) + '\nCheck the new CSV in the SubmissionsArchives folder and make sure there is a description for each map. Pycharm was giving me trouble in assigning local variables during the FOR loop')
+message_to_me = ('The new Congratulations post has just posted.    \nThe congrats post is here: ' + congrats_shortlink + '   \n' + '' +
+                 str(votingPost.shortlink) + '   \n' + str(generic_message) + '\n')
 send_reddit_message_to_self(title='Congratulation post posted', message=message_to_me)
 
 # # 9) Rename and move the submissions_current.csv to a new name in the archive directory
