@@ -19,6 +19,9 @@ with open('data/socmedia.pkl', 'rb') as f:
 
 urllist = mapstackold.urllist()
 
+print(urllist)
+
+
 
 def postsocmedia(stack):
     newsocmediapost = stack.pop()
