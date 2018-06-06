@@ -44,7 +44,7 @@ mapstackold = postsocmedia(mapstackold)
 if mapstackold.size() > 50 and mapstackold.size() % 2 == 0:
         mapstackold = postsocmedia(mapstackold)
 
-if mapstackold.size() == 2:
+if mapstackold.size() <= 2:
     send_reddit_message_to_self("Stack size at 2",
                                 "Stack size at 2, consider adding some more maps to the stack.")
 
