@@ -30,9 +30,13 @@ def postsocmedia(stack):
     if newsocmediapost != "Stack Empty!":
         raw_url = str(newsocmediapost.url[-6:])
         redditobject = r.submission(id=raw_url)
-        x = shotgun_blast(raw_id_input=redditobject, title=newsocmediapost.title)
-        print(x.tweet_url)
-        return stack
+        try:
+            x = shotgun_blast(raw_id_input=redditobject, title=newsocmediapost.title)
+            print(x.tweet_url)
+            return stack
+        except Exception as shotgun_error:
+            print('Error encountered: \n' + str(shotgun_error))
+            return stack
     else:
         print('Stack Empty!')
         return stack
