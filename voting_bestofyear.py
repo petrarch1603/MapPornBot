@@ -14,7 +14,7 @@ finalistsCSV = "/SubmissionsArchive/finalists" + str(contest_year) + ".csv"
 finalists = open(finalistsCSV, "a")
 submdir = './SubmissionsArchive'
 for filename in os.listdir(submdir):
-    if fnmatch.fnmatch(filename, '2017*.csv'):
+    if fnmatch.fnmatch(filename, '2018*WINNERS.csv'):
         print(filename)
         f = open(submdir + "/" + filename)
         for line in f:
