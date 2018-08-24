@@ -28,8 +28,8 @@ if not urllist:
 def postsocmedia(stack):
     newsocmediapost = stack.pop()
     if newsocmediapost != "Stack Empty!":
-        raw_url = str(newsocmediapost.url[-6:])
-        redditobject = r.submission(id=raw_url)
+        raw_id = str(newsocmediapost.url[-6:])
+        redditobject = r.submission(id=raw_id)
         try:
             x = shotgun_blast(raw_id_input=redditobject, title=newsocmediapost.title)
             print(x.tweet_url)
