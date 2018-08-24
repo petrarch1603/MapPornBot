@@ -14,7 +14,7 @@ if today_int > 60 and calendar.isleap(datetime.datetime.now().year):
     today_int -= 1
 
 
-with open('shared_data/historicdates.csv', 'r') as f:
+with open('data/historicdates.csv', 'r') as f:
     reader = csv.reader(f)
     my_list = list(reader)
 
