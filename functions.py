@@ -45,7 +45,7 @@ def shotgun_blast(raw_id_input, announce_input=None, title=None):
     else:
         announce = ''
         announce_len = 0
-    twitter_char_len = (200-announce_len)  # 106 puts the len(messageshort) right at 140
+    twitter_char_len = (246-announce_len)  # 106 puts the len(messageshort) right at 140
     (url, messageshort, raw_id, messagelong) = parse_reddit(raw_id_input, twitter_char_len)
     if title is not None:
         messagelong = title
