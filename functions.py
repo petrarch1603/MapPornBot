@@ -383,3 +383,31 @@ def total_rows(cursor, table_name):
     cursor.execute('SELECT count(*) FROM {}'.format(table_name))
     count = cursor.fetchall()
     return count[0][0]
+
+def check_historyDB_integrity():
+    errormessage = ''
+    conn = sqlite3.connect('dayinhistory.db')
+    curs = conn.cursor()
+    for row in curs.execute("SELECT * FROM historymaps"):
+        try:
+            assert isinstance(row[2], int) and 0 < row[0] < 366
+        except Exception as e:
+            errormessage += ('Error: {}\n'
+                             '{} is not an acceptable date\n'
+                             'error message: {}\n'.format(row, row[2], e))
+        try:
+            assert row[1] != ''
+        except Exception as e:
+            errormessage += ('Error: {}\n'
+                             'Title is empty'
+                             'error message: {}\n'.format(row, e))
+        try:
+            assert len(row[0]) == 6
+        except AssertionError as e:
+            errormessage += ('Error: {}\n'
+                             '{} is not an acceptable raw_id'
+                             'error message: {}\n'.format(row, row[0], e))
+    if errormessage == '':
+        errormessage = 'Integrity Test Passed'
+    return errormessage
+
