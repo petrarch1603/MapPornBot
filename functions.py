@@ -14,6 +14,7 @@ import requests
 from secrets import *
 import shutil
 from secret_tumblr import *
+import sqlite3
 import tweepy
 import signal
 import json
@@ -368,6 +369,11 @@ def addToMongo(logdictObject):
     print(post_id)
 
 
-
-
-
+def add_to_historydb(raw_id, text, day_of_year):
+    conn = sqlite3.connect('dayinhistory.db')
+    curs = conn.cursor()
+    curs.execute('INSERT INTO historymaps values("{raw_id}", "{text}", {day_of_year})'.format(
+        raw_id=raw_id,
+        text=text,
+        day_of_year=day_of_year))
+    conn.commit()
