@@ -69,6 +69,10 @@ for message in r.inbox.unread():
         raw_id = ''
         text = ''
         for item in DIHmessage:
+            try:
+                item = int(item)
+            except ValueError:
+                pass
             if isinstance(item, int) and 0 < item < 366:
                 dayinhistory = item
             elif item.startswith("https://redd.it/"):
@@ -76,8 +80,11 @@ for message in r.inbox.unread():
             else:
                 text = item
         if text == '' or raw_id == '' or dayinhistory == '':
+            errorMessage = ''
+            for line in DIHmessage:
+                errorMessage += (line + '\n')
             send_reddit_message_to_self(title='Error processing day in history',
-                                        message=("Cannot parse this message: \n" + str(DIHmessage)))
+                                        message=errorMessage)
         else:
             add_to_historydb(raw_id=raw_id, day_of_year=dayinhistory, text=text)
             send_reddit_message_to_self(title='Success', message='added to historyDB')
