@@ -361,53 +361,54 @@ class Stack:
             str(urllist.append(item.url))
         return urllist
 
-
 def addToMongo(logdictObject):
     connection = pymongo.MongoClient("mongodb://" + mongo_id + ":" + mongo_pw + mongo_db)
     db = connection.mappornstatus
     post_id = db.mappornstatus.insert_one(logdictObject).inserted_id
     print(post_id)
 
-# MySQL Functions
-def add_to_historydb(raw_id, text, day_of_year):
-    conn = sqlite3.connect('dayinhistory.db')
-    curs = conn.cursor()
-    curs.execute('INSERT INTO historymaps values("{raw_id}", "{text}", {day_of_year})'.format(
-        raw_id=raw_id,
-        text=text,
-        day_of_year=day_of_year))
-    conn.commit()
 
+class SQLiteFunctions:
 
-def total_rows(cursor, table_name):
-    cursor.execute('SELECT count(*) FROM {}'.format(table_name))
-    count = cursor.fetchall()
-    return count[0][0]
+    def add_to_historydb(raw_id, text, day_of_year):
+        conn = sqlite3.connect('dayinhistory.db')
+        curs = conn.cursor()
+        curs.execute('INSERT INTO historymaps values("{raw_id}", "{text}", {day_of_year})'.format(
+            raw_id=raw_id,
+            text=text,
+            day_of_year=day_of_year))
+        conn.commit()
 
-def check_historyDB_integrity():
-    errormessage = ''
-    conn = sqlite3.connect('dayinhistory.db')
-    curs = conn.cursor()
-    for row in curs.execute("SELECT * FROM historymaps"):
-        try:
-            assert isinstance(row[2], int) and 0 < row[0] < 366
-        except Exception as e:
-            errormessage += ('Error: {}\n'
-                             '{} is not an acceptable date\n'
-                             'error message: {}\n'.format(row, row[2], e))
-        try:
-            assert row[1] != ''
-        except Exception as e:
-            errormessage += ('Error: {}\n'
-                             'Title is empty'
-                             'error message: {}\n'.format(row, e))
-        try:
-            assert len(row[0]) == 6
-        except AssertionError as e:
-            errormessage += ('Error: {}\n'
-                             '{} is not an acceptable raw_id'
-                             'error message: {}\n'.format(row, row[0], e))
-    if errormessage == '':
-        errormessage = 'Integrity Test Passed'
-    return errormessage
+    def total_rows(cursor, table_name):
+        cursor.execute('SELECT count(*) FROM {}'.format(table_name))
+        count = cursor.fetchall()
+        return count[0][0]
+
+    def check_historyDB_integrity():
+        errormessage = ''
+        conn = sqlite3.connect('dayinhistory.db')
+        curs = conn.cursor()
+        for row in curs.execute("SELECT * FROM historymaps"):
+            try:
+                my_day = int(row[2])
+                assert isinstance(row[2], int) and (0 < my_day < 366)
+            except Exception as e:
+                errormessage += ('Error: {}\n'
+                                 '{} is not an acceptable date\n'
+                                 'error message: {}\n'.format(row, row[2], e))
+            try:
+                assert row[1] != ''
+            except Exception as e:
+                errormessage += ('Error: {}\n'
+                                 'Title is empty'
+                                 'error message: {}\n'.format(row, e))
+            try:
+                assert len(row[0]) == 6
+            except AssertionError as e:
+                errormessage += ('Error: {}\n'
+                                 '{} is not an acceptable raw_id'
+                                 'error message: {}\n'.format(row, row[0], e))
+        if errormessage == '':
+            errormessage = 'HistoryDB Integrity Test Passed'
+        return errormessage
 
