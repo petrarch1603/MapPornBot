@@ -368,7 +368,7 @@ def addToMongo(logdictObject):
     post_id = db.mappornstatus.insert_one(logdictObject).inserted_id
     print(post_id)
 
-
+# MySQL Functions
 def add_to_historydb(raw_id, text, day_of_year):
     conn = sqlite3.connect('dayinhistory.db')
     curs = conn.cursor()
@@ -377,3 +377,9 @@ def add_to_historydb(raw_id, text, day_of_year):
         text=text,
         day_of_year=day_of_year))
     conn.commit()
+
+
+def total_rows(cursor, table_name):
+    cursor.execute('SELECT count(*) FROM {}'.format(table_name))
+    count = cursor.fetchall()
+    return count[0][0]
