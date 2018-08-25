@@ -64,6 +64,7 @@ for message in r.inbox.unread():
         DIHmessage = message.body
         DIHmessage = os.linesep.join([s for s in DIHmessage.splitlines() if s])
         DIHmessage = DIHmessage.splitlines()
+        print(DIHmessage)
         dayinhistory = ''
         raw_id = ''
         text = ''
@@ -75,8 +76,8 @@ for message in r.inbox.unread():
             else:
                 text = item
         if text == '' or raw_id == '' or dayinhistory == '':
-            send_reddit_message_to_self(title='Error processing day in history', message=("Cannot parse this "
-                                                                                          "message: \n" + DIHmessage))
+            send_reddit_message_to_self(title='Error processing day in history',
+                                        message=("Cannot parse this message: \n" + str(DIHmessage)))
         else:
             add_to_historydb(raw_id=raw_id, day_of_year=dayinhistory, text=text)
             send_reddit_message_to_self(title='Success', message='added to historyDB')
