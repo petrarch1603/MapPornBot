@@ -98,10 +98,13 @@ for message in r.inbox.unread():
                 pass
             if isinstance(item, int) and 0 < item < 366:
                 dayinhistory = item
+                print("Day in history: " + str(dayinhistory))
             elif item.startswith("https://redd.it/"):
                 raw_id = item[-6:]
+                print("Raw_ID: " + str(raw_id))
             else:
                 text = item
+                print("Text: " + str(text))
         if text == '' or raw_id == '' or dayinhistory == '':
             errorMessage = ''
             for line in DIHmessage:
