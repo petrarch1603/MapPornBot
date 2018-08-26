@@ -494,7 +494,7 @@ class SQLiteFunctions:
                 .format(cutoff_time=cutoff_time)):
             fresh_list.append(row)
         if len(fresh_list) == 0:
-            return
+            return "No records refreshed"
         else:
             for item in fresh_list:
                 try:
@@ -503,3 +503,4 @@ class SQLiteFunctions:
                 except Exception as e:
                     error_message = ("Error refreshing old maps, check the script \n" + str(e))
                     send_reddit_message_to_self(title="Error Re-Freshing", message=error_message)
+        return ("Records re-freshed: " + str(len(fresh_list)))
