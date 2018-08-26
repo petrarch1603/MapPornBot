@@ -1,7 +1,7 @@
 from functions import SQLiteFunctions
 import sqlite3
 
-conn = sqlite3.connect('dayinhistory.db')
+conn = sqlite3.connect('data/dayinhistory.db')
 curs = conn.cursor()
 
 historyDBstatus = SQLiteFunctions.check_historyDB_integrity()
