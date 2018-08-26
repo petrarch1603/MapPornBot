@@ -382,7 +382,7 @@ class SQLiteFunctions:
         curs.execute('INSERT INTO historymaps values("{raw_id}", "{text}", {day_of_year})'.format(
             raw_id=raw_id,
             text=text,
-            day_of_year=day_of_year))
+            day_of_year=day_of_year), )
         conn.commit()
 
     def add_to_socmediadb(raw_id, text, time_zone, fresh=1, post_error=0):
