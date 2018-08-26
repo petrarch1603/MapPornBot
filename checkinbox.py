@@ -84,7 +84,6 @@ for message in r.inbox.unread():
         #addToMongo(logdict)
 
     elif message.subject == 'socmedia' and message.author == 'Petrarch1603':
-        #TODO add feature to check socmedia messages from here.
         socmediamap = message.body
         socmediamap = os.linesep.join([s for s in socmediamap.splitlines() if s])  # removes extraneous line breaks
         socmediamap = socmediamap.splitlines()  # Turn submission into a list
@@ -120,6 +119,7 @@ for message in r.inbox.unread():
         except AssertionError:
             errorMessage = "Error: new count did not go up by 1"
             send_reddit_message_to_self(title="problem adding to DB", message=errorMessage)
+            message.mark_read()
     elif message.subject == 'dayinhistory' and message.author == 'Petrarch1603':
         DIHmessage = message.body
         DIHmessage = os.linesep.join([s for s in DIHmessage.splitlines() if s])
