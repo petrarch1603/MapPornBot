@@ -379,7 +379,7 @@ class SQLiteFunctions:
     def add_to_historydb(raw_id, text, day_of_year):
         conn = sqlite3.connect('data/dayinhistory.db')
         curs = conn.cursor()
-        curs.execute('INSERT INTO historymaps values("{raw_id}", "{text}", {day_of_year})'.format(
+        curs.execute('INSERT INTO historymaps values({raw_id}, {text}, {day_of_year})'.format(
             raw_id=raw_id,
             text=text,
             day_of_year=day_of_year), )
