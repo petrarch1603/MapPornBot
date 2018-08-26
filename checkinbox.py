@@ -48,6 +48,7 @@ def add_to_historydb(raw_id, text, day_of_year):
         text,
         day_of_year))
     conn.commit()
+    conn.close()
 
 
 for message in r.inbox.unread():
@@ -164,6 +165,4 @@ for message in r.inbox.unread():
         #addToMongo(logdict)
         message.mark_read()
 
-conn.commit()
-conn.close()
 
