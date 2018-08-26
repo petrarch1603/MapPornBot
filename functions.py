@@ -370,7 +370,7 @@ def addToMongo(logdictObject):
 
 
 def strip_punc(str):
-    exclude = set(string.punctuation)
+    exclude = set((string.punctuation) + '0123456789')
     return ''.join(ch for ch in str if ch not in exclude)
 
 
