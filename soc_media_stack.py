@@ -1,96 +1,99 @@
-# This script spaces out the submissions to social media.
-#
-# This way I can add multiple social media posts simultaneously and they won't all post at once.
-# Instead they will be added as objects to a stack. Every few hours the script will run and submit one social media post
-# at a time.
-
-import os
-import pickle
+import datetime
+from functions import shotgun_blast, send_reddit_message_to_self
 import praw
-import string
+import random
+import sqlite3
 import time
-from functions import addToMongo, StackObject, shotgun_blast, send_reddit_message_to_self
 
+
+# This script will only be scoped to post from the socmedia database to social media.
+# Checking the inbox and storing to the database will be done in checkinbox.py
+
+
+# Connect to database and PRAW
+conn = sqlite3.connect('data/socmedia.db')
+curs = conn.cursor()
 r = praw.Reddit('bot1')
-logdict = {}
-newMessage = 'false'
 
-with open('data/socmedia.pkl', 'rb') as f:
-    mapstackold = (pickle.load(f))
-
-urllist = mapstackold.urllist()
-
-# When mapstack is empty it throws an error when trying to access urllist.
-if not urllist:
-    urllist = []
+# Deal with time zone and hour
+popular_hour = 9
 
 
+def get_target_hour(popular_hour_arg):
+    utc_now = datetime.datetime.utcnow().hour
+    target = popular_hour_arg - utc_now
+    if target < -11:
+        target = target + 24
+    elif target > 12:
+        target = target - 24
+    return target
 
-def postsocmedia(stack):
-    newsocmediapost = stack.pop()
-    if newsocmediapost != "Stack Empty!":
-        raw_id = str(newsocmediapost.url[-6:])
-        redditobject = r.submission(id=raw_id)
-        try:
-            x = shotgun_blast(raw_id_input=redditobject, title=newsocmediapost.title)
-            print(x.tweet_url)
-            return stack
-        except Exception as shotgun_error:
-            print('Error encountered: \n' + str(shotgun_error))
-            return stack
+
+def get_map(target):  # Get a map that is in the target hour range
+    mintarget = (int(target) - 3)
+    maxtarget = (int(target) + 3)
+    if mintarget < -11:
+        mintarget += 24
+    elif maxtarget > 12:
+        maxtarget -= 24
+    targetmaplist = []
+    for row in curs.execute(
+        "SELECT * FROM socmediamaps WHERE fresh=1 AND time_zone >= {mintarget} AND time_zone <= {maxtarget}"
+            .format(mintarget=mintarget, maxtarget=maxtarget)):
+        targetmaplist.append(row)
+    if len(targetmaplist) == 0:
+        # TODO: choose the time zone that is most frequently in the database, not a random map.
+        my_map = curs.execute("SELECT * FROM socmediamaps WHERE fresh=1 ORDER BY RANDOM() LIMIT 1")
     else:
-        print('Stack Empty!')
-        return stack
+        random_int = random.randint(0, (len(targetmaplist) - 1))
+        my_map = targetmaplist[random_int]
+    #my_map = my_map.fetchone()
+    return my_map
 
 
-mapstackold = postsocmedia(mapstackold)
+def not_fresh(my_map_arg):
+    # TODO: Make sure the notFresh count goes up after updated
+    old_count = list(curs.execute(
+        "SELECT count(*) FROM socmediamaps WHERE fresh = 0"
+    ))[0][0]
 
-# Post another map if the stack has more than two days worth of maps.
-if mapstackold.size() > 50 and mapstackold.size() % 2 == 0:
-        mapstackold = postsocmedia(mapstackold)
+    curs.execute('''UPDATE socmediamaps SET fresh=0 WHERE raw_id=?''', (my_map_arg[0],))
+    curs.execute('''UPDATE socmediamaps SET date_posted=? WHERE raw_id=?''', (int(time.time()), my_map_arg[0],))
+    new_count = list(curs.execute(
+        "SELECT count(*) FROM socmediamaps WHERE fresh = 0"
+    ))[0][0]
 
-if mapstackold.size() <= 2:
-    send_reddit_message_to_self("Stack size at 2",
-                                "Stack size at 2, consider adding some more maps to the stack.")
+    try:
+        assert new_count == (old_count + 1)
+    except Exception as e:
+        # TODO: Add Logging
+        error_message = ('Error: new fresh count is different than old fresh count.' + str(e))
+        send_reddit_message_to_self(title="Fresh count wrong", message=error_message)
 
-# Check Messages for new maps to add to Stack
-for message in r.inbox.unread():
-    newMessage = 'true'
-if newMessage is 'false':
-    logdict['time'] = time.time()
-    logdict['type'] = 'noNewMail'
-    addToMongo(logdict)
 
-for message in r.inbox.unread():
-    if message.subject == "socmedia":
-        logdict['type'] = 'socmediastack'
-        logdict['time'] = time.time()
-        socmediamap = message.body
-        socmediamap = os.linesep.join([s for s in socmediamap.splitlines() if s])  # removes extraneous line breaks
-        socmediamap = socmediamap.splitlines()  # Turn submission into a list
-        title = None
-        try:
-            if socmediamap[1]:
-                title = socmediamap[1]
-        except Exception as e:
-            print(e)
-            print("No title included")
-        if socmediamap[0].startswith("https://redd.it/"):
-            for item in urllist:
-                if item == socmediamap[0]:
-                    print("Duplicate detected!")
-                    message.mark_read()
-            else:
-                newStackObject = StackObject(
-                    url=socmediamap[0],
-                    title=title
-                )
-                mapstackold.push(data=newStackObject)
-                message.mark_read()
+def postsocmedia(my_map_arg):
+    error_message = ''
+    redditobject = r.submission(id=my_map_arg[0])
+    try:
+        blast = shotgun_blast(raw_id_input=redditobject, title=my_map_arg[1])
+        not_fresh(my_map_arg)
+        print(blast.tweet_url)
+        # TODO: Add logging
+    except Exception as e:
+        error_message = ("Error Encountered: \n"
+                         "Could not post to social media.\n" + str(e))
+        send_reddit_message_to_self(title="Error with Social Media Post", message=error_message)
+    return error_message
 
-with open('data/socmedia.pkl', 'wb') as f:
-    pickle.dump(mapstackold, f)
 
-def remove_punctuation(str):
-    exclude = set(string.punctuation)
-    return (''.join(ch for ch in str if ch not in exclude))
+my_map_global = get_map(get_target_hour(popular_hour))
+status = postsocmedia(my_map_global)
+if status == '':
+    # TODO log success
+    conn.commit()
+    conn.close()
+
+
+# TODO
+# Add logging to a database
+
