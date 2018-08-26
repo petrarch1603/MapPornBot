@@ -150,7 +150,7 @@ for message in r.inbox.unread():
                                         message=errorMessage)
         else:
             add_to_historydb(raw_id=raw_id, day_of_year=dayinhistory, text=text)
-            send_reddit_message_to_self(title='Success', message='added to historyDB')
+            #TODO: log success
         message.mark_read()
 
     else:
