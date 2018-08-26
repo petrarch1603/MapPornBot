@@ -16,6 +16,7 @@ import shutil
 from secret_tumblr import *
 import sqlite3
 import string
+import time
 import tweepy
 import signal
 import json
@@ -481,3 +482,24 @@ class SQLiteFunctions:
         if errormessage == '':
             errormessage = 'SocmediaDB Integrity Test Passed'
         return errormessage
+
+
+    def make_fresh_again(time_past=34560000):
+        conn = sqlite3.connect('data/socmedia.db')
+        curs = conn.cursor()
+        cutoff_time = (time.time() - int(time_past))
+        fresh_list = []
+        for row in curs.execute(
+            "SELECT * FROM socmediamaps WHERE fresh=0 AND date_posted < {cutoff_time}"
+                .format(cutoff_time=cutoff_time)):
+            fresh_list.append(row)
+        if len(fresh_list) == 0:
+            return
+        else:
+            for item in fresh_list:
+                try:
+                    curs.execute('''UPDATE socmediamaps SET fresh=1 WHERE raw_id=?''', (item[0],))
+                    conn.commit()
+                except Exception as e:
+                    error_message = ("Error refreshing old maps, check the script \n" + str(e))
+                    send_reddit_message_to_self(title="Error Re-Freshing", message=error_message)
