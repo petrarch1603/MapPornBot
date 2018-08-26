@@ -15,6 +15,17 @@ MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting po
 logdict = {}
 newMessage = 'false'
 
+
+def add_to_historydb(raw_id, text, day_of_year):
+    conn = sqlite3.connect('data/dayinhistory.db')
+    curs = conn.cursor()
+    curs.execute('INSERT INTO historymaps values('
+                 '"{raw_id}", "{text}", {day_of_year})'.format(
+        raw_id=str(raw_id),
+        text=str(text),
+        day_of_year=int(day_of_year)))
+    conn.commit()
+
 for message in r.inbox.unread():
     newMessage = 'true'
 
@@ -112,7 +123,7 @@ for message in r.inbox.unread():
             send_reddit_message_to_self(title='Error processing day in history',
                                         message=errorMessage)
         else:
-            SQLiteFunctions.add_to_historydb(raw_id=raw_id, day_of_year=dayinhistory, text=text)
+            add_to_historydb(raw_id=raw_id, day_of_year=dayinhistory, text=text)
             send_reddit_message_to_self(title='Success', message='added to historyDB')
         message.mark_read()
 
