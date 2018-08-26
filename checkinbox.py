@@ -1,7 +1,7 @@
 import os
 import praw
 import csv
-from functions import my_reddit_ID, bot_disclaimer, SubmissionObject, addToMongo, send_reddit_message_to_self, SQLiteFunctions
+from functions import my_reddit_ID, bot_disclaimer, SubmissionObject, strip_punc, send_reddit_message_to_self, SQLiteFunctions
 import datetime
 import time
 import json
@@ -56,8 +56,31 @@ for message in r.inbox.unread():
 
     elif message.subject == 'socmedia' and message.author == 'Petrarch1603':
         #TODO add feature to check socmedia messages from here.
+        socmediamap = message.body
+        socmediamap = os.linesep.join([s for s in socmediamap.splitlines() if s])  # removes extraneous line breaks
+        socmediamap = socmediamap.splitlines()  # Turn submission into a list
+        title = None
+        try:
+            assert socmediamap[0].startswith("https://redd.it/")
+        except Exception as e:
+            errorMessage = ("Error detected: Message does not include a valid URL" + str(message.body))
+            send_reddit_message_to_self(title="Socmedia Message Error", message=errorMessage)
+        raw_id = socmediamap[0][-6:]
+
+        try:
+            if socmediamap[1]:
+                title = socmediamap[1]
+        except Exception as e:
+            title = r.submission(id=raw_id).title
+
+        stripped = (strip_punc(title)).split(' ')
+        #TODO: compare each stripped word to the locations csv and if there's a match, add the time zone
+        time_zone = 0 # Default value
+
         #TODO make sure the submission isn't already added
-        continue
+
+        #TODO add the map to the database
+        SQLiteFunctions.add_to_socmediadb(raw_id=raw_id, text=title, time_zone=time_zone)
 
     elif message.subject == 'dayinhistory' and message.author == 'Petrarch1603':
         # TODO add to dayinhistory.db
