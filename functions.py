@@ -15,6 +15,7 @@ from secrets import *
 import shutil
 from secret_tumblr import *
 import sqlite3
+import string
 import tweepy
 import signal
 import json
@@ -368,6 +369,11 @@ def addToMongo(logdictObject):
     print(post_id)
 
 
+def strip_punc(str):
+    exclude = set(string.punctuation)
+    return ''.join(ch for ch in str if ch not in exclude)
+
+
 class SQLiteFunctions:
 
     def add_to_historydb(raw_id, text, day_of_year):
@@ -378,6 +384,24 @@ class SQLiteFunctions:
             text=text,
             day_of_year=day_of_year))
         conn.commit()
+
+    def add_to_socmediadb(raw_id, text, time_zone, fresh=1, post_error=0):
+        conn = sqlite3.connect('data/socmedia.db')
+        curs = conn.cursor()
+        try:
+            curs.execute('INSERT INTO socmediamaps values('
+                         '"{raw_id}", "{text}", {time_zone}, {fresh}, NULL, {post_error})'.format(
+                raw_id=raw_id,
+                text=text,
+                time_zone=time_zone,
+                fresh=int(fresh),
+                post_error=int(post_error)
+            ))
+            conn.commit()
+        except Exception as e:
+            error_message = ("Error: Could not add map to Database: \n" + str(e))
+            send_reddit_message_to_self(title="Could not add socmediamap to DB", message=error_message)
+
 
     def total_rows(cursor, table_name):
         cursor.execute('SELECT count(*) FROM {}'.format(table_name))
