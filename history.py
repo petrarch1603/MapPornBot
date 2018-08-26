@@ -6,7 +6,7 @@ import sqlite3
 from functions import shotgun_blast, send_reddit_message_to_self
 
 # Connect to database
-conn = sqlite3.connect('dayinhistory.db')
+conn = sqlite3.connect('data/dayinhistory.db')
 curs = conn.cursor()
 
 # Connect to PRAW
