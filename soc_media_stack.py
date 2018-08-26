@@ -7,6 +7,7 @@
 import os
 import pickle
 import praw
+import string
 import time
 from functions import addToMongo, StackObject, shotgun_blast, send_reddit_message_to_self
 
@@ -89,3 +90,7 @@ for message in r.inbox.unread():
 
 with open('data/socmedia.pkl', 'wb') as f:
     pickle.dump(mapstackold, f)
+
+def remove_punctuation(str):
+    exclude = set(string.punctuation)
+    return (''.join(ch for ch in str if ch not in exclude))

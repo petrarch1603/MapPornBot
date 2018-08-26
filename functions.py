@@ -414,28 +414,45 @@ class SQLiteFunctions:
 
     def check_socmediaDB_integrity():
         errormessage = ''
-        conn = sqlite3.connect('socmedia.db')
+        conn = sqlite3.connect('data/socmedia.db')
         curs = conn.cursor()
-        for row in curs.execute("SELECT * FROM historymaps"):
-            try:
-                my_day = int(row[2])
-                assert isinstance(row[2], int) and (0 < my_day < 366)
-            except Exception as e:
-                errormessage += ('Error: {}\n'
-                                 '{} is not an acceptable date\n'
-                                 'error message: {}\n'.format(row, row[2], e))
-            try:
-                assert row[1] != ''
-            except Exception as e:
-                errormessage += ('Error: {}\n'
-                                 'Title is empty'
-                                 'error message: {}\n'.format(row, e))
+        for row in curs.execute("SELECT * FROM socmediamaps"):
+            # Check that Raw_ID is valid
             try:
                 assert len(row[0]) == 6
             except AssertionError as e:
                 errormessage += ('Error: {}\n'
                                  '{} is not an acceptable raw_id'
                                  'error message: {}\n'.format(row, row[0], e))
+
+            # Check that title is not empty
+            try:
+                assert row[1] != ''
+            except Exception as e:
+                errormessage += ('Error: {}\n'
+                                 'Title is empty'
+                                 'error message: {}\n'.format(row, e))
+
+            # Check that there is a valid time zone
+            try:
+                zone = int(row[2])
+                assert isinstance(row[2], int) and (-12 <= zone <= 14)
+            except Exception as e:
+                errormessage += ('Error: {}\n'
+                                 'Time zone is not valid'
+                                 'error message: {}\n'.format(row, e))
+
+            # Check that the fresh column is a boolean value
+                # Note SQLite does not have boolean datatype, so we will use 0 and 1
+            try:
+                my_bool = int(row[3])
+                assert isinstance(row[3], int) and (0 <= my_bool <= 1)
+            except Exception as e:
+                errormessage += ('Error: {}\n'
+                                 'Fresh column is not Boolean'
+                                 'Fresh column should be either 0 or 1'
+                                 'error message: {}\n'.format(row, e))
+
         if errormessage == '':
-            errormessage = 'HistoryDB Integrity Test Passed'
+            errormessage = 'SocmediaDB Integrity Test Passed'
         return errormessage
