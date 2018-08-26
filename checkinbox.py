@@ -1,8 +1,7 @@
 import os
 import praw
 import csv
-from functions import my_reddit_ID, bot_disclaimer, SubmissionObject, addToMongo, send_reddit_message_to_self, \
-    add_to_historydb
+from functions import my_reddit_ID, bot_disclaimer, SubmissionObject, addToMongo, send_reddit_message_to_self, SQLiteFunctions
 import datetime
 import time
 import json
@@ -57,6 +56,7 @@ for message in r.inbox.unread():
 
     elif message.subject == 'socmedia' and message.author == 'Petrarch1603':
         #TODO add feature to check socmedia messages from here.
+        #TODO make sure the submission isn't already added
         continue
 
     elif message.subject == 'dayinhistory' and message.author == 'Petrarch1603':
@@ -86,7 +86,7 @@ for message in r.inbox.unread():
             send_reddit_message_to_self(title='Error processing day in history',
                                         message=errorMessage)
         else:
-            add_to_historydb(raw_id=raw_id, day_of_year=dayinhistory, text=text)
+            SQLiteFunctions.add_to_historydb(raw_id=raw_id, day_of_year=dayinhistory, text=text)
             send_reddit_message_to_self(title='Success', message='added to historyDB')
         message.mark_read()
 
