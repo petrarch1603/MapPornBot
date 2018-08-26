@@ -91,7 +91,13 @@ for message in r.inbox.unread():
         #TODO make sure the submission isn't already added
 
         #TODO add the map to the database
+        conn = sqlite3.connect('data/socmedia.db')
+        curs = conn.cursor()
+        old_count = SQLiteFunctions.total_rows(cursor=curs,table_name=socmediamap)
+        print("Old count: " + str(old_count))
         SQLiteFunctions.add_to_socmediadb(raw_id=raw_id, text=title, time_zone=time_zone)
+        new_count = SQLiteFunctions.total_rows(cursor=curs,table_name=socmediamap)
+        print("New count: " + str(new_count))
 
     elif message.subject == 'dayinhistory' and message.author == 'Petrarch1603':
         # TODO add to dayinhistory.db
