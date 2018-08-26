@@ -98,8 +98,12 @@ for message in r.inbox.unread():
         SQLiteFunctions.add_to_socmediadb(raw_id=raw_id, text=title, time_zone=time_zone)
         new_count = SQLiteFunctions.total_rows(cursor=curs, table_name='socmediamaps')
         print("New count: " + str(new_count))
-
-        message.mark_read()
+        try:
+            assert int(new_count) == (int(old_count) + 1)
+            message.mark_read()
+        except AssertionError:
+            errorMessage = "Error: new count did not go up by 1"
+            send_reddit_message_to_self(title="problem adding to DB", message=errorMessage)
     elif message.subject == 'dayinhistory' and message.author == 'Petrarch1603':
         # TODO add to dayinhistory.db
         DIHmessage = message.body
