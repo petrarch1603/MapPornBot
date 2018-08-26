@@ -120,7 +120,6 @@ for message in r.inbox.unread():
             errorMessage = "Error: new count did not go up by 1"
             send_reddit_message_to_self(title="problem adding to DB", message=errorMessage)
     elif message.subject == 'dayinhistory' and message.author == 'Petrarch1603':
-        # TODO add to dayinhistory.db
         DIHmessage = message.body
         DIHmessage = os.linesep.join([s for s in DIHmessage.splitlines() if s])
         DIHmessage = DIHmessage.splitlines()
