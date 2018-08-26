@@ -17,6 +17,21 @@ logdict = {}
 newMessage = 'false'
 
 
+def get_time_zone(title_str):
+    with open('data/locationsZone.csv', 'r') as f:
+        csv_reader = csv.reader(f)
+        zonedict = {rows[0].upper():rows[1] for rows in csv_reader}
+    my_zone = 0.1
+    for item in zonedict:
+        if item in title_str:
+            my_zone = int(zonedict[item])
+    if my_zone == 0.1:
+        my_message = ("No time zone parsed from this title.\n"
+                      "Check it and see if there are any "
+                      "locations to add to the CSV." + str(title))
+        send_reddit_message_to_self(title="No time zones found", message=my_message)
+    return my_zone
+
 def add_to_historydb(raw_id, text, day_of_year):
     conn = sqlite3.connect('data/dayinhistory.db')
     curs = conn.cursor()
@@ -81,21 +96,19 @@ for message in r.inbox.unread():
         try:
             if socmediamap[1]:
                 title = socmediamap[1]
-        except Exception as e:
+        except IndexError:
             title = r.submission(id=raw_id).title
 
-        stripped = (strip_punc(title)).split(' ')
-        #TODO: compare each stripped word to the locations csv and if there's a match, add the time zone
-        time_zone = 0 # Default value
+        my_zone = get_time_zone((strip_punc(title)).upper())
+
 
         #TODO make sure the submission isn't already added
 
-        #TODO add the map to the database
         conn = sqlite3.connect('data/socmedia.db')
         curs = conn.cursor()
         old_count = SQLiteFunctions.total_rows(cursor=curs, table_name='socmediamaps')
         print("Old count: " + str(old_count))
-        SQLiteFunctions.add_to_socmediadb(raw_id=raw_id, text=title, time_zone=time_zone)
+        SQLiteFunctions.add_to_socmediadb(raw_id=raw_id, text=title, time_zone=int(my_zone))
         new_count = SQLiteFunctions.total_rows(cursor=curs, table_name='socmediamaps')
         print("New count: " + str(new_count))
         try:
