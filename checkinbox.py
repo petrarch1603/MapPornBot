@@ -16,6 +16,13 @@ MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting po
 logdict = {}
 newMessage = 'false'
 
+for message in r.inbox.unread():
+    newMessage = 'true'
+
+if newMessage is 'false':
+    # TODO add new database logging
+    exit()
+
 
 def get_time_zone(title_str):
     with open('data/locationsZone.csv', 'r') as f:
@@ -28,8 +35,9 @@ def get_time_zone(title_str):
     if my_zone == 0.1:
         my_message = ("No time zone parsed from this title.\n"
                       "Check it and see if there are any "
-                      "locations to add to the CSV." + str(title))
+                      "locations to add to the CSV.\n" + str(title))
         send_reddit_message_to_self(title="No time zones found", message=my_message)
+        my_zone = int(my_zone)
     return my_zone
 
 def add_to_historydb(raw_id, text, day_of_year):
@@ -41,12 +49,6 @@ def add_to_historydb(raw_id, text, day_of_year):
         day_of_year))
     conn.commit()
 
-for message in r.inbox.unread():
-    newMessage = 'true'
-
-if newMessage is 'false':
-    # TODO add new database logging
-    exit()
 
 for message in r.inbox.unread():
     if message.subject == "Map Contest Submission":
@@ -162,4 +164,7 @@ for message in r.inbox.unread():
         #logdict['object'] = newMessageObject
         #addToMongo(logdict)
         message.mark_read()
+
+conn.commit()
+conn.close()
 
