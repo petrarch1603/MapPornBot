@@ -101,6 +101,8 @@ for message in r.inbox.unread():
         except IndexError:
             title = r.submission(id=raw_id).title
 
+        #TODO: Make sure there are no double quotes in title, it throws error when adding to database.
+
         my_zone = get_time_zone((strip_punc(title)).upper())
 
 
@@ -120,6 +122,7 @@ for message in r.inbox.unread():
             errorMessage = "Error: new count did not go up by 1"
             send_reddit_message_to_self(title="problem adding to DB", message=errorMessage)
             message.mark_read()
+
     elif message.subject == 'dayinhistory' and message.author == 'Petrarch1603':
         DIHmessage = message.body
         DIHmessage = os.linesep.join([s for s in DIHmessage.splitlines() if s])
