@@ -1,9 +1,9 @@
 import calendar
 import datetime
+from functions import shotgun_blast, send_reddit_message_to_self
 import praw
 import random
 import sqlite3
-from functions import shotgun_blast, send_reddit_message_to_self
 
 # Connect to database
 conn = sqlite3.connect('data/dayinhistory.db')
@@ -46,6 +46,4 @@ except Exception as shotgun_error:
 
 send_reddit_message_to_self(title="This day in history script", message=my_message)
 
-# TODO
-# Add logging to a database
-
+# TODO Add logging to a database
