@@ -28,17 +28,17 @@ def get_time_zone(title_str):
     with open('data/locationsZone.csv', 'r') as f:
         csv_reader = csv.reader(f)
         zonedict = {rows[0].upper():rows[1] for rows in csv_reader}
-    my_zone = 0.1
-    for item in zonedict:
-        if item in title_str:
-            my_zone = int(zonedict[item])
-    if my_zone == 0.1:
+    this_zone = 0.1
+    for place in zonedict:
+        if place in title_str:
+            this_zone = int(zonedict[place])
+    if this_zone == 0.1:
         my_message = ("No time zone parsed from this title.\n"
                       "Check it and see if there are any "
                       "locations to add to the CSV.\n" + str(title))
         send_reddit_message_to_self(title="No time zones found", message=my_message)
-        my_zone = int(my_zone)
-    return my_zone
+        this_zone = int(this_zone)
+    return this_zone
 
 def add_to_historydb(raw_id, text, day_of_year):
     conn = sqlite3.connect('data/dayinhistory.db')
