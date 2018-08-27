@@ -48,6 +48,7 @@ def get_map(target):  # Get a map that is in the target hour range
         random_int = random.randint(0, (len(targetmaplist) - 1))
         my_map = targetmaplist[random_int]
     my_map = my_map.fetchone()
+    #TODO: maybe I should get the reddit object here and verify I have it.
     try:
         print("Title: " + str(my_map[1]))
     except Exception:
