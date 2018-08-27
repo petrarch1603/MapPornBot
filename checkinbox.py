@@ -101,8 +101,7 @@ for message in r.inbox.unread():
         except IndexError:
             title = r.submission(id=raw_id).title
 
-        #TODO: Make sure there are no double quotes in title, it throws error when adding to database.
-
+        title = title.replace("\"", "'")
         my_zone = get_time_zone((strip_punc(title)).upper())
 
 
