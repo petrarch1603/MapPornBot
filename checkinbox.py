@@ -5,13 +5,12 @@ from functions import my_reddit_ID, bot_disclaimer, SubmissionObject, strip_punc
 import datetime
 import sqlite3
 import time
-import json
 
 r = praw.Reddit('bot1')
 disclaimer = bot_disclaimer()
 MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting post for the contest soon.    ' + '\n' + \
                '&nbsp;       ' + '\n' + disclaimer
-                # To Do: add contest date to the MessageReply, that way users know when the contest is.
+
 
 logdict = {}
 newMessage = 'false'
@@ -27,7 +26,7 @@ if newMessage is 'false':
 def get_time_zone(title_str):
     with open('data/locationsZone.csv', 'r') as f:
         csv_reader = csv.reader(f)
-        zonedict = {rows[0].upper():rows[1] for rows in csv_reader}
+        zonedict = {rows[0].upper(): rows[1] for rows in csv_reader}
     this_zone = 0.1
     for place in zonedict:
         if place in title_str:
@@ -40,26 +39,33 @@ def get_time_zone(title_str):
         this_zone = int(this_zone)
     return this_zone
 
-def add_to_historydb(raw_id, text, day_of_year):
-    conn = sqlite3.connect('data/dayinhistory.db')
-    curs = conn.cursor()
-    curs.execute('''INSERT INTO historymaps values(?, ?, ?)''', (
-        raw_id,
-        text,
-        day_of_year))
-    conn.commit()
-    conn.close()
+
+def add_to_historydb(raw_id_arg, text_arg, day_of_year_arg):
+    local_conn = sqlite3.connect('data/dayinhistory.db')
+    local_curs = local_conn.cursor()
+    try:
+        local_curs.execute('''INSERT INTO historymaps values(?, ?, ?)''', (
+            raw_id_arg,
+            text_arg,
+            day_of_year_arg))
+    except Exception as e:
+        my_error_message = "Could not add map to dayinhistory.db\n" \
+                           "Error: " + str(e) + "\n" \
+                           "Post Title: " + str(text_arg)
+        send_reddit_message_to_self(title="Could not add to dayinhistory.db", message=my_error_message)
+    local_conn.commit()
+    local_conn.close()
 
 
 for message in r.inbox.unread():
     if message.subject == "Map Contest Submission":
         # TODO add logging here
-        #logdict['type'] = 'submissionReceived'
-        #logdict['time'] = time.time()
+        # logdict['type'] = 'submissionReceived'
+        # logdict['time'] = time.time()
         submission = message.body
         submission = os.linesep.join([s for s in submission.splitlines() if s])  # removes extraneous line breaks
         submission = submission.splitlines()  # Turn submission into a list
-        submission = [w.replace('Link: ', '') for w in submission]  # Replace the text 'Link: ' with blankspace. I'd like to do a regex process to fix this sometime, but can't figure it out.
+        submission = [w.replace('Link: ', '') for w in submission]  # Replace the text 'Link: ' with blankspace.
         submission.append(message.author)  # Add author value
         submission.append(message)  # Add unique value for the message. This is important for indexing later on.
         newmap = SubmissionObject(
@@ -80,8 +86,8 @@ for message in r.inbox.unread():
                                                                        'Check the CSV for formatting\n' + message.body)
         message.mark_read()
         newmap = newmap.toJSON()
-        #logdict['object'] = newmap
-        #addToMongo(logdict)
+        # logdict['object'] = newmap
+        # addToMongo(logdict)
 
     elif message.subject == 'socmedia' and message.author == 'Petrarch1603':
         socmediamap = message.body
@@ -151,8 +157,8 @@ for message in r.inbox.unread():
             send_reddit_message_to_self(title='Error processing day in history',
                                         message=errorMessage)
         else:
-            add_to_historydb(raw_id=raw_id, day_of_year=dayinhistory, text=text)
-            #TODO: log success
+            add_to_historydb(raw_id_arg=raw_id, day_of_year_arg=dayinhistory, text_arg=text)
+            # TODO: log success
         message.mark_read()
 
     else:
@@ -163,8 +169,8 @@ for message in r.inbox.unread():
                                                 author + '* sent this message to the bot. Please check on it.    \n' +
                                                 '**Subject:** ' + subject + '     \n' + '**Message:**   \n' + msg)
         newMessageObject = {'author': author, 'subject': subject, 'body': msg}
-        #logdict['object'] = newMessageObject
-        #addToMongo(logdict)
+        # logdict['object'] = newMessageObject
+        # addToMongo(logdict)
         message.mark_read()
 
 
