@@ -1,10 +1,9 @@
+import csv
+from functions \
+    import my_reddit_ID, bot_disclaimer, SubmissionObject, strip_punc, send_reddit_message_to_self, SQLiteFunctions
 import os
 import praw
-import csv
-from functions import my_reddit_ID, bot_disclaimer, SubmissionObject, strip_punc, send_reddit_message_to_self, SQLiteFunctions
-import datetime
 import sqlite3
-import time
 
 r = praw.Reddit('bot1')
 disclaimer = bot_disclaimer()
