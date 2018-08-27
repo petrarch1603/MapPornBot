@@ -47,9 +47,9 @@ def add_to_historydb(raw_id_arg, text_arg, day_of_year_arg):
             raw_id_arg,
             text_arg,
             day_of_year_arg))
-    except Exception as e:
+    except Exception as my_e:
         my_error_message = "Could not add map to dayinhistory.db\n" \
-                           "Error: " + str(e) + "\n" \
+                           "Error: " + str(my_e) + "\n" \
                            "Post Title: " + str(text_arg)
         send_reddit_message_to_self(title="Could not add to dayinhistory.db", message=my_error_message)
     local_conn.commit()
@@ -82,7 +82,7 @@ for message in r.inbox.unread():
             message.reply(MessageReply)
             # Send a message to a human so that they can QC the CSV.
             r.redditor(my_reddit_ID).message('New Map added to CSV', 'A new map has been submitted. '
-                                                                       'Check the CSV for formatting\n' + message.body)
+                                             'Check the CSV for formatting\n' + message.body)
         message.mark_read()
         newmap = newmap.toJSON()
         # logdict['object'] = newmap
@@ -165,8 +165,8 @@ for message in r.inbox.unread():
         author = str(message.author)
         subject = message.subject
         r.redditor(my_reddit_ID).message('Message sent to Bot, Please check on it   \n', '*/u/' +
-                                                author + '* sent this message to the bot. Please check on it.    \n' +
-                                                '**Subject:** ' + subject + '     \n' + '**Message:**   \n' + msg)
+                                         author + '* sent this message to the bot. Please check on it.    \n' +
+                                         '**Subject:** ' + subject + '     \n' + '**Message:**   \n' + msg)
         newMessageObject = {'author': author, 'subject': subject, 'body': msg}
         # logdict['object'] = newMessageObject
         # addToMongo(logdict)
