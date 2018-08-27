@@ -49,7 +49,7 @@ def get_map(target):  # Get a map that is in the target hour range
         my_map = targetmaplist[random_int]
     my_map = my_map.fetchone()
     try:
-        print(my_map[1])
+        print("Title: " + str(my_map[1]))
     except Exception:
         print('Could not print my_map[1]')
     return my_map
