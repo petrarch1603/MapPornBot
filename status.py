@@ -7,6 +7,10 @@ history_curs = history_conn.cursor()
 soc_conn = sqlite3.connect('data/socmedia.db')
 soc_curs = soc_conn.cursor()
 
+# TODO: Divide the world by time zones and return a count of maps in each time zone.
+#       This way I can print a message that says which time zones don't have very many maps
+
+
 historyDBstatus = SQLiteFunctions.check_historyDB_integrity()
 historyDB_rows = SQLiteFunctions.total_rows(cursor=history_curs, table_name='historymaps')
 socmediaDBstatus = SQLiteFunctions.check_socmediaDB_integrity()
