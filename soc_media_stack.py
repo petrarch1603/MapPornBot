@@ -42,6 +42,9 @@ def get_map(target_hour):  # Get a map that is in the target_hour hour range
             .format(mintarget=mintarget, maxtarget=maxtarget)):
         targetmaplist.append(row)
     if len(targetmaplist) == 0:
+        for row in curs.execute("SELECT * FROM socmediamaps WHERE fresh=1 AND time_zone = 99"):
+            targetmaplist.append(row)
+    if len(targetmaplist) == 0:  # If it's still zero
         # TODO: choose the time zone that is most frequently in the database, not a random map.
         my_map = curs.execute("SELECT * FROM socmediamaps WHERE fresh=1 ORDER BY RANDOM() LIMIT 1").fetchone()
     else:
