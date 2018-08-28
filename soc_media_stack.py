@@ -23,9 +23,9 @@ def get_target_hour(popular_hour_arg):
     utc_now = datetime.datetime.utcnow().hour
     target = popular_hour_arg - utc_now
     if target < -11:
-        target = target + 24
+        target += 24
     elif target > 12:
-        target = target - 24
+        target -= 24
     return target
 
 
@@ -94,4 +94,4 @@ if status == '':
     # TODO log success
     conn.commit()
     conn.close()
-
+    print('Successfully posted to social media')
