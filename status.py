@@ -16,6 +16,7 @@ def time_zone_analysis():
     zone_dict['c_asia'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (4,5,6) AND fresh=1").fetchone()[0]
     zone_dict['e_asia'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (7,8,9) AND fresh=1").fetchone()[0]
     zone_dict['oceania'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (10,11,12,-10) AND fresh=1").fetchone()[0]
+    zone_dict['no_zone'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (99) AND fresh=1").fetchone()[0]
     for k, v in zone_dict.items():
         if v < 10:
             print(str(k) + " is low on maps, please add some more.")
