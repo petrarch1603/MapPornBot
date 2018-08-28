@@ -7,8 +7,19 @@ history_curs = history_conn.cursor()
 soc_conn = sqlite3.connect('data/socmedia.db')
 soc_curs = soc_conn.cursor()
 
-# TODO: Divide the world by time zones and return a count of maps in each time zone.
-#       This way I can print a message that says which time zones don't have very many maps
+def time_zone_analysis():
+    zone_dict = {}
+    zone_dict['n_america'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (-9,-8,-7,-6,-5) AND fresh = 1").fetchone()[0]
+    zone_dict['s_america'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (-5,-4,-3) AND fresh=1").fetchone()[0]
+    zone_dict['w_europe'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (0,1) AND fresh=1").fetchone()[0]
+    zone_dict['e_europe'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (2,3) AND fresh=1").fetchone()[0]
+    zone_dict['c_asia'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (4,5,6) AND fresh=1").fetchone()[0]
+    zone_dict['e_asia'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (7,8,9) AND fresh=1").fetchone()[0]
+    zone_dict['oceania'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (10,11,12,-10) AND fresh=1").fetchone()[0]
+    for k, v in zone_dict.items():
+        if v < 10:
+            print(str(k) + " is low on maps, please add some more.")
+
 
 
 historyDBstatus = SQLiteFunctions.check_historyDB_integrity()
