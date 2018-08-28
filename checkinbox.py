@@ -27,11 +27,11 @@ def get_time_zone(title_str):
     with open('data/locationsZone.csv', 'r') as f:
         csv_reader = csv.reader(f)
         zonedict = {rows[0].upper(): rows[1] for rows in csv_reader}
-    this_zone = 0.1
+    this_zone = 99
     for place in zonedict:
         if place in title_str:
             this_zone = int(zonedict[place])
-    if this_zone == 0.1:
+    if this_zone == 99: #99 is for maps that don't have a time zone associated with them
         my_message = ("No time zone parsed from this title.\n"
                       "Check it and see if there are any "
                       "locations to add to the CSV.\n" + str(title))
