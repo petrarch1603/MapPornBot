@@ -8,7 +8,7 @@ import time
 
 # This script will only be scoped to post from the socmedia database to social media.
 # Checking the inbox and storing to the database will be done in checkinbox.py
-
+print("Running social media stack script.")
 
 # Connect to database and PRAW
 conn = sqlite3.connect('data/socmedia.db')
@@ -29,9 +29,9 @@ def get_target_hour(popular_hour_arg):
     return target
 
 
-def get_map(target):  # Get a map that is in the target hour range
-    mintarget = (int(target) - 3)
-    maxtarget = (int(target) + 3)
+def get_map(target_hour):  # Get a map that is in the target_hour hour range
+    mintarget = (int(target_hour) - 3)
+    maxtarget = (int(target_hour) + 3)
     if mintarget < -11:
         mintarget += 24
     elif maxtarget > 12:
