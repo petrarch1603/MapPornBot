@@ -34,6 +34,6 @@ print("Social Media Rows: " + str(socmediaDB_rows))
 
 refreshed = SQLiteFunctions.make_fresh_again()
 print(refreshed)
-
+time_zone_analysis()
 history_conn.close()
 soc_conn.close()
