@@ -55,7 +55,6 @@ def get_map(target_hour):  # Get a map that is in the target_hour hour range
 
 
 def not_fresh(my_map_arg):
-    # TODO: Make sure the notFresh count goes up after updated
     old_count = list(curs.execute(
         "SELECT count(*) FROM socmediamaps WHERE fresh = 0"
     ))[0][0]
