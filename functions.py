@@ -462,7 +462,7 @@ class SQLiteFunctions:
             # Check that there is a valid time zone
             try:
                 zone = int(row[2])
-                assert isinstance(row[2], int) and (-11 <= zone <= 12)
+                assert isinstance(row[2], int) and ((-11 <= zone <= 12) or (zone == 99))
             except Exception as e:
                 errormessage += ('Error: {}\n'
                                  'Time zone is not valid'
