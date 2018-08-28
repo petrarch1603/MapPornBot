@@ -43,7 +43,7 @@ def get_map(target):  # Get a map that is in the target hour range
         targetmaplist.append(row)
     if len(targetmaplist) == 0:
         # TODO: choose the time zone that is most frequently in the database, not a random map.
-        my_map = curs.execute("SELECT * FROM socmediamaps WHERE fresh=1 ORDER BY RANDOM() LIMIT 1")
+        my_map = curs.execute("SELECT * FROM socmediamaps WHERE fresh=1 ORDER BY RANDOM() LIMIT 1").fetchone()
     else:
         random_int = random.randint(0, (len(targetmaplist) - 1))
         my_map = targetmaplist[random_int]
