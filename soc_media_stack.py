@@ -95,7 +95,3 @@ if status == '':
     conn.commit()
     conn.close()
 
-
-# TODO
-# Add logging to a database
-
