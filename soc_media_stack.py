@@ -86,7 +86,7 @@ def postsocmedia(my_map_arg):
         # TODO: Add logging
     except Exception as e:
         error_message = ("Error Encountered: \n"
-                         "Could not post to social media.\n" + str(e))
+                         "Could not post to social media.\n" + str(e) + "\nMap with problem: \n" + my_map_arg[1])
         send_reddit_message_to_self(title="Error with Social Media Post", message=error_message)
     return error_message
 
