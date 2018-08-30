@@ -46,6 +46,25 @@ class SocMediaDB(MapDB):
         MapDB.__init__(self, table, path)
         self.fresh_count = self.curs.execute("SELECT count(*) FROM {} WHERE fresh=1"
                                              .format(self.table)).fetchall()[0][0]
+        zone_dict = {
+            "n_america": self.curs.execute("SELECT count(*) FROM {} WHERE time_zone in (-9,-8,-7,-6,-5) AND fresh = 1"
+                                           .format(self.table)).fetchone()[0],
+            "s_america": self.curs.execute("SELECT count(*) FROM {} WHERE time_zone in (-5,-4,-3) AND fresh = 1"
+                                           .format(self.table)).fetchone()[0],
+            "w_europe": self.curs.execute("SELECT count(*) FROM {} WHERE time_zone in (0,1) AND fresh = 1"
+                                          .format(self.table)).fetchone()[0],
+            "e_europe": self.curs.execute("SELECT count(*) FROM {} WHERE time_zone in (2,3) AND fresh = 1"
+                                          .format(self.table)).fetchone()[0],
+            "c_asia": self.curs.execute("SELECT count(*) FROM {} WHERE time_zone in (4,5,6) AND fresh = 1"
+                                        .format(self.table)).fetchone()[0],
+            "e_asia": self.curs.execute("SELECT count(*) FROM {} WHERE time_zone in (7,8,9) AND fresh = 1"
+                                        .format(self.table)).fetchone()[0],
+            "oceania": self.curs.execute("SELECT count(*) FROM {} WHERE time_zone in (10,11,12,-10) AND fresh = 1"
+                                         .format(self.table)).fetchone()[0],
+            "no_zone": self.curs.execute("SELECT count(*) FROM {} WHERE time_zone in (99) AND fresh = 1"
+                                         .format(self.table)).fetchone()[0]
+        }
+        self.zone_dict = zone_dict
 
     def get_rows_by_time_zone(self, time_zone, fresh=1):
         if isinstance(time_zone, int):
