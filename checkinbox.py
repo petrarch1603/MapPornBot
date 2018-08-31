@@ -22,6 +22,7 @@ MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting po
 
 
 newMessage = 'false'
+my_diag = Diagnostic(script=str(os.path.basename(__file__)))
 
 for message in r.inbox.unread():
     newMessage = 'true'
