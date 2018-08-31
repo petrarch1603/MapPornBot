@@ -7,11 +7,10 @@ import praw
 
 
 def init():
-    global hist_db, log_db, my_diag, r, soc_db
+    global hist_db, log_db, r, soc_db
     print("Running checkinbox.py")
     hist_db = HistoryDB()
     log_db = LoggingDB()
-    my_diag = Diagnostic(script=os.path.basename(__file__))
     r = praw.Reddit('bot1')
     soc_db = SocMediaDB()
 
@@ -50,10 +49,10 @@ def get_time_zone(title_str):
 
 
 for message in r.inbox.unread():
+    my_diag = Diagnostic(script=os.path.basename(__file__))
+
     if message.subject == "Map Contest Submission":
         # TODO add logging here
-        # logdict['type'] = 'submissionReceived'
-        # logdict['time'] = time.time()
         submission = message.body
         submission = os.linesep.join([s for s in submission.splitlines() if s])  # removes extraneous line breaks
         submission = submission.splitlines()  # Turn submission into a list
@@ -94,7 +93,7 @@ for message in r.inbox.unread():
             my_diag.traceback = e
             my_diag.severity = 1
             log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=errorMessage)
-            log_db.close()
+            log_db.conn.commit()
             send_reddit_message_to_self(title="Socmedia Message Error", message=errorMessage)
         raw_id = socmediamap[0][-6:]
         my_diag.raw_id = raw_id
@@ -105,23 +104,22 @@ for message in r.inbox.unread():
             title = r.submission(id=raw_id).title
 
         title = title.replace("\"", "'")
-        my_zone = get_time_zone((strip_punc(title)).upper())
 
         # TODO make sure the submission isn't already added
         old_count = soc_db.rows_count
-        soc_db.add_row_to_db(raw_id=raw_id, text=title, time_zone=int(my_zone))
+        soc_db.add_row_to_db(raw_id=raw_id, text=title, time_zone=int(get_time_zone((strip_punc(title)).upper())))
         new_count = soc_db.rows_count
         try:
             assert int(new_count) == (int(old_count) + 1)
             log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
-            log_db.close()
+            log_db.conn.commit()
             message.mark_read()
         except AssertionError as e:
             errorMessage = "Error: new count did not go up by 1"
             my_diag.traceback = e
             my_diag.severity = 2
             log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=errorMessage)
-            log_db.close()
+            log_db.conn.commit()
             send_reddit_message_to_self(title="problem adding to DB", message=errorMessage)
             message.mark_read()
 
@@ -145,10 +143,8 @@ for message in r.inbox.unread():
             elif item.startswith("https://redd.it/"):
                 raw_id = item[-6:]
                 my_diag.raw_id = raw_id
-                print("Raw_ID: " + str(raw_id))
             else:
                 text = item
-                print("Text: " + str(text))
         if text == '' or raw_id == '' or day_of_year == '':
             errorMessage = 'Error: Missing parameters \n'
             for line in DIHmessage:
@@ -156,7 +152,7 @@ for message in r.inbox.unread():
             my_diag.traceback = errorMessage
             my_diag.severity = 1
             log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=errorMessage)
-            log_db.close()
+            log_db.conn.commit()
             send_reddit_message_to_self(title='Error processing day in history',
                                         message=errorMessage)
         else:
@@ -170,7 +166,7 @@ for message in r.inbox.unread():
                 my_diag.severity = 2
                 my_diag.traceback = my_e
                 log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=my_error_message)
-                log_db.close()
+                log_db.conn.commit()
                 send_reddit_message_to_self(title="Could not add to day_of_year.db", message=my_error_message)
         message.mark_read()
 
@@ -183,5 +179,9 @@ for message in r.inbox.unread():
                                          '**Subject:** ' + subject + '     \n' + '**Message:**   \n' + msg)
         newMessageObject = {'author': author, 'subject': subject, 'body': msg}
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
-        log_db.close()
+        log_db.conn.commit()
         message.mark_read()
+
+hist_db.close()
+log_db.close()
+soc_db.close()
