@@ -26,9 +26,9 @@ class MapRow:
 
 
 class Diagnostic:
-    def __init__(self, script, database):
+    def __init__(self, script):
         self.script = script
-        self.database = database
+        self.table = None
         self.traceback = None
         self.severity = None
         self.raw_id = None
@@ -37,7 +37,7 @@ class Diagnostic:
     def make_dict(self):
         return {
             "script": self.script,
-            "database": self.database,
+            "table": self.table,
             "traceback": self.traceback,
             "severity": self.severity,
             "tweet": self.tweet,
@@ -70,6 +70,7 @@ class MapDB:
         return self.curs.execute("SELECT * FROM {}".format(self.table)).fetchall()
 
     def close(self):
+        self.conn.commit()
         self.conn.close()
 
 
@@ -169,7 +170,7 @@ class SocMediaDB(MapDB):
                 .format(self.table)
             ))
         if len(filtered_map_list) == 0:
-            # TODO: Choose the time zone that is most frequently in the database, not a random map
+            # TODO: Choose the time zone that is most frequently in the table, not a random map
             my_row = self.curs.execute("SELECT * FROM {} WHERE fresh=1 ORDER BY RANDOM() LIMIT 1"
                                        .format(self.table)).fetchone()
         else:
@@ -198,7 +199,7 @@ class LoggingDB(MapDB):
     def __init__(self, table='logging', path='data/mapporn.db'):
         MapDB.__init__(self, table, path)
 
-    def add_row_to_db(self, error_text=None, diagnostics, passfail):
+    def add_row_to_db(self, diagnostics, passfail, error_text=None):
         self.curs.execute("INSERT INTO {table} values("
                           "{date},"
                           "'{error_text}',"
