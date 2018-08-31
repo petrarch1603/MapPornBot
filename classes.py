@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from functions import send_reddit_message_to_self
 import random
 import sqlite3
 import time
@@ -65,6 +66,20 @@ class HistoryDB(MapDB):
         except Exception as e:
             # TODO: add logging
             print("Could not update " + str(raw_id) + " to day_of_year: " + str(new_date) + ". " + "Error: " + str(e))
+
+    def add_row_to_db(self, raw_id, text, day_of_year):
+        try:
+            self.curs.execute("INSERT INTO {table} values("
+                              "'{raw_id}', '{text}', {day_of_year})"
+                              .format(table=self.table,
+                                      raw_id=raw_id,
+                                      text=text,
+                                      day_of_year=day_of_year))
+            self.conn.commit()
+        except Exception as e:
+            # TODO: add logging
+            error_message = ("Error: Could not add map to Database: \n" + str(e))
+            send_reddit_message_to_self(title="Could not add socmediamap to DB", message=error_message)
 
 
 class SocMediaDB(MapDB):
@@ -141,9 +156,21 @@ class SocMediaDB(MapDB):
             my_row = filtered_map_list[random_int]
         return MapRow(schema=self.schema, row=my_row)
 
-    def add_row_to_db(self, raw_id, text, time_zone):
-        # TODO: add method for adding a new row to db
-        pass
+    def add_row_to_db(self, raw_id, text, time_zone, fresh=1, post_error=0):
+        try:
+            self.curs.execute("INSERT INTO {table} values("
+                              "'{raw_id}', '{text}', {time_zone}, {fresh}, NULL, {post_error})"
+                              .format(table=self.table,
+                                      raw_id=raw_id,
+                                      text=text,
+                                      time_zone=time_zone,
+                                      fresh=int(fresh),
+                                      post_error=int(post_error)))
+            self.conn.commit()
+        except Exception as e:
+            # TODO: add logging
+            error_message = ("Error: Could not add map to Database: \n" + str(e))
+            send_reddit_message_to_self(title="Could not add socmediamap to DB", message=error_message)
 
 
 class LoggingDB(MapDB):
