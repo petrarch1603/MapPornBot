@@ -1,40 +1,85 @@
 from classes import *
-from functions import SQLiteFunctions
+from functions import send_reddit_message_to_self
+import praw
+import os
 import sqlite3
-
-history_conn = sqlite3.connect('data/day_of_year.db')
-history_curs = history_conn.cursor()
-
-soc_conn = sqlite3.connect('data/socmedia.db')
-soc_curs = soc_conn.cursor()
-
-def time_zone_analysis():
-    zone_dict = {}
-    zone_dict['n_america'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (-9,-8,-7,-6,-5) AND fresh = 1").fetchone()[0]
-    zone_dict['s_america'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (-5,-4,-3) AND fresh=1").fetchone()[0]
-    zone_dict['w_europe'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (0,1) AND fresh=1").fetchone()[0]
-    zone_dict['e_europe'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (2,3) AND fresh=1").fetchone()[0]
-    zone_dict['c_asia'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (4,5,6) AND fresh=1").fetchone()[0]
-    zone_dict['e_asia'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (7,8,9) AND fresh=1").fetchone()[0]
-    zone_dict['oceania'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (10,11,12,-10) AND fresh=1").fetchone()[0]
-    zone_dict['no_zone'] = soc_curs.execute("SELECT count(*) FROM socmediamaps WHERE time_zone in (99) AND fresh=1").fetchone()[0]
-    for k, v in zone_dict.items():
-        if v < 10:
-            print(str(k) + " is low on maps, please add some more.")
+import time
 
 
+def init():
+    global hist_db, log_db, r, soc_db
+    print("Running {}".format(str(os.path.basename(__file__))))
+    hist_db = HistoryDB()
+    log_db = LoggingDB()
+    r = praw.Reddit('bot1')
+    soc_db = SocMediaDB()
 
-historyDBstatus = SQLiteFunctions.check_historyDB_integrity()
-historyDB_rows = SQLiteFunctions.total_rows(cursor=history_curs, table_name='historymaps')
-socmediaDBstatus = SQLiteFunctions.check_socmediaDB_integrity()
-socmediaDB_rows = SQLiteFunctions.total_rows(cursor=soc_curs, table_name='socmediamaps')
-print(historyDBstatus)
-print("History Rows: " + str(historyDB_rows))
-print(socmediaDBstatus)
-print("Social Media Rows: " + str(socmediaDB_rows))
 
-refreshed = SQLiteFunctions.make_fresh_again()
-print(refreshed)
-time_zone_analysis()
-history_conn.close()
-soc_conn.close()
+def main():
+    my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+    message = "#Daily Status Check\n***\n"
+    time_zone_table = "#Time Zone Analysis\n**Time Zone**|**Map Count**\n-----------|------------\n"
+    try:
+        hist_db_integrity = hist_db.check_integrity()
+        if hist_db_integrity.startswith("PASS"):
+            message += "* {}\n".format(hist_db_integrity)
+        else:
+            message += "* *{}*\n".format(hist_db_integrity)
+    except Exception as e:
+        error_message = ("Could not do hist_db Integrity Test\n{}\n".format(str(e)))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+    try:
+        soc_db_integrity = soc_db.check_integrity()
+        if soc_db_integrity.startswith("PASS"):
+            message += "* {}\n".format(soc_db_integrity)
+        else:
+            message += "* *{}*\n".format(soc_db_integrity)
+    except Exception as e:
+        error_message = ("Could not do soc_db Integrity Test\n{}\n".format(str(e)))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+
+    message += "***\n"
+
+    try:
+        for k, v in soc_db.zone_dict.items():
+            if v <= 5:
+                time_zone_table += "**{}**|**{}**\n".format(k, v)
+            else:
+                time_zone_table += "{}|{}\n".format(k, v)
+        message += time_zone_table + "***\n"
+    except Exception as e:
+        error_message = ("Could not create time zone table\n{}\n".format(str(e)))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+
+    try:
+        soc_db.make_fresh_again(current_time=time.time())
+    except Exception as e:
+        error_message = ("Could not run soc_db.make_fresh_again\n{}\n".format(str(e)))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+
+    errors = ''
+    for i in log_db.get_fails_previous_24(current_time=time.time()):
+        errors += "**Failure** recorded at {}\n" \
+                  " {}\n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), i[2])
+    if errors == '':
+        errors = 'No errors logged in last 24 hours'
+    message += errors
+    send_reddit_message_to_self(title="Status Report", message=message)
+    hist_db.close()
+    soc_db.close()
+
+
+init()
+main()
