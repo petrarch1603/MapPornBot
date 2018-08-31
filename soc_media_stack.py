@@ -30,18 +30,18 @@ def get_target_hour(popular_hour_arg):
 
 
 def postsocmedia(map_row):
+    local_raw_id = map_row.dict['raw_id']
+    my_diag.raw_id = local_raw_id
     error_message = ''
-    redditobject = r.submission(id=map_row.dict['raw_id'])
+    redditobject = r.submission(id=local_raw_id)
     try:
         blast = shotgun_blast(raw_id_input=redditobject, title=map_row.dict['text'])
-        soc_db.update_to_not_fresh(raw_id=map_row.dict['raw_id'])
-        print(blast.tweet_url)
-        # TODO: Add logging
+        soc_db.update_to_not_fresh(raw_id=local_raw_id)
+        my_diag.tweet = blast.tweet_url
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
     except Exception as e:
         error_message = ("Error Encountered: \n"
                          "Could not post to social media.\n" + str(e) + "\nMap with problem: \n" + map_row['text'])
-        send_reddit_message_to_self(title="Error with Social Media Post", message=error_message)
         my_diag.traceback = error_message
         my_diag.severity = 1
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
@@ -50,7 +50,8 @@ def postsocmedia(map_row):
 
 status = postsocmedia(soc_db.get_one_map_row(target_zone=popular_hour))
 if status == '':
-    # TODO log success
     soc_db.conn.commit()
     soc_db.close()
+    log_db.conn.commit()
+    log_db.close()
     print('Successfully posted to social media')
