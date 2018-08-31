@@ -85,7 +85,6 @@ class HistoryDB(MapDB):
             self.curs.execute("UPDATE {} SET day_of_year={} WHERE raw_id='{}'".format(self.table, new_date, raw_id))
             self.conn.commit()
         except Exception as e:
-            # TODO: add logging
             print("Could not update " + str(raw_id) + " to day_of_year: " + str(new_date) + ". " + "Error: " + str(e))
 
     def add_row_to_db(self, raw_id, text, day_of_year):
@@ -149,7 +148,6 @@ class SocMediaDB(MapDB):
                               .format(self.table, (int(time.time())), raw_id))
             self.conn.commit()
         except Exception as e:
-            # TODO: logging
             print("Error: " + str(e) + " could not change fresh value on " + str(raw_id))
 
     def get_one_map_row(self, target_zone):
@@ -189,9 +187,8 @@ class SocMediaDB(MapDB):
                                       post_error=int(post_error)))
             self.conn.commit()
         except Exception as e:
-            # TODO: add logging
             error_message = ("Error: Could not add map to Database: \n" + str(e))
-            send_reddit_message_to_self(title="Could not add socmediamap to DB", message=error_message)
+            print(error_message)
 
 
 class LoggingDB(MapDB):
