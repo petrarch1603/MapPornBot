@@ -45,7 +45,6 @@ class Diagnostic:
         }
 
 
-
 class MapDB:
     def __init__(self, table, path='data/mapporn.db'):
         self.path = path
