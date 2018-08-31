@@ -80,7 +80,7 @@ class SocMediaDB(MapDB):
         else:
             print(str(time_zone) + " is not a valid time zone")
 
-    def not_fresh(self, raw_id):
+    def update_to_not_fresh(self, raw_id):
         try:
             self.curs.execute("UPDATE {} SET fresh=0 WHERE raw_id='{}'".format(self.table, raw_id))
             self.conn.commit()
@@ -92,7 +92,6 @@ class SocMediaDB(MapDB):
 class LoggingDB(MapDB):
     def __init__(self, table='logging', path='data/mapporn.db'):
         MapDB.__init__(self, table, path)
-
 
 
 class MapRow:
