@@ -69,16 +69,44 @@ def main():
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))
 
-    errors = ''
-    for i in log_db.get_fails_previous_24(current_time=time.time()):
-        errors += "**Failure** recorded at {}\n" \
-                  " {}\n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), i[2])
-    if errors == '':
-        errors = 'No errors logged in last 24 hours'
-    message += errors
+    try:
+        # TODO: Make the failures into a well formatted table like the time zones
+        errors = ''
+        for i in log_db.get_fails_previous_24(current_time=time.time()):
+            errors += "**Failure** recorded at {}\n" \
+                      " {}\n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), i[2])
+        if errors == '':
+            errors = 'No errors logged in last 24 hours\n'
+        message += "***"
+        message += errors
+        message += "***"
+    except Exception as e:
+        error_message = ("Could not run log_db.get_fails_previous_24\n{}\n".format(str(e)))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+
+    try:
+        successes = ''
+        for i in log_db.get_successes_previous_24(current_time=time.time()):
+            successes += "**Success** recorded at {}\n" \
+                      " {}\n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), i[2])
+        if successes == '':
+            successes = 'No scripts logged in last 24 hours\n'
+        message += successes
+    except Exception as e:
+        error_message = ("Could not run log_db.get_successes_previous_24\n{}\n".format(str(e)))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+
     send_reddit_message_to_self(title="Status Report", message=message)
     hist_db.close()
     soc_db.close()
+    log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
+    log_db.close()
 
 
 init()
