@@ -210,3 +210,17 @@ class LoggingDB(MapDB):
                                   error_text=error_text,
                                   diagnostics=diagnostics,
                                   passfail=passfail))
+
+    def get_fails_previous_24(self, current_time):
+        try:
+            assert len(str(current_time)) == 10
+        except AssertionError as e:
+            print("{} does not look like valid epoch Time. \n{}".format(current_time, e))
+        # Note: capturing all fails from a little longer than 24 hours ago
+        # to ensure it doesn't miss any fails from previous day's script.
+        twenty_four_ago = int(current_time) - 87500
+        print("Returning list of all fails from last 24 hours")
+        return list(row for row in self.curs.execute(
+            "SELECT * FROM {} WHERE passfail = 0 AND date >= {}"
+            .format(self.table, twenty_four_ago)
+        ))
