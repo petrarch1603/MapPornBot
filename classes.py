@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import random
 import sqlite3
+import time
 
 
 class MapRow:
@@ -108,6 +109,8 @@ class SocMediaDB(MapDB):
     def update_to_not_fresh(self, raw_id):
         try:
             self.curs.execute("UPDATE {} SET fresh=0 WHERE raw_id='{}'".format(self.table, raw_id))
+            self.curs.execute("UPDATE {} SET date_posted={} WHERE raw_id='{}'"
+                              .format(self.table, (int(time.time())), raw_id))
             self.conn.commit()
         except Exception as e:
             # TODO: logging
@@ -137,6 +140,10 @@ class SocMediaDB(MapDB):
             random_int = random.randint(0, (len(filtered_map_list) - 1))
             my_row = filtered_map_list[random_int]
         return MapRow(schema=self.schema, row=my_row)
+
+    def add_row_to_db(self, raw_id, text, time_zone):
+        # TODO: add method for adding a new row to db
+        pass
 
 
 class LoggingDB(MapDB):

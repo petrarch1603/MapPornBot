@@ -2,9 +2,6 @@ import datetime
 from classes import *
 from functions import shotgun_blast, send_reddit_message_to_self
 import praw
-import random
-import sqlite3
-import time
 
 
 # This script will only be scoped to post from the socmedia database to social media.
@@ -39,7 +36,7 @@ def postsocmedia(map_row):
         # TODO: Add logging
     except Exception as e:
         error_message = ("Error Encountered: \n"
-                         "Could not post to social media.\n" + str(e) + "\nMap with problem: \n" + my_map_arg[1])
+                         "Could not post to social media.\n" + str(e) + "\nMap with problem: \n" + map_row['text'])
         send_reddit_message_to_self(title="Error with Social Media Post", message=error_message)
     return error_message
 
