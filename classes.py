@@ -1,3 +1,4 @@
+import random
 import sqlite3
 
 
@@ -87,6 +88,30 @@ class SocMediaDB(MapDB):
         except Exception as e:
             # TODO: logging
             print("Error: " + str(e) + " could not change fresh value on " + str(raw_id))
+
+    def get_one_map_row(self, target_zone):
+        min_target = (int(target_zone) - 3)
+        max_target = (int(target_zone) + 3)
+        if min_target < -11:
+            min_target += 24
+        elif max_target > 12:
+            max_target -= 24
+        filtered_map_list = list(row for row in self.curs.execute(
+            "SELECT * FROM {} WHERE fresh=1 AND time_zone >= {} AND time_zone <= {}"
+            .format(self.table, min_target, max_target)
+        ))
+        if len(filtered_map_list) == 0:
+            filtered_map_list = list(row for row in self.curs.execute(
+                "SELECT * FROM {} WHERE fresh=1 AND time_zone = 99"
+                .format(self.table)
+            ))
+        if len(filtered_map_list) == 0:
+            # TODO: Choose the time zone that is most frequently in the database, not a random map
+            return self.curs.execute("SELECT * FROM {} WHERE fresh=1 ORDER BY RANDOM() LIMIT 1"
+                                     .format(self.table)).fetchone()
+        else:
+            random_int = random.randint(0, (len(filtered_map_list) - 1))
+            return filtered_map_list[random_int]
 
 
 class LoggingDB(MapDB):
