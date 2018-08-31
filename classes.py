@@ -131,6 +131,7 @@ class MapRow:
         try:
             self.dictionary['day_of_year']
         except KeyError:
+            print("No information for day_of_year")
             return
         import datetime
         dt = datetime.datetime(2010, 1, 1)
