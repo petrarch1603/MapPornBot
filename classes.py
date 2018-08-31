@@ -80,24 +80,17 @@ class HistoryDB(MapDB):
         return [x for x in (self.curs.execute("SELECT * FROM {} WHERE day_of_year = {}".format(self.table, date)))]
 
     def change_date(self, raw_id, new_date):
-        try:
-            self.curs.execute("UPDATE {} SET day_of_year={} WHERE raw_id='{}'".format(self.table, new_date, raw_id))
-            self.conn.commit()
-        except Exception as e:
-            print("Could not update " + str(raw_id) + " to day_of_year: " + str(new_date) + ". " + "Error: " + str(e))
+        self.curs.execute("UPDATE {} SET day_of_year={} WHERE raw_id='{}'".format(self.table, new_date, raw_id))
+        self.conn.commit()
 
     def add_row_to_db(self, raw_id, text, day_of_year):
-        try:
-            self.curs.execute("INSERT INTO {table} values("
-                              "'{raw_id}', '{text}', {day_of_year})"
-                              .format(table=self.table,
-                                      raw_id=raw_id,
-                                      text=text,
-                                      day_of_year=day_of_year))
-            self.conn.commit()
-        except Exception as e:
-            error_message = ("Error: Could not add map to Database: \n" + str(e))
-            print(error_message)
+        self.curs.execute("INSERT INTO {table} values("
+                          "'{raw_id}', '{text}', {day_of_year})"
+                          .format(table=self.table,
+                                  raw_id=raw_id,
+                                  text=text,
+                                  day_of_year=day_of_year))
+        self.conn.commit()
 
     def check_integrity(self):
         status = ''
@@ -165,13 +158,10 @@ class SocMediaDB(MapDB):
             print(str(time_zone) + " is not a valid time zone")
 
     def update_to_not_fresh(self, raw_id):
-        try:
-            self.curs.execute("UPDATE {} SET fresh=0 WHERE raw_id='{}'".format(self.table, raw_id))
-            self.curs.execute("UPDATE {} SET date_posted={} WHERE raw_id='{}'"
-                              .format(self.table, (int(time.time())), raw_id))
-            self.conn.commit()
-        except Exception as e:
-            print("Error: " + str(e) + " could not change fresh value on " + str(raw_id))
+        self.curs.execute("UPDATE {} SET fresh=0 WHERE raw_id='{}'".format(self.table, raw_id))
+        self.curs.execute("UPDATE {} SET date_posted={} WHERE raw_id='{}'"
+                          .format(self.table, (int(time.time())), raw_id))
+        self.conn.commit()
 
     def get_one_map_row(self, target_zone):
         min_target = (int(target_zone) - 3)
@@ -203,19 +193,15 @@ class SocMediaDB(MapDB):
         return MapRow(schema=self.schema, row=my_row)
 
     def add_row_to_db(self, raw_id, text, time_zone, fresh=1, post_error=0):
-        try:
-            self.curs.execute("INSERT INTO {table} values("
-                              "'{raw_id}', '{text}', {time_zone}, {fresh}, NULL, {post_error})"
-                              .format(table=self.table,
-                                      raw_id=raw_id,
-                                      text=text,
-                                      time_zone=time_zone,
-                                      fresh=int(fresh),
-                                      post_error=int(post_error)))
-            self.conn.commit()
-        except Exception as e:
-            error_message = ("Error: Could not add map to Database: \n" + str(e))
-            print(error_message)
+        self.curs.execute("INSERT INTO {table} values("
+                          "'{raw_id}', '{text}', {time_zone}, {fresh}, NULL, {post_error})"
+                          .format(table=self.table,
+                                  raw_id=raw_id,
+                                  text=text,
+                                  time_zone=time_zone,
+                                  fresh=int(fresh),
+                                  post_error=int(post_error)))
+        self.conn.commit()
 
     def check_integrity(self):
         status = ''
@@ -257,10 +243,7 @@ class SocMediaDB(MapDB):
             return status
 
     def make_fresh_again(self, current_time):
-        try:
-            assert len(str(current_time)) == 10
-        except AssertionError as e:
-            print("{} does not look like valid epoch Time. \n{}".format(current_time, e))
+        assert len(str(current_time)) == 10
         time_past = 34560000
         cutoff_time = (current_time - int(time_past))
         for i in self.all_rows_list():
@@ -270,7 +253,6 @@ class SocMediaDB(MapDB):
                 ))
                 self.conn.commit()
                 print("Refreshed {}".format(i[1]))
-
         self.conn.close()
 
 
@@ -291,10 +273,7 @@ class LoggingDB(MapDB):
                                   passfail=passfail))
 
     def get_fails_previous_24(self, current_time):
-        try:
-            assert len(str(current_time)) == 10
-        except AssertionError as e:
-            print("{} does not look like valid epoch Time. \n{}".format(current_time, e))
+        assert len(str(current_time)) == 10
         # Note: capturing all fails from a little longer than 24 hours ago
         # to ensure it doesn't miss any fails from previous day's script.
         twenty_four_ago = int(current_time) - 87500
