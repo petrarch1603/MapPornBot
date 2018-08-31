@@ -176,3 +176,13 @@ class SocMediaDB(MapDB):
 class LoggingDB(MapDB):
     def __init__(self, table='logging', path='data/mapporn.db'):
         MapDB.__init__(self, table, path)
+
+    def add_row_to_db(self, date, error_text, diagnostics):
+        self.curs.execute("INSERT INTO {table} values("
+                          "'{date}',"
+                          "'{error_text}',"
+                          "'{diagnostics}'"
+                          .format(table=self.table,
+                                  date=date,
+                                  error_text=error_text,
+                                  diagnostics=diagnostics))
