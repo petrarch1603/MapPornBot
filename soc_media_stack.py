@@ -5,8 +5,8 @@ import os
 import praw
 
 
-# This script will only be scoped to post from the socmedia database to social media.
-# Checking the inbox and storing to the database will be done in checkinbox.py
+# This script will only be scoped to post from the socmedia table to social media.
+# Checking the inbox and storing to the table will be done in checkinbox.py
 print("Running social media stack script.")
 
 
@@ -14,7 +14,8 @@ def init():
     global soc_db, log_db, r, my_diag, popular_hour
     soc_db = SocMediaDB()
     log_db = LoggingDB()
-    my_diag = Diagnostic(script=os.path.basename(__file__), database="SocMediaDB")
+    my_diag = Diagnostic(script=os.path.basename(__file__))
+    my_diag.table = "socmediamaps"
     r = praw.Reddit('bot1')
     popular_hour = 9
 
@@ -48,6 +49,7 @@ def postsocmedia(map_row):
     return error_message
 
 
+init()
 status = postsocmedia(soc_db.get_one_map_row(target_zone=popular_hour))
 if status == '':
     soc_db.conn.commit()
