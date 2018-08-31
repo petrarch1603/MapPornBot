@@ -2,6 +2,26 @@ import random
 import sqlite3
 
 
+class MapRow:
+    def __init__(self, schema, row):
+        self.schema = schema.keys()
+        self.row = row
+        if len(self.row) != len(self.schema):
+            raise ValueError("schema size and row size must be equal")
+        self.dict = dict(zip(self.schema, self.row))
+
+    def date(self):
+        try:
+            self.dict['day_of_year']
+        except KeyError:
+            print("No information for day_of_year")
+            return
+        import datetime
+        dt = datetime.datetime(2010, 1, 1)
+        dtdelta = datetime.timedelta(days=self.dict['day_of_year'])
+        return (dt + dtdelta).strftime('%Y/%m/%d')
+
+
 class MapDB:
     def __init__(self, table, path='data/mapporn.db'):
         self.path = path
@@ -107,33 +127,14 @@ class SocMediaDB(MapDB):
             ))
         if len(filtered_map_list) == 0:
             # TODO: Choose the time zone that is most frequently in the database, not a random map
-            return self.curs.execute("SELECT * FROM {} WHERE fresh=1 ORDER BY RANDOM() LIMIT 1"
+            my_row = self.curs.execute("SELECT * FROM {} WHERE fresh=1 ORDER BY RANDOM() LIMIT 1"
                                      .format(self.table)).fetchone()
         else:
             random_int = random.randint(0, (len(filtered_map_list) - 1))
-            return filtered_map_list[random_int]
+            my_row = filtered_map_list[random_int]
+        return MapRow(schema=self.schema, row=my_row)
 
 
 class LoggingDB(MapDB):
     def __init__(self, table='logging', path='data/mapporn.db'):
         MapDB.__init__(self, table, path)
-
-
-class MapRow:
-    def __init__(self, schema, row):
-        self.schema = schema.keys()
-        self.row = row
-        if len(self.row) != len(self.schema):
-            raise ValueError("schema size and row size must be equal")
-        self.dictionary = dict(zip(self.schema, self.row))
-
-    def date(self):
-        try:
-            self.dictionary['day_of_year']
-        except KeyError:
-            print("No information for day_of_year")
-            return
-        import datetime
-        dt = datetime.datetime(2010, 1, 1)
-        dtdelta = datetime.timedelta(days=self.dictionary['day_of_year'])
-        return (dt + dtdelta).strftime('%Y/%m/%d')
