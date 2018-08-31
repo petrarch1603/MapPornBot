@@ -167,12 +167,16 @@ class SocMediaDB(MapDB):
                 .format(self.table)
             ))
         if len(filtered_map_list) == 0:
-            # TODO: Choose the time zone that is most frequently in the table, not a random map
-            my_row = self.curs.execute("SELECT * FROM {} WHERE fresh=1 ORDER BY RANDOM() LIMIT 1"
-                                       .format(self.table)).fetchone()
-        else:
-            random_int = random.randint(0, (len(filtered_map_list) - 1))
-            my_row = filtered_map_list[random_int]
+            filtered_map_list = list(row for row in self.curs.execute(
+                "SELECT * FROM {} WHERE fresh=1 AND time_zone = {}".format(
+                    self.table,
+                    # Sort the time zones and return the time_zone with the highest count of fresh maps
+                    sorted(self.zone_dict.items(), key=lambda x: x[1], reverse=True)[0][1])
+            ))
+        if len(filtered_map_list) == 0:
+            return print("No fresh maps in database!")
+        random_int = random.randint(0, (len(filtered_map_list) - 1))
+        my_row = filtered_map_list[random_int]
         return MapRow(schema=self.schema, row=my_row)
 
     def add_row_to_db(self, raw_id, text, time_zone, fresh=1, post_error=0):

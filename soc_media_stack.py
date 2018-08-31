@@ -11,7 +11,7 @@ print("Running social media stack script.")
 
 
 def init():
-    global soc_db, log_db, r, my_diag, popular_hour
+    global soc_db, log_db, my_diag, popular_hour, r
     soc_db = SocMediaDB()
     log_db = LoggingDB()
     my_diag = Diagnostic(script=os.path.basename(__file__))

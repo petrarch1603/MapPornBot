@@ -1,7 +1,8 @@
+from classes import *
 from functions import SQLiteFunctions
 import sqlite3
 
-history_conn = sqlite3.connect('data/dayinhistory.db')
+history_conn = sqlite3.connect('data/day_of_year.db')
 history_curs = history_conn.cursor()
 
 soc_conn = sqlite3.connect('data/socmedia.db')

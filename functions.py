@@ -378,7 +378,7 @@ def strip_punc(str):
 class SQLiteFunctions:
 
     def add_to_historydb(raw_id, text, day_of_year):
-        conn = sqlite3.connect('data/dayinhistory.db')
+        conn = sqlite3.connect('data/day_of_year.db')
         curs = conn.cursor()
         curs.execute('INSERT INTO historymaps values('
                      '"{raw_id}", "{text}", {day_of_year})'.format(
@@ -412,7 +412,7 @@ class SQLiteFunctions:
 
     def check_historyDB_integrity():
         errormessage = ''
-        conn = sqlite3.connect('data/dayinhistory.db')
+        conn = sqlite3.connect('data/day_of_year.db')
         curs = conn.cursor()
         for row in curs.execute("SELECT * FROM historymaps"):
             try:
