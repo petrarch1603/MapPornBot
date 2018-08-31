@@ -101,6 +101,31 @@ class HistoryDB(MapDB):
             error_message = ("Error: Could not add map to Database: \n" + str(e))
             send_reddit_message_to_self(title="Could not add socmediamap to DB", message=error_message)
 
+    def check_integrity(self):
+        status = ''
+        for i in self.all_rows_list():
+            try:
+                assert isinstance(i[2], int) and (0 < i[2] < 366)
+            except AssertionError as e:
+                status += "* Not all day_of_year in {} are valid days\n  {}\n  {}\n\n"\
+                    .format(self.table, str(i), e)
+            try:
+                assert i[1] != ''
+            except AssertionError as e:
+                status += "* Title of {} is blank in {}\n  {}\n\n".format(
+                    i[0], self.table, e
+                )
+            try:
+                assert len(i[0]) == 6
+            except AssertionError as e:
+                status += "* raw_id of {} in {} is not acceptable\n  {}\n\n".format(
+                    i[0], self.table, e
+                )
+        if status == '':
+            return '{} integrity test passed.'.format(self.table)
+        else:
+            return status
+
 
 class SocMediaDB(MapDB):
     def __init__(self, table='socmediamaps', path='data/mapporn.db'):
@@ -194,6 +219,46 @@ class SocMediaDB(MapDB):
             error_message = ("Error: Could not add map to Database: \n" + str(e))
             print(error_message)
 
+    def check_integrity(self):
+        status = ''
+        for i in self.all_rows_list():
+            try:
+                assert i[1] != ''
+            except AssertionError as e:
+                status += "* Title of {} is blank in {}\n  {}\n\n".format(
+                    i[0], self.table, e
+                )
+            try:
+                assert len(i[0]) == 6
+            except AssertionError as e:
+                status += "* raw_id of {} in {} is not acceptable\n  {}\n\n".format(
+                    i[0], self.table, e
+                )
+            try:
+                assert (-10 <= int(i[2]) <= 12) or int(i[2]) == 99
+            except AssertionError as e:
+                status += "* time_zone of {} in {} is not acceptable\n  {}\n\n".format(
+                    i[0], self.table, e
+                )
+            try:
+                assert (i[3] == 0) or (i[3] == 1)
+            except AssertionError as e:
+                status += "* fresh of {} is not a boolean in {}\n  {}\n\n".format(
+                    i[0], self.table, e
+                )
+            try:
+                if i[3] == 0:
+                    assert len(str(i[4])) == 10
+            except AssertionError as e:
+                status += "* Item {} is not fresh and does not have a date_posted date\n  {}\n\n".format(
+                    i[0], e
+                )
+        if status == '':
+            return '{} integrity test passed.'.format(self.table)
+        else:
+            return status
+
+
 
 class LoggingDB(MapDB):
     def __init__(self, table='logging', path='data/mapporn.db'):
@@ -223,4 +288,11 @@ class LoggingDB(MapDB):
         return list(row for row in self.curs.execute(
             "SELECT * FROM {} WHERE passfail = 0 AND date >= {}"
             .format(self.table, twenty_four_ago)
+        ))
+
+    def get_fails_by_script(self, script):
+        print("Returning list of all fails from {}".format(script))
+        return list(row for row in self.curs.execute(
+            "SELECT * WHERE passfail = 0 AND diagnostics LIKE '{}'"
+            .format(script)
         ))
