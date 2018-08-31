@@ -1,25 +1,34 @@
+from classes import *
 import csv
 from functions \
-    import my_reddit_ID, bot_disclaimer, SubmissionObject, strip_punc, send_reddit_message_to_self, SQLiteFunctions
+    import my_reddit_ID, bot_disclaimer, SubmissionObject, strip_punc, send_reddit_message_to_self
 import os
 import praw
-import sqlite3
 
-print("Running checkinbox.py")
-r = praw.Reddit('bot1')
+
+def init():
+    global hist_db, log_db, my_diag, r, soc_db
+    print("Running checkinbox.py")
+    hist_db = HistoryDB()
+    log_db = LoggingDB()
+    my_diag = Diagnostic(script=os.path.basename(__file__))
+    r = praw.Reddit('bot1')
+    soc_db = SocMediaDB()
+
+
+init()
 disclaimer = bot_disclaimer()
 MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting post for the contest soon.    ' + '\n' + \
                '&nbsp;       ' + '\n' + disclaimer
 
 
-logdict = {}
 newMessage = 'false'
 
 for message in r.inbox.unread():
     newMessage = 'true'
 
 if newMessage is 'false':
-    # TODO add new database logging
+    log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
     exit()
 
 
@@ -31,30 +40,13 @@ def get_time_zone(title_str):
     for place in zonedict:
         if place in title_str:
             this_zone = int(zonedict[place])
-    if this_zone == 99: #99 is for maps that don't have a time zone associated with them
+    if this_zone == 99:  # 99 is for maps that don't have a time zone associated with them
         my_message = ("No time zone parsed from this title.\n"
                       "Check it and see if there are any "
                       "locations to add to the CSV.\n" + str(title))
         send_reddit_message_to_self(title="No time zones found", message=my_message)
         this_zone = int(this_zone)
     return this_zone
-
-
-def add_to_historydb(raw_id_arg, text_arg, day_of_year_arg):
-    local_conn = sqlite3.connect('data/dayinhistory.db')
-    local_curs = local_conn.cursor()
-    try:
-        local_curs.execute('''INSERT INTO historymaps values(?, ?, ?)''', (
-            raw_id_arg,
-            text_arg,
-            day_of_year_arg))
-    except Exception as my_e:
-        my_error_message = "Could not add map to dayinhistory.db\n" \
-                           "Error: " + str(my_e) + "\n" \
-                           "Post Title: " + str(text_arg)
-        send_reddit_message_to_self(title="Could not add to dayinhistory.db", message=my_error_message)
-    local_conn.commit()
-    local_conn.close()
 
 
 for message in r.inbox.unread():
@@ -90,6 +82,7 @@ for message in r.inbox.unread():
         # addToMongo(logdict)
 
     elif message.subject == 'socmedia' and message.author == 'Petrarch1603':
+        my_diag.table = 'socmediamaps'
         socmediamap = message.body
         socmediamap = os.linesep.join([s for s in socmediamap.splitlines() if s])  # removes extraneous line breaks
         socmediamap = socmediamap.splitlines()  # Turn submission into a list
@@ -98,9 +91,13 @@ for message in r.inbox.unread():
             assert socmediamap[0].startswith("https://redd.it/")
         except Exception as e:
             errorMessage = ("Error detected: Message does not include a valid URL" + str(message.body))
+            my_diag.traceback = e
+            my_diag.severity = 1
+            log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=errorMessage)
+            log_db.close()
             send_reddit_message_to_self(title="Socmedia Message Error", message=errorMessage)
         raw_id = socmediamap[0][-6:]
-
+        my_diag.raw_id = raw_id
         try:
             if socmediamap[1]:
                 title = socmediamap[1]
@@ -110,30 +107,31 @@ for message in r.inbox.unread():
         title = title.replace("\"", "'")
         my_zone = get_time_zone((strip_punc(title)).upper())
 
-
-        #TODO make sure the submission isn't already added
-
-        conn = sqlite3.connect('data/socmedia.db')
-        curs = conn.cursor()
-        old_count = SQLiteFunctions.total_rows(cursor=curs, table_name='socmediamaps')
-        print("Old count: " + str(old_count))
-        SQLiteFunctions.add_to_socmediadb(raw_id=raw_id, text=title, time_zone=int(my_zone))
-        new_count = SQLiteFunctions.total_rows(cursor=curs, table_name='socmediamaps')
-        print("New count: " + str(new_count))
+        # TODO make sure the submission isn't already added
+        old_count = soc_db.rows_count
+        soc_db.add_row_to_db(raw_id=raw_id, text=title, time_zone=int(my_zone))
+        new_count = soc_db.rows_count
         try:
             assert int(new_count) == (int(old_count) + 1)
+            log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
+            log_db.close()
             message.mark_read()
-        except AssertionError:
+        except AssertionError as e:
             errorMessage = "Error: new count did not go up by 1"
+            my_diag.traceback = e
+            my_diag.severity = 2
+            log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=errorMessage)
+            log_db.close()
             send_reddit_message_to_self(title="problem adding to DB", message=errorMessage)
             message.mark_read()
 
-    elif message.subject == 'dayinhistory' and message.author == 'Petrarch1603':
+    elif message.subject == 'day_of_year' and message.author == 'Petrarch1603':
+        my_diag.table = "historymaps"
         DIHmessage = message.body
         DIHmessage = os.linesep.join([s for s in DIHmessage.splitlines() if s])
         DIHmessage = DIHmessage.splitlines()
         print(DIHmessage)
-        dayinhistory = ''
+        day_of_year = ''
         raw_id = ''
         text = ''
         for item in DIHmessage:
@@ -142,23 +140,38 @@ for message in r.inbox.unread():
             except ValueError:
                 pass
             if isinstance(item, int) and 0 < item < 366:
-                dayinhistory = item
-                print("Day in history: " + str(dayinhistory))
+                day_of_year = item
+                print("Day in history: " + str(day_of_year))
             elif item.startswith("https://redd.it/"):
                 raw_id = item[-6:]
+                my_diag.raw_id = raw_id
                 print("Raw_ID: " + str(raw_id))
             else:
                 text = item
                 print("Text: " + str(text))
-        if text == '' or raw_id == '' or dayinhistory == '':
-            errorMessage = ''
+        if text == '' or raw_id == '' or day_of_year == '':
+            errorMessage = 'Error: Missing parameters \n'
             for line in DIHmessage:
                 errorMessage += (line + '\n')
+            my_diag.traceback = errorMessage
+            my_diag.severity = 1
+            log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=errorMessage)
+            log_db.close()
             send_reddit_message_to_self(title='Error processing day in history',
                                         message=errorMessage)
         else:
-            add_to_historydb(raw_id_arg=raw_id, day_of_year_arg=dayinhistory, text_arg=text)
-            # TODO: log success
+            try:
+                hist_db.add_row_to_db(raw_id=raw_id, text=text, day_of_year=day_of_year)
+                log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
+            except Exception as my_e:
+                my_error_message = "Could not add map to historymaps\n" \
+                                   "Error: " + str(my_e) + "\n" \
+                                                           "Post Title: " + str(text)
+                my_diag.severity = 2
+                my_diag.traceback = my_e
+                log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=my_error_message)
+                log_db.close()
+                send_reddit_message_to_self(title="Could not add to day_of_year.db", message=my_error_message)
         message.mark_read()
 
     else:
@@ -169,8 +182,6 @@ for message in r.inbox.unread():
                                          author + '* sent this message to the bot. Please check on it.    \n' +
                                          '**Subject:** ' + subject + '     \n' + '**Message:**   \n' + msg)
         newMessageObject = {'author': author, 'subject': subject, 'body': msg}
-        # logdict['object'] = newMessageObject
-        # addToMongo(logdict)
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
+        log_db.close()
         message.mark_read()
-
-
