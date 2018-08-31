@@ -294,7 +294,6 @@ class LoggingDB(MapDB):
             .format(self.table, twenty_four_ago)
         ))
 
-
     def get_fails_by_script(self, script):
         print("Returning list of all fails from {}".format(script))
         return list(row for row in self.curs.execute(
