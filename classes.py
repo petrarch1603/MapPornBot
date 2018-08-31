@@ -283,6 +283,18 @@ class LoggingDB(MapDB):
             .format(self.table, twenty_four_ago)
         ))
 
+    def get_successes_previous_24(self, current_time):
+        assert len(str(current_time)) == 10
+        # Note: capturing all fails from a little longer than 24 hours ago
+        # to ensure it doesn't miss any fails from previous day's script.
+        twenty_four_ago = int(current_time) - 87500
+        print("Returning list of all fails from last 24 hours")
+        return list(row for row in self.curs.execute(
+            "SELECT * FROM {} WHERE passfail = 1 AND date >= {}"
+            .format(self.table, twenty_four_ago)
+        ))
+
+
     def get_fails_by_script(self, script):
         print("Returning list of all fails from {}".format(script))
         return list(row for row in self.curs.execute(
