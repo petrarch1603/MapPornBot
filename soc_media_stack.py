@@ -14,7 +14,7 @@ def init():
     global soc_db, log_db, my_diag, popular_hour, r
     soc_db = SocMediaDB()
     log_db = LoggingDB()
-    my_diag = Diagnostic(script=os.path.basename(__file__))
+    my_diag = Diagnostic(script=str(os.path.basename(__file__)))
     my_diag.table = "socmediamaps"
     r = praw.Reddit('bot1')
     popular_hour = 9
