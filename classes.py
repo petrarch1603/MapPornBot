@@ -135,7 +135,7 @@ class SocMediaDB(MapDB):
         if len(filtered_map_list) == 0:
             # TODO: Choose the time zone that is most frequently in the database, not a random map
             my_row = self.curs.execute("SELECT * FROM {} WHERE fresh=1 ORDER BY RANDOM() LIMIT 1"
-                                     .format(self.table)).fetchone()
+                                       .format(self.table)).fetchone()
         else:
             random_int = random.randint(0, (len(filtered_map_list) - 1))
             my_row = filtered_map_list[random_int]
