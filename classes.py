@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from functions import send_reddit_message_to_self
 import random
 import sqlite3
 import time
@@ -97,9 +96,8 @@ class HistoryDB(MapDB):
                                       day_of_year=day_of_year))
             self.conn.commit()
         except Exception as e:
-            # TODO: add logging
             error_message = ("Error: Could not add map to Database: \n" + str(e))
-            send_reddit_message_to_self(title="Could not add socmediamap to DB", message=error_message)
+            print(error_message)
 
     def check_integrity(self):
         status = ''
@@ -122,7 +120,7 @@ class HistoryDB(MapDB):
                     i[0], self.table, e
                 )
         if status == '':
-            return '{} integrity test passed.'.format(self.table)
+            return 'PASS: {} integrity test passed.'.format(self.table)
         else:
             return status
 
@@ -254,10 +252,26 @@ class SocMediaDB(MapDB):
                     i[0], e
                 )
         if status == '':
-            return '{} integrity test passed.'.format(self.table)
+            return 'PASS: {} integrity test passed.'.format(self.table)
         else:
             return status
 
+    def make_fresh_again(self, current_time):
+        try:
+            assert len(str(current_time)) == 10
+        except AssertionError as e:
+            print("{} does not look like valid epoch Time. \n{}".format(current_time, e))
+        time_past = 34560000
+        cutoff_time = (current_time - int(time_past))
+        for i in self.all_rows_list():
+            if (i[3] == 0) and (i[4] <= cutoff_time):
+                self.curs.execute("UPDATE {} SET fresh=1 WHERE raw_id='{}'".format(
+                    self.table, i[0]
+                ))
+                self.conn.commit()
+                print("Refreshed {}".format(i[1]))
+
+        self.conn.close()
 
 
 class LoggingDB(MapDB):
