@@ -25,6 +25,27 @@ class MapRow:
         return (dt + dtdelta).strftime('%Y/%m/%d')
 
 
+class Diagnostic:
+    def __init__(self, script, database):
+        self.script = script
+        self.database = database
+        self.traceback = None
+        self.severity = None
+        self.raw_id = None
+        self.tweet = None
+
+    def make_dict(self):
+        return {
+            "script": self.script,
+            "database": self.database,
+            "traceback": self.traceback,
+            "severity": self.severity,
+            "tweet": self.tweet,
+            "raw_id": self.raw_id
+        }
+
+
+
 class MapDB:
     def __init__(self, table, path='data/mapporn.db'):
         self.path = path
@@ -177,12 +198,14 @@ class LoggingDB(MapDB):
     def __init__(self, table='logging', path='data/mapporn.db'):
         MapDB.__init__(self, table, path)
 
-    def add_row_to_db(self, date, error_text, diagnostics):
+    def add_row_to_db(self, error_text=None, diagnostics, passfail):
         self.curs.execute("INSERT INTO {table} values("
-                          "'{date}',"
+                          "{date},"
                           "'{error_text}',"
-                          "'{diagnostics}'"
+                          "'{diagnostics}',"
+                          "{passfail}"
                           .format(table=self.table,
-                                  date=date,
+                                  date=int(time.time()),
                                   error_text=error_text,
-                                  diagnostics=diagnostics))
+                                  diagnostics=diagnostics,
+                                  passfail=passfail))
