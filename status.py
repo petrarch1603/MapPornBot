@@ -2,7 +2,6 @@ from classes import *
 from functions import send_reddit_message_to_self
 import praw
 import os
-import sqlite3
 import time
 
 
