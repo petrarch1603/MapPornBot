@@ -1,6 +1,7 @@
 import datetime
 from classes import *
 from functions import shotgun_blast, send_reddit_message_to_self
+import os
 import praw
 
 
@@ -10,8 +11,10 @@ print("Running social media stack script.")
 
 
 def init():
-    global soc_db, r, popular_hour
+    global soc_db, log_db, r, my_diag, popular_hour
     soc_db = SocMediaDB()
+    log_db = LoggingDB()
+    my_diag = Diagnostic(script=os.path.basename(__file__), database="SocMediaDB")
     r = praw.Reddit('bot1')
     popular_hour = 9
 
@@ -34,10 +37,14 @@ def postsocmedia(map_row):
         soc_db.update_to_not_fresh(raw_id=map_row.dict['raw_id'])
         print(blast.tweet_url)
         # TODO: Add logging
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
     except Exception as e:
         error_message = ("Error Encountered: \n"
                          "Could not post to social media.\n" + str(e) + "\nMap with problem: \n" + map_row['text'])
         send_reddit_message_to_self(title="Error with Social Media Post", message=error_message)
+        my_diag.traceback = error_message
+        my_diag.severity = 1
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
     return error_message
 
 
