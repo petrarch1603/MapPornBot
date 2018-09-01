@@ -3,6 +3,7 @@ import os
 import random
 from shutil import copyfile
 import string
+import time
 
 # Script for checking the database class. This is more thorough than the check integriy methods in each
 # database because it will interact and change data in each database. For that reason this script copies
@@ -190,8 +191,8 @@ def test_add_entries(num_of_entries):
     test_row_count(delta=num_of_entries)
 
 
-def main():
-    num_of_entries = 5
+def main_test_db(num_of_entries=5):
+    t_start = time.perf_counter()
     init()
     test_check_integrity()
     test_row_count()
@@ -208,7 +209,5 @@ def main():
     test_check_integrity()
     print("Tests Passed, deleting test database")
     os.remove(test_db_path)
-
-
-main()
-
+    t_stop = time.perf_counter()
+    return t_stop - t_start
