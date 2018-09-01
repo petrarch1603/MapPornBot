@@ -1,4 +1,5 @@
 from classes import *
+import os
 import random
 from shutil import copyfile
 import string
@@ -205,3 +206,9 @@ def main():
     test_add_entries(num_of_entries=num_of_entries)
     print("Checking DB integrity again.")
     test_check_integrity()
+    print("Tests Passed, deleting test database")
+    os.remove(test_db_path)
+
+
+main()
+
