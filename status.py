@@ -2,6 +2,7 @@ from classes import *
 from functions import send_reddit_message_to_self
 import praw
 import os
+from test_db import main_test_db
 import time
 
 
@@ -101,11 +102,14 @@ def main():
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))
 
-    send_reddit_message_to_self(title="Status Report", message=message)
     hist_db.close()
     soc_db.close()
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
     log_db.close()
+    test_db_time = main_test_db()
+    message += "\n---------------\n"
+    message += "Test_DB time = {}".format(test_db_time)
+    send_reddit_message_to_self(title="Status Report", message=message)
 
 
 init()
