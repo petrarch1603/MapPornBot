@@ -151,6 +151,13 @@ class SocMediaDB(MapDB):
         else:
             print(str(time_zone) + " is not a valid time zone")
 
+    def change_time_zone(self, raw_id, new_zone):
+        self.curs.execute("UPDATE {} SET time_zone = {} WHERE raw_id = {}".format(
+            self.table,
+            new_zone,
+            raw_id))
+        self.conn.commit()
+
     def update_to_not_fresh(self, raw_id):
         self.curs.execute("UPDATE {} SET fresh=0 WHERE raw_id='{}'".format(self.table, raw_id))
         self.curs.execute("UPDATE {} SET date_posted={} WHERE raw_id='{}'"
@@ -300,3 +307,10 @@ class LoggingDB(MapDB):
             "SELECT * WHERE passfail = 0 AND diagnostics LIKE '{}'"
             .format(script)
         ))
+
+    def check_integrity(self):
+        for i in self.all_rows_list():
+            assert isinstance(i[0], int)
+            assert i[3] == 1 or i[3] == 0
+            if i[2] is None:
+                raise AssertionError
