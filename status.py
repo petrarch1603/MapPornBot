@@ -109,6 +109,7 @@ def main():
     test_db_time = main_test_db()
     message += "\n---------------\n"
     message += "Test_DB time = {}".format(test_db_time)
+    # TODO: add daily journal information to journal database
     send_reddit_message_to_self(title="Status Report", message=message)
 
 
