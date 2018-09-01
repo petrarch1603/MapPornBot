@@ -3,6 +3,10 @@ import random
 from shutil import copyfile
 import string
 
+# Script for checking the database class. This is more thorough than the check integriy methods in each
+# database because it will interact and change data in each database. For that reason this script copies
+# the live database and runs the methods on a copy.
+
 source_db_path = 'data/mapporn.db'
 test_db_path = 'data/test.db'
 copyfile(source_db_path, test_db_path)
@@ -24,7 +28,7 @@ def init():
 def test_check_integrity():
     print("Checking Database Integrity")
     test_hist_db.check_integrity()
-    # TODO check integrity of log DB
+    test_log_db.check_integrity()
     test_soc_db.check_integrity()
 
 
@@ -36,7 +40,7 @@ def create_random_string(char_count):
 
 def test_row_count(delta=0):
     print("Testing Row Count")
-    # Delta will be to test for a change. In later functions the database will be changed and this argument is to verify
+    # Delta will be to test for a change. In some functions the database will be changed and this argument is to verify
     # the new count.
     init()
     # Check that row count returns integer
@@ -143,6 +147,7 @@ def test_make_fresh_again():
     test_row_count()
     assert test_soc_db.fresh_count == test_soc_db.rows_count
     init()
+
 
 def test_last_24_hour_methods():
     print("Testing previous 24 hour methods")
