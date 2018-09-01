@@ -57,13 +57,6 @@ class MapDB:
             schema_dic[tup[1]] = tup[2]
         self.schema = OrderedDict(schema_dic)
 
-    def get_schema(self):
-        schema_dic = {}
-        self.curs.execute("PRAGMA TABLE_INFO('{}')".format(self.table))
-        for tup in self.curs.fetchall():
-            schema_dic[tup[1]] = tup[2]
-        self.schema = OrderedDict(schema_dic)
-
     def all_rows_list(self):
         return self.curs.execute("SELECT * FROM {}".format(self.table)).fetchall()
 
@@ -77,6 +70,7 @@ class HistoryDB(MapDB):
         MapDB.__init__(self, table, path)
 
     def get_rows_by_date(self, date):
+        assert isinstance(date, int)
         return [x for x in (self.curs.execute("SELECT * FROM {} WHERE day_of_year = {}".format(self.table, date)))]
 
     def change_date(self, raw_id, new_date):
@@ -235,6 +229,12 @@ class SocMediaDB(MapDB):
                     assert len(str(i[4])) == 10
             except AssertionError as e:
                 status += "* Item {} is not fresh and does not have a date_posted date\n  {}\n\n".format(
+                    i[0], e
+                )
+            try:
+                i[4] >= (time.time() - 37500000)
+            except AssertionError as e:
+                status += "* Item {} has a date_posted older than a year.\n  {}\n\n".format(
                     i[0], e
                 )
         if status == '':
