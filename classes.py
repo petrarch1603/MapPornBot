@@ -25,13 +25,13 @@ class MapRow:
 
 
 class Diagnostic:
-    def __init__(self, script):
-        self.raw_id = None
+    def __init__(self, script, raw_id=None, severity=None, table=None, traceback=None, tweet=None):
+        self.raw_id = raw_id
         self.script = script
-        self.severity = None
-        self.table = None
-        self.traceback = None
-        self.tweet = None
+        self.severity = severity
+        self.table = table
+        self.traceback = traceback
+        self.tweet = tweet
 
     def make_dict(self):
         return {
