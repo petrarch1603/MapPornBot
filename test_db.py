@@ -67,7 +67,10 @@ def test_schema():
     assert test_hist_db.schema == OrderedDict([('raw_id', 'TEXT'),
                                                ('text', 'TEXT'),
                                                ('day_of_year', 'NUMERIC')])
-    # TODO: write test for log_db schema assert test_log_db.schema ==
+    assert test_log_db.schema == OrderedDict([('date', 'NUMERIC'),
+                                              ('error_text', 'TEXT'),
+                                              ('diagnostics', 'TEXT'),
+                                              ('passfail', 'NUMERIC')])
     assert test_soc_db.schema == OrderedDict([('raw_id', 'TEXT'),
                                               ('text', 'TEXT'),
                                               ('time_zone', 'NUMERIC'),
