@@ -7,9 +7,10 @@ import time
 
 
 def init():
-    global hist_db, log_db, r, soc_db
+    global hist_db, journal_db, log_db, r, soc_db
     print("Running {}".format(str(os.path.basename(__file__))))
     hist_db = HistoryDB()
+    journal_db = JournalDB()
     log_db = LoggingDB()
     r = praw.Reddit('bot1')
     soc_db = SocMediaDB()
@@ -110,6 +111,7 @@ def main():
     message += "\n---------------\n"
     message += "Test_DB time = {}".format(test_db_time)
     # TODO: add daily journal information to journal database
+    journal_db.update_todays_status(benchmark_time=test_db_time)
     send_reddit_message_to_self(title="Status Report", message=message)
 
 
