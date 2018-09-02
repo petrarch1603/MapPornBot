@@ -42,7 +42,23 @@ class Diagnostic:
             "traceback": self.traceback,
             "tweet": self.tweet
         }
+    # TODO: add method for getting diagnostic dictionary from database and converting to object
 
+
+def diag_dict_to_obj(diag_dict):
+    my_diag = Diagnostic(script=diag_dict['script'])
+    for k, v in diag_dict.items():
+        if k == 'raw_id':
+            my_diag.raw_id = v
+        elif k == 'severity':
+            my_diag.severity = v
+        elif k == 'table':
+            my_diag.table = v
+        elif k == 'traceback':
+            my_diag.traceback = v
+        elif k == 'tweet':
+            my_diag.tweet = v
+    return my_diag
 
 class MapDB:
     def __init__(self, table, path='data/mapporn.db'):
