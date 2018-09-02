@@ -26,6 +26,12 @@ def init():
     test_soc_db = SocMediaDB(path=test_db_path)
 
 
+def test_close_all():
+    test_hist_db.close()
+    test_log_db.close()
+    test_soc_db.close()
+
+
 def test_check_integrity():
     print("Checking Database Integrity")
     test_hist_db.check_integrity()
@@ -111,6 +117,7 @@ def test_time_zone():
     # Check that the five raw_ids have the new random dates
     for k, v in raw_ids_dict.items():
         assert str(k) in str(test_soc_db.get_rows_by_time_zone(v))
+    test_soc_db.close()
     init()
 
 
