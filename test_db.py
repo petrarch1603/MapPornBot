@@ -40,6 +40,7 @@ def test_check_integrity():
     test_soc_db.check_integrity()
     test_close_all()
 
+
 def create_random_string(char_count):
     allchar = string.ascii_letters + string.digits
     rand_str = "".join(random.choice(allchar) for _ in range(char_count))
@@ -58,6 +59,7 @@ def test_row_count(delta=0):
     assert test_soc_db_old_count + delta == len(test_soc_db.all_rows_list())
     test_close_all()
 
+
 def test_schema():
     print("Testing Schema")
     init()
@@ -73,6 +75,7 @@ def test_schema():
                                               ('date_posted', 'DATE'),
                                               ('post_error', 'NUMERIC')])
     test_close_all()
+
 
 def test_days_in_history():
     init()
@@ -149,6 +152,7 @@ def test_update_to_not_fresh():
                 assert j[3] == 0
     test_close_all()
 
+
 def test_make_fresh_again():
     print("Testing making fresh again")
     init()
@@ -158,6 +162,7 @@ def test_make_fresh_again():
     init()
     assert test_soc_db.fresh_count == test_soc_db.rows_count
     test_close_all()
+
 
 def test_last_24_hour_methods():
     print("Testing previous 24 hour methods")
