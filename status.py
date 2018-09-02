@@ -21,6 +21,7 @@ def main():
     message = "#Daily Status Check\n***\n"
     time_zone_table = "#Time Zone Analysis\n**Time Zone**|**Map Count**\n-----------|------------\n"
 
+    # Integrity Checks on databases
     try:
         hist_db_integrity = hist_db.check_integrity()
         if hist_db_integrity.startswith("PASS"):
