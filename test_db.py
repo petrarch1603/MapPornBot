@@ -98,7 +98,7 @@ def test_time_zone():
     raw_ids_dict = {}
     for _ in range(5):
         random_zone = random.randint(-10, 12)
-        random_index = random.randint(1, len(test_soc_db.get_rows_by_time_zone(time_zone=random_zone)))
+        random_index = random.randint(1, len(test_soc_db.get_rows_by_time_zone(time_zone=random_zone)) - 1)
         assert isinstance(test_soc_db.get_rows_by_time_zone(time_zone=random_zone), list)
         raw_ids_dict[(test_soc_db.get_rows_by_time_zone(time_zone=random_zone)[random_index][0])] = random_zone
 
@@ -164,10 +164,13 @@ def test_add_entries(num_of_entries):
         test_hist_db.add_row_to_db(raw_id=rand_hist_id,
                                    text=create_random_string(10),
                                    day_of_year=random.randint(1, 365))
-        my_diag_dic = {}
-        for _ in range(3):
-            my_diag_dic[create_random_string(5)] = create_random_string(10)
-        test_log_db.add_row_to_db(diagnostics=my_diag_dic,
+        my_diag_dic = Diagnostic(script=(create_random_string(8)) + '.py')
+        my_diag_dic.raw_id = create_random_string(6)
+        my_diag_dic.severity = random.randint(1, 9)
+        my_diag_dic.table = create_random_string(6)
+        my_diag_dic.traceback = create_random_string(15)
+        my_diag_dic.tweet = "http://" + str(create_random_string(8))
+        test_log_db.add_row_to_db(diagnostics=my_diag_dic.make_dict(),
                                   error_text=rand_log_text,
                                   passfail=random.randint(0, 1))
         test_soc_db.add_row_to_db(raw_id=rand_soc_id,
@@ -177,9 +180,11 @@ def test_add_entries(num_of_entries):
         init()
         if rand_passfail == 0:
             assert rand_log_text in str(test_log_db.get_fails_previous_24(current_time=time.time()))
+            # TODO make a better assertion for checking diagnositcs in previous 24 hours
+            assert my_diag_dic.raw_id in str(test_log_db.get_fails_previous_24(current_time=time.time()))
         elif rand_passfail == 1:
             assert rand_log_text in str(test_log_db.get_successes_previous_24(current_time=time.time()))
-
+            assert my_diag_dic.raw_id in str(test_log_db.get_fails_previous_24(current_time=time.time()))
     init()
     test_row_count(delta=num_of_entries)
 
