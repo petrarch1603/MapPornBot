@@ -60,6 +60,7 @@ def diag_dict_to_obj(diag_dict):
             my_diag.tweet = v
     return my_diag
 
+
 class MapDB:
     def __init__(self, table, path='data/mapporn.db'):
         self.path = path
