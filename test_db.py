@@ -13,11 +13,10 @@ source_db_path = 'data/mapporn.db'
 test_db_path = 'data/test.db'
 copyfile(source_db_path, test_db_path)
 
+# Get count of all rows of each database
 test_hist_db_old_count = test_hist_db.rows_count
 test_log_db_old_count = test_log_db.rows_count
 test_soc_db_old_count = test_soc_db.rows_count
-
-# TODO get all the available methods for classes
 
 
 def init():
@@ -42,19 +41,14 @@ def create_random_string(char_count):
 
 def test_row_count(delta=0):
     print("Testing Row Count")
-    # Delta will be to test for a change. In some functions the database will be changed and this argument is to verify
-    # the new count.
-    init()
-    # Check that row count returns integer
-    assert isinstance(test_hist_db.rows_count, int)
-    assert isinstance(test_log_db.rows_count, int)
-    assert isinstance(test_soc_db.rows_count, int)
+    # Delta will be to test for changes in count. In some tests the database
+    # will be changed and this argument is to verify the new count.
 
+    init()
     # Check that row count is equal to length of .all_rows_list() method
     assert test_hist_db_old_count + delta == len(test_hist_db.all_rows_list())
     assert test_log_db_old_count + delta == len(test_log_db.all_rows_list())
     assert test_soc_db_old_count + delta == len(test_soc_db.all_rows_list())
-    init()
 
 
 def test_schema():
@@ -70,7 +64,6 @@ def test_schema():
                                               ('fresh', 'NUMERIC'),
                                               ('date_posted', 'DATE'),
                                               ('post_error', 'NUMERIC')])
-    init()
 
 
 def test_days_in_history():
