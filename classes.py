@@ -338,3 +338,33 @@ class LoggingDB(MapDB):
         except AssertionError as e:
             status += 'Error encountered: {}\n'.format(e)
         return status
+
+
+class JournalDB(MapDB):
+    def __init__(self, table='journal', path='data/mapporn.db'):
+        MapDB.__init__(self, table, path)
+
+    def update_todays_status(self, benchmark_time):
+        date = time.time()
+        hist_db = HistoryDB()
+        log_db = LoggingDB()
+        soc_db = SocMediaDB()
+
+        self.curs.execute("INSERT INTO {table} values("
+                          "{date}, "
+                          "{hist_rows}, "
+                          "{log_rows}, "
+                          "{soc_rows}, "
+                          "{fresh_rows}, "
+                          "{errors}, "
+                          "{successes}, "
+                          "{benchmark_time}".format(table=self.table,
+                                                    date=date,
+                                                    hist_rows=hist_db.rows_count,
+                                                    log_rows=log_db.rows_count,
+                                                    soc_rows=soc_db.rows_count,
+                                                    fresh_rows=soc_db.fresh_count,
+                                                    errors=len(log_db.get_fails_previous_24(date)),
+                                                    successes=len(log_db.get_successes_previous_24(date)),
+                                                    benchmark_time=benchmark_time))
+
