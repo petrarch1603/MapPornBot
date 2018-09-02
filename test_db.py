@@ -33,11 +33,12 @@ def test_close_all():
 
 
 def test_check_integrity():
+    init()
     print("Checking Database Integrity")
     test_hist_db.check_integrity()
     test_log_db.check_integrity()
     test_soc_db.check_integrity()
-
+    test_close_all()
 
 def create_random_string(char_count):
     allchar = string.ascii_letters + string.digits
@@ -55,10 +56,11 @@ def test_row_count(delta=0):
     assert test_hist_db_old_count + delta == len(test_hist_db.all_rows_list())
     assert test_log_db_old_count + delta == len(test_log_db.all_rows_list())
     assert test_soc_db_old_count + delta == len(test_soc_db.all_rows_list())
-
+    test_close_all()
 
 def test_schema():
     print("Testing Schema")
+    init()
     # Check that the schema is correct
     assert test_hist_db.schema == OrderedDict([('raw_id', 'TEXT'),
                                                ('text', 'TEXT'),
@@ -70,9 +72,10 @@ def test_schema():
                                               ('fresh', 'NUMERIC'),
                                               ('date_posted', 'DATE'),
                                               ('post_error', 'NUMERIC')])
-
+    test_close_all()
 
 def test_days_in_history():
+    init()
     # Check that random days will return list
     print("Testing days in history")
     for _ in range(5):
@@ -89,16 +92,18 @@ def test_days_in_history():
     for k, v in raw_ids_dict.items():
         test_hist_db.change_date(raw_id=k, new_date=v)
     # Re-initialize database and make sure the row counts match
+    test_close_all()
     init()
     test_row_count()
 
     # Check that the five raw_ids have the new random dates
     for k, v in raw_ids_dict.items():
         assert str(k) in str(test_hist_db.get_rows_by_date(v))
-    init()
+    test_close_all()
 
 
 def test_time_zone():
+    init()
     print("Testing SocMediaDB time zones.")
     # Get five random raw_ids
     raw_ids_dict = {}
@@ -112,16 +117,18 @@ def test_time_zone():
     for k, v in raw_ids_dict.items():
         test_soc_db.change_time_zone(raw_id=k, new_zone=v)
     # Re-initialize database and make sure row counts match
+    test_close_all()
     init()
     test_row_count()
     # Check that the five raw_ids have the new random dates
     for k, v in raw_ids_dict.items():
         assert str(k) in str(test_soc_db.get_rows_by_time_zone(v))
-    test_soc_db.close()
+    test_close_all()
     init()
 
 
 def test_update_to_not_fresh():
+    init()
     print("Testing update to not fresh")
     # Testing SocDB method for making not fresh
     my_list = []
@@ -131,6 +138,7 @@ def test_update_to_not_fresh():
     for i in my_list:
         test_soc_db.update_to_not_fresh(raw_id=i)
     # Re-initialize database
+    test_close_all()
     init()
     test_row_count()
     # Check that the five raw_ids are not fresh
@@ -139,27 +147,29 @@ def test_update_to_not_fresh():
         for j in all_rows:
             if j[0] == i:
                 assert j[3] == 0
-    init()
-
+    test_close_all()
 
 def test_make_fresh_again():
     print("Testing making fresh again")
+    init()
     test_soc_db.make_fresh_again(current_time=999999999999)
-    init()
     test_row_count()
-    assert test_soc_db.fresh_count == test_soc_db.rows_count
+    test_close_all()
     init()
-
+    assert test_soc_db.fresh_count == test_soc_db.rows_count
+    test_close_all()
 
 def test_last_24_hour_methods():
     print("Testing previous 24 hour methods")
+    init()
     assert isinstance(test_log_db.get_fails_previous_24(current_time=time.time()), list)
     assert isinstance(test_log_db.get_successes_previous_24(current_time=time.time()), list)
-    init()
+    test_close_all()
 
 
 def test_add_entries(num_of_entries):
     # Add random new entries to database
+    init()
     print("Adding {} random entries to all databases for testing...".format(
         str(num_of_entries)
     ))
@@ -184,6 +194,7 @@ def test_add_entries(num_of_entries):
                                   text=create_random_string(11),
                                   time_zone=random.randint(-10, 12),
                                   fresh=random.randint(0, 1))
+        test_close_all()
         init()
         if rand_passfail == 0:
             assert rand_log_text in str(test_log_db.get_fails_previous_24(current_time=time.time()))
@@ -192,8 +203,10 @@ def test_add_entries(num_of_entries):
         elif rand_passfail == 1:
             assert rand_log_text in str(test_log_db.get_successes_previous_24(current_time=time.time()))
             assert my_diag_dic.raw_id in str(test_log_db.get_fails_previous_24(current_time=time.time()))
+    test_close_all()
     init()
     test_row_count(delta=num_of_entries)
+    test_close_all()
 
 
 def main_test_db(num_of_entries=5):
@@ -208,7 +221,6 @@ def main_test_db(num_of_entries=5):
     test_make_fresh_again()
     test_last_24_hour_methods()
 
-    init()
     test_add_entries(num_of_entries=num_of_entries)
     print("Checking DB integrity again.")
     test_check_integrity()
