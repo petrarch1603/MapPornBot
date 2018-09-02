@@ -325,8 +325,15 @@ class LoggingDB(MapDB):
         ))
 
     def check_integrity(self):
-        for i in self.all_rows_list():
-            assert isinstance(i[0], int)
-            assert i[3] == 1 or i[3] == 0
-            if i[2] is None:
-                raise AssertionError
+        status = ''
+        try:
+            for i in self.all_rows_list():
+                assert isinstance(i[0], int)
+                assert i[3] == 1 or i[3] == 0
+                if i[2] is None:
+                    raise AssertionError
+                this_diag = diag_dict_to_obj(i[2])
+                assert str(this_diag.script).endswith(".py")
+        except AssertionError as e:
+            status += 'Error encountered: {}\n'.format(e)
+        return status
