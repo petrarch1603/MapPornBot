@@ -42,6 +42,7 @@ class Diagnostic:
             "traceback": self.traceback,
             "tweet": self.tweet
         }
+
     # TODO: add method for getting diagnostic dictionary from database and converting to object
 
 
@@ -358,13 +359,23 @@ class JournalDB(MapDB):
                           "{fresh_rows}, "
                           "{errors}, "
                           "{successes}, "
-                          "{benchmark_time}".format(table=self.table,
-                                                    date=date,
-                                                    hist_rows=hist_db.rows_count,
-                                                    log_rows=log_db.rows_count,
-                                                    soc_rows=soc_db.rows_count,
-                                                    fresh_rows=soc_db.fresh_count,
-                                                    errors=len(log_db.get_fails_previous_24(date)),
-                                                    successes=len(log_db.get_successes_previous_24(date)),
-                                                    benchmark_time=benchmark_time))
+                          "{benchmark_time}, "
+                          "{dict})".format(table=self.table,
+                                           date=date,
+                                           hist_rows=hist_db.rows_count,
+                                           log_rows=log_db.rows_count,
+                                           soc_rows=soc_db.rows_count,
+                                           fresh_rows=soc_db.fresh_count,
+                                           errors=len(log_db.get_fails_previous_24(date)),
+                                           successes=len(log_db.get_successes_previous_24(date)),
+                                           benchmark_time=benchmark_time,
+                                           dict={i[0]: i[1:] for i in log_db.get_fails_previous_24(date)}))
 
+    def check_integrity(self):
+        for i in self.all_rows_list():
+            assert isinstance(i[0], int)
+            assert isinstance(i[1], int)
+            assert isinstance(i[2], int)
+            assert isinstance(i[3], int)
+            assert isinstance(i[4], int)
+            assert isinstance(i[7], (int, float))
