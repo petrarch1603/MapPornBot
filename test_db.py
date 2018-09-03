@@ -9,6 +9,7 @@ import time
 # database because it will interact and change data in each database. For that reason this script copies
 # the live database and runs the methods on a copy.
 
+#TODO add journal testing to this script!
 source_db_path = 'data/mapporn.db'
 test_db_path = 'data/test.db'
 copyfile(source_db_path, test_db_path)
