@@ -22,12 +22,6 @@ def init():
     test_soc_db = SocMediaDB(path=test_db_path)
 
 
-    # Get count of all rows of each database
-    test_hist_db_old_count = test_hist_db.rows_count
-    test_log_db_old_count = test_log_db.rows_count
-    test_soc_db_old_count = test_soc_db.rows_count
-
-
 def test_close_all():
     test_hist_db.close()
     test_log_db.close()
@@ -118,13 +112,14 @@ def test_time_zone():
     raw_ids_dict = {}
     for _ in range(5):
         random_zone = random.randint(-10, 12)
-        if len(test_soc_db.get_rows_by_time_zone(time_zone=random_zone)) > 0:
-            random_index = random.randint(1, len(test_soc_db.get_rows_by_time_zone(time_zone=random_zone)) - 1)
+        random_zone_list = test_soc_db.get_rows_by_time_zone(time_zone=random_zone, fresh='0 OR 1')
+        if len(random_zone_list) > 0:
+            random_index = random.randint(1, len(random_zone_list) - 1)
         else:
             random_zone = 99
             random_index = random.randint(1, len(test_soc_db.get_rows_by_time_zone(time_zone=random_zone)) - 1)
         assert isinstance(test_soc_db.get_rows_by_time_zone(time_zone=random_zone), list)
-        raw_ids_dict[(test_soc_db.get_rows_by_time_zone(time_zone=random_zone)[random_index][0])] = random_zone
+        raw_ids_dict[(random_zone_list[random_index][0])] = random_zone
 
     # Change time zones for five random raw_ids
     for k, v in raw_ids_dict.items():
@@ -136,7 +131,7 @@ def test_time_zone():
     # Check that the five raw_ids have the new random dates
     init()
     for k, v in raw_ids_dict.items():
-        assert str(k) in str(test_soc_db.get_rows_by_time_zone(v))
+        assert str(k) in str(test_soc_db.get_rows_by_time_zone(time_zone=v, fresh='0 OR 1'))
     test_close_all()
     init()
 
