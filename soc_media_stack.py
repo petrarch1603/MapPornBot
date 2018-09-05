@@ -52,8 +52,11 @@ def postsocmedia(map_row):
 init()
 status = postsocmedia(soc_db.get_one_map_row(target_zone=popular_hour))
 if status == '':
-    soc_db.conn.commit()
-    soc_db.close()
-    log_db.conn.commit()
-    log_db.close()
     print('Successfully posted to social media')
+else:
+    send_reddit_message_to_self('socmedia problem', status)
+soc_db.conn.commit()
+soc_db.close()
+log_db.conn.commit()
+log_db.close()
+print('Successfully posted to social media')
