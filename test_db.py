@@ -14,17 +14,18 @@ source_db_path = 'data/mapporn.db'
 test_db_path = 'data/test.db'
 copyfile(source_db_path, test_db_path)
 
-# Get count of all rows of each database
-test_hist_db_old_count = test_hist_db.rows_count
-test_log_db_old_count = test_log_db.rows_count
-test_soc_db_old_count = test_soc_db.rows_count
-
 
 def init():
     global test_hist_db, test_log_db, test_soc_db
     test_hist_db = HistoryDB(path=test_db_path)
     test_log_db = LoggingDB(path=test_db_path)
     test_soc_db = SocMediaDB(path=test_db_path)
+
+
+    # Get count of all rows of each database
+    test_hist_db_old_count = test_hist_db.rows_count
+    test_log_db_old_count = test_log_db.rows_count
+    test_soc_db_old_count = test_soc_db.rows_count
 
 
 def test_close_all():
@@ -102,6 +103,7 @@ def test_days_in_history():
     test_close_all()
     init()
     test_row_count()
+    init()
 
     # Check that the five raw_ids have the new random dates
     for k, v in raw_ids_dict.items():
@@ -116,7 +118,11 @@ def test_time_zone():
     raw_ids_dict = {}
     for _ in range(5):
         random_zone = random.randint(-10, 12)
-        random_index = random.randint(1, len(test_soc_db.get_rows_by_time_zone(time_zone=random_zone)) - 1)
+        if len(test_soc_db.get_rows_by_time_zone(time_zone=random_zone)) > 0:
+            random_index = random.randint(1, len(test_soc_db.get_rows_by_time_zone(time_zone=random_zone)) - 1)
+        else:
+            random_zone = 99
+            random_index = random.randint(1, len(test_soc_db.get_rows_by_time_zone(time_zone=random_zone)) - 1)
         assert isinstance(test_soc_db.get_rows_by_time_zone(time_zone=random_zone), list)
         raw_ids_dict[(test_soc_db.get_rows_by_time_zone(time_zone=random_zone)[random_index][0])] = random_zone
 
@@ -128,6 +134,7 @@ def test_time_zone():
     init()
     test_row_count()
     # Check that the five raw_ids have the new random dates
+    init()
     for k, v in raw_ids_dict.items():
         assert str(k) in str(test_soc_db.get_rows_by_time_zone(v))
     test_close_all()
@@ -140,7 +147,7 @@ def test_update_to_not_fresh():
     # Testing SocDB method for making not fresh
     my_list = []
     for _ in range(5):
-        random_index = random.randint(1, len(test_soc_db.all_rows_list()))
+        random_index = random.randint(1, (len(test_soc_db.all_rows_list()) - 1))
         my_list.append(test_soc_db.all_rows_list()[random_index][0])
     for i in my_list:
         test_soc_db.update_to_not_fresh(raw_id=i)
@@ -149,6 +156,7 @@ def test_update_to_not_fresh():
     init()
     test_row_count()
     # Check that the five raw_ids are not fresh
+    init()
     all_rows = test_soc_db.all_rows_list()
     for i in my_list:
         for j in all_rows:
@@ -160,9 +168,12 @@ def test_update_to_not_fresh():
 def test_make_fresh_again():
     print("Testing making fresh again")
     init()
-    test_soc_db.make_fresh_again(current_time=999999999999)
+    # TODO need to give post_date to all entries or make fresh again will crash
+    for i in test_soc_db.all_rows_list():
+        test_soc_db.curs.execute("UPDATE {} SET date_posted={} WHERE raw_id='{}'".format('socmediamaps', time.time(), i[0]))
+    test_soc_db.make_fresh_again(current_time=9999999999)
+    init()
     test_row_count()
-    test_close_all()
     init()
     assert test_soc_db.fresh_count == test_soc_db.rows_count
     test_close_all()
@@ -198,7 +209,8 @@ def test_add_entries(num_of_entries):
         my_diag_dic.tweet = "http://" + str(create_random_string(8))
         test_log_db.add_row_to_db(diagnostics=my_diag_dic.make_dict(),
                                   error_text=rand_log_text,
-                                  passfail=random.randint(0, 1))
+                                  passfail=rand_passfail)
+        init()
         test_soc_db.add_row_to_db(raw_id=rand_soc_id,
                                   text=create_random_string(11),
                                   time_zone=random.randint(-10, 12),
@@ -211,16 +223,19 @@ def test_add_entries(num_of_entries):
             assert my_diag_dic.raw_id in str(test_log_db.get_fails_previous_24(current_time=time.time()))
         elif rand_passfail == 1:
             assert rand_log_text in str(test_log_db.get_successes_previous_24(current_time=time.time()))
-            assert my_diag_dic.raw_id in str(test_log_db.get_fails_previous_24(current_time=time.time()))
+            assert my_diag_dic.raw_id in str(test_log_db.get_successes_previous_24(current_time=time.time()))
     test_close_all()
     init()
     test_row_count(delta=num_of_entries)
-    test_close_all()
 
 
 def main_test_db(num_of_entries=5):
     t_start = time.perf_counter()
     init()
+    # Get count of all rows of each database
+    test_hist_db_old_count = test_hist_db.rows_count
+    test_log_db_old_count = test_log_db.rows_count
+    test_soc_db_old_count = test_soc_db.rows_count
     test_check_integrity()
     test_row_count()
     test_schema()
@@ -236,4 +251,14 @@ def main_test_db(num_of_entries=5):
     print("Tests Passed, deleting test database")
     os.remove(test_db_path)
     t_stop = time.perf_counter()
+    print(t_stop-t_start)
     return t_stop - t_start
+
+
+init()
+test_hist_db_old_count = test_hist_db.rows_count
+test_log_db_old_count = test_log_db.rows_count
+test_soc_db_old_count = test_soc_db.rows_count
+
+if __name__ == "__main__":
+    main_test_db(5)

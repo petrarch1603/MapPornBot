@@ -1,3 +1,4 @@
+import ast
 from collections import OrderedDict
 import random
 import sqlite3
@@ -43,10 +44,9 @@ class Diagnostic:
             "tweet": self.tweet
         }
 
-    # TODO: add method for getting diagnostic dictionary from database and converting to object
-
 
 def diag_dict_to_obj(diag_dict):
+    diag_dict = ast.literal_eval(diag_dict)
     my_diag = Diagnostic(script=diag_dict['script'])
     for k, v in diag_dict.items():
         if k == 'raw_id':
@@ -170,7 +170,7 @@ class SocMediaDB(MapDB):
             print(str(time_zone) + " is not a valid time zone")
 
     def change_time_zone(self, raw_id, new_zone):
-        self.curs.execute("UPDATE {} SET time_zone = {} WHERE raw_id = {}".format(
+        self.curs.execute("UPDATE {} SET time_zone = {} WHERE raw_id = '{}'".format(
             self.table,
             new_zone,
             raw_id))
@@ -244,20 +244,21 @@ class SocMediaDB(MapDB):
                     i[0], self.table, e
                 )
             try:
-                assert (i[3] == 0) or (i[3] == 1)
+                assert (int(i[3]) == 0) or (int(i[3]) == 1)
             except AssertionError as e:
                 status += "* fresh of {} is not a boolean in {}\n  {}\n\n".format(
                     i[0], self.table, e
                 )
             try:
-                if i[3] == 0:
+                if int(i[3]) == 0:
                     assert len(str(i[4])) == 10
             except AssertionError as e:
                 status += "* Item {} is not fresh and does not have a date_posted date\n  {}\n\n".format(
                     i[0], e
                 )
             try:
-                i[4] >= (time.time() - 37500000)
+                assert isinstance(i[4], int)
+                assert int(i[4]) >= (time.time() - 37500000)
             except AssertionError as e:
                 status += "* Item {} has a date_posted older than a year.\n  {}\n\n".format(
                     i[0], e
@@ -272,12 +273,12 @@ class SocMediaDB(MapDB):
         time_past = 34560000
         cutoff_time = (current_time - int(time_past))
         for i in self.all_rows_list():
-            if (i[3] == 0) and (i[4] <= cutoff_time):
-                self.curs.execute("UPDATE {} SET fresh=1 WHERE raw_id='{}'".format(
-                    self.table, i[0]
-                ))
-                self.conn.commit()
-                print("Refreshed {}".format(i[1]))
+            if (isinstance(i[3], int)) and (int(i[3]) == 0):
+                if int(i[4]) <= cutoff_time:
+                    self.curs.execute("UPDATE {} SET fresh=1 WHERE raw_id='{}'".format(
+                        self.table, i[0]
+                    ))
+                    self.conn.commit()
         self.conn.close()
 
 
@@ -286,34 +287,33 @@ class LoggingDB(MapDB):
         MapDB.__init__(self, table, path)
 
     def add_row_to_db(self, diagnostics, passfail, error_text=None):
-        self.curs.execute("INSERT INTO {table} values("
-                          "{date},"
-                          "'{error_text}',"
-                          "'{diagnostics}',"
-                          "{passfail}"
-                          .format(table=self.table,
-                                  date=int(time.time()),
-                                  error_text=error_text,
-                                  diagnostics=diagnostics,
-                                  passfail=passfail))
+        # TODO quote marks in diagnostics dictionary are fouling this up!
+        self.curs.execute('''INSERT INTO {table} values({time}, '{error_text}', "{diag}", {passfail})'''.format(
+            table=self.table,
+            time=int(time.time()),
+            error_text=error_text,
+            diag=str(diagnostics),
+            passfail=passfail
+        ))
+        self.conn.commit()
 
     def get_fails_previous_24(self, current_time):
+        current_time = int(current_time)
         assert len(str(current_time)) == 10
         # Note: capturing all fails from a little longer than 24 hours ago
         # to ensure it doesn't miss any fails from previous day's script.
         twenty_four_ago = int(current_time) - 87500
-        print("Returning list of all fails from last 24 hours")
         return list(row for row in self.curs.execute(
             "SELECT * FROM {} WHERE passfail = 0 AND date >= {}"
             .format(self.table, twenty_four_ago)
         ))
 
     def get_successes_previous_24(self, current_time):
+        current_time = int(current_time)
         assert len(str(current_time)) == 10
         # Note: capturing all fails from a little longer than 24 hours ago
         # to ensure it doesn't miss any fails from previous day's script.
         twenty_four_ago = int(current_time) - 87500
-        print("Returning list of all fails from last 24 hours")
         return list(row for row in self.curs.execute(
             "SELECT * FROM {} WHERE passfail = 1 AND date >= {}"
             .format(self.table, twenty_four_ago)
