@@ -251,17 +251,17 @@ class SocMediaDB(MapDB):
                 )
             try:
                 if int(i[3]) == 0:
-                    assert len(str(i[4])) == 10
+                    assert len(str(i[4])) >= 10
             except AssertionError as e:
                 status += "* Item {} is not fresh and does not have a date_posted date\n  {}\n\n".format(
                     i[0], e
                 )
             try:
-                assert isinstance(i[4], int)
-                assert int(i[4]) >= (time.time() - 37500000)
-            except AssertionError as e:
+                if i[3] == 0:
+                    assert int(i[4]) >= (time.time() - 37500000)
+            except Exception as e:
                 status += "* Item {} has a date_posted older than a year.\n  {}\n\n".format(
-                    i[0], e
+                    i, e
                 )
         if status == '':
             return 'PASS: {} integrity test passed.'.format(self.table)
