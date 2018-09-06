@@ -281,6 +281,12 @@ class SocMediaDB(MapDB):
                     self.conn.commit()
         self.conn.close()
 
+    def get_row_by_raw_id(self, raw_id):
+        self.curs.execute("""SELECT * FROM {} WHERE raw_id='{}'""".format(
+            self.table,
+            raw_id
+        )).fetchall()
+
 
 class LoggingDB(MapDB):
     def __init__(self, table='logging', path='data/mapporn.db'):
