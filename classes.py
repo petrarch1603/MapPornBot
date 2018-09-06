@@ -269,7 +269,7 @@ class SocMediaDB(MapDB):
             return status
 
     def make_fresh_again(self, current_time):
-        assert len(str(current_time)) == 10
+        assert len(str(int(current_time))) == 10
         time_past = 34560000
         cutoff_time = (current_time - int(time_past))
         for i in self.all_rows_list():
@@ -282,7 +282,7 @@ class SocMediaDB(MapDB):
         self.conn.close()
 
     def get_row_by_raw_id(self, raw_id):
-        self.curs.execute("""SELECT * FROM {} WHERE raw_id='{}'""".format(
+        return self.curs.execute("""SELECT * FROM {} WHERE raw_id='{}'""".format(
             self.table,
             raw_id
         )).fetchall()
