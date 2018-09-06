@@ -293,7 +293,6 @@ class LoggingDB(MapDB):
         MapDB.__init__(self, table, path)
 
     def add_row_to_db(self, diagnostics, passfail, error_text=None):
-        # TODO quote marks in diagnostics dictionary are fouling this up!
         self.curs.execute('''INSERT INTO {table} values({time}, '{error_text}', "{diag}", {passfail})'''.format(
             table=self.table,
             time=int(time.time()),
@@ -352,30 +351,27 @@ class JournalDB(MapDB):
         MapDB.__init__(self, table, path)
 
     def update_todays_status(self, benchmark_time):
+        # TODO: verify this is working after errors start getting added to my_dict
+        # right now I don't know if the my_dict is working.
         date = time.time()
         hist_db = HistoryDB()
         log_db = LoggingDB()
         soc_db = SocMediaDB()
-
-        self.curs.execute("INSERT INTO {table} values("
-                          "{date}, "
-                          "{hist_rows}, "
-                          "{log_rows}, "
-                          "{soc_rows}, "
-                          "{fresh_rows}, "
-                          "{errors}, "
-                          "{successes}, "
-                          "{benchmark_time}, "
-                          "{dict})".format(table=self.table,
-                                           date=date,
-                                           hist_rows=hist_db.rows_count,
-                                           log_rows=log_db.rows_count,
-                                           soc_rows=soc_db.rows_count,
-                                           fresh_rows=soc_db.fresh_count,
-                                           errors=len(log_db.get_fails_previous_24(date)),
-                                           successes=len(log_db.get_successes_previous_24(date)),
-                                           benchmark_time=benchmark_time,
-                                           dict={i[0]: i[1:] for i in log_db.get_fails_previous_24(date)}))
+        my_dict = {i[0]: str(i[1:]).replace('"', "\\'") for i in log_db.get_fails_previous_24(date)}
+        my_dict = str(my_dict)
+        print(my_dict)
+        my_dict = my_dict.replace('"', '\'')
+        print(my_dict)
+        query = """INSERT INTO {table} values(?, ?, ?, ?, ?, ?, ?, ?, ?)""".format(table=self.table)
+        self.curs.execute(query, (date,
+                                  hist_db.rows_count,
+                                  log_db.rows_count,
+                                  soc_db.rows_count,
+                                  soc_db.fresh_count,
+                                  len(log_db.get_fails_previous_24(date)),
+                                  len(log_db.get_successes_previous_24(date)),
+                                  benchmark_time,
+                                  str(my_dict)))
 
     def check_integrity(self):
         for i in self.all_rows_list():
