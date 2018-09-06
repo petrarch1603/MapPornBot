@@ -54,6 +54,7 @@ def main():
     message += "***   \n"
 
     # Check Time Zones in Soc Database
+    # TODO: why is this in status.py, shouldn't it be a SocDB class method?
     try:
         for k, v in soc_db.zone_dict.items():
             if v <= 5:
@@ -136,3 +137,5 @@ def main():
 
 init()
 main()
+
+#TODO: Make backups of database when it's successfully executed

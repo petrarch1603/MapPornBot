@@ -374,6 +374,7 @@ class JournalDB(MapDB):
                                   str(my_dict)))
 
     def check_integrity(self):
+        #TODO add more integrity checks
         for i in self.all_rows_list():
             assert isinstance(i[0], int)
             assert isinstance(i[1], int)
