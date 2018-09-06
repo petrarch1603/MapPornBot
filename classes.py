@@ -69,11 +69,11 @@ class MapDB:
         self.conn = sqlite3.connect(path)
         self.curs = self.conn.cursor()
         self.rows_count = self.curs.execute('SELECT count(*) FROM {}'.format(self.table)).fetchall()[0][0]
-        schema_dic = {}
+        schema_dic = OrderedDict()
         self.curs.execute("PRAGMA TABLE_INFO('{}')".format(self.table))
         for tup in self.curs.fetchall():
             schema_dic[tup[1]] = tup[2]
-        self.schema = OrderedDict(schema_dic)
+        self.schema = schema_dic
 
     def all_rows_list(self):
         return self.curs.execute("SELECT * FROM {}".format(self.table)).fetchall()
