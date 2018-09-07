@@ -284,11 +284,11 @@ class SocMediaDB(MapDB):
                     i, e
                 )
             try:
-                assert self.check_if_already_in_db(i[0]) is True
+                assert self.check_if_already_in_db(raw_id=i[0]) is True
             except AssertionError as e:
                 status += "* Check if already in db method failed.    \nRaw_id{}    \n{}\n\n".format(i, e)
             try:
-                assert self.check_if_already_in_db('abc123') is False
+                assert self.check_if_already_in_db(raw_id='PATRIC') is False
             except AssertionError as e:
                 status += "* Check if already in db method failed using a fake raw_id    \n{}    \n".format(e)
         try:
