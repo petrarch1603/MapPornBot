@@ -7,6 +7,7 @@ import os
 r = praw.Reddit('bot1')
 my_diag = Diagnostic(script=str(os.path.basename(__file__)))
 log_db = LoggingDB()
+
 try:
     top_week = list(r.subreddit('mapporn').top('week', limit=1))[0]
     announce_week = 'Top post of the week:\n'
@@ -16,6 +17,7 @@ try:
     s_b_dict = s_b.post_to_all_social()
     my_diag.tweet = s_b_dict['tweet_url']
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
+
 except Exception as ex:
     my_diag.traceback = "Could not run {} script    \n{}   \n\n".format(str(os.path.basename(__file__)), ex)
     my_diag.severity = 2
