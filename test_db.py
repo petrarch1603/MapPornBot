@@ -7,7 +7,7 @@ import time
 
 # Script for checking the database class. This is more thorough than the check integriy methods in each
 # database because it will interact and change data in each database. For that reason this script copies
-# the live database and runs the methods on a copy.
+# the live database and runs the methods on a copy. The original database remains unchanged.
 
 #TODO add journal testing to this script!
 source_db_path = 'data/mapporn.db'
@@ -72,36 +72,6 @@ def test_row_count(delta=0):
     test_close_all()
 
 
-def test_schema():
-    print("Testing Schema")
-    init()
-    # Check that the schema is correct
-    assert test_hist_db.schema == OrderedDict([('raw_id', 'TEXT'),
-                                               ('text', 'TEXT'),
-                                               ('day_of_year', 'NUMERIC')])
-    assert test_log_db.schema == OrderedDict([('date', 'NUMERIC'),
-                                              ('error_text', 'TEXT'),
-                                              ('diagnostics', 'TEXT'),
-                                              ('passfail', 'NUMERIC')])
-    assert test_soc_db.schema == OrderedDict([('raw_id', 'TEXT'),
-                                              ('text', 'TEXT'),
-                                              ('time_zone', 'NUMERIC'),
-                                              ('fresh', 'NUMERIC'),
-                                              ('date_posted', 'DATE'),
-                                              ('post_error', 'NUMERIC')])
-    assert test_jour_db.schema == OrderedDict([('date', 'NUMERIC'),
-                                              ('hist_rows', 'NUMERIC'),
-                                              ('log_rows', 'NUMERIC'),
-                                              ('soc_rows', 'NUMERIC'),
-                                              ('fresh_rows', 'NUMERIC'),
-                                              ('errors_24', 'NUMERIC'),
-                                              ('successes_24', 'NUMERIC'),
-                                              ('benchmark_time', 'REAL'),
-                                              ('dict', 'TEXT')])
-
-    test_close_all()
-
-
 def test_days_in_history():
     init()
     # Check the change_date() method works
@@ -152,7 +122,7 @@ def test_time_zone():
     test_row_count()
     # Check that the five raw_ids have the new random dates
     init()
-    for k, v in raw_ids_dict.items():
+    for k, v in raw_ids_dict.items():  # k is a raw_id, v is a time_zone
         assert str(k) in str(test_soc_db.get_rows_by_time_zone(time_zone=v, fresh='0 OR 1'))
     test_close_all()
     init()
