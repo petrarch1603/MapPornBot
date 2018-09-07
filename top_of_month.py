@@ -1,26 +1,21 @@
-from functions import *
-import time
+from classes import *
+# from functions import *
+import os
+import praw
 
 # Post the top /r/MapPorn submission from the last month.
 
-
-top = r.subreddit('mapporn').top('month', limit=1)
-top = list(top)
-top_month = (top[0])
+r = praw.Reddit('bot1')
+top_month = list(r.subreddit('mapporn').top('month', limit=1))[0]
 announce_month = 'Top post of the month:\n'
-logdict = {'type': 'socmediapost'}
+my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+log_db = LoggingDB()
 
 try:
-    social_media_post = shotgun_blast(raw_id_input=top_month, announce_input=announce_month)
-    logdict['time'] = time.time()
-    logobject = {'script': 'Top Post of Month',
-                 'message': str(social_media_post.message),
-                 'tweet_url': str(social_media_post.tweet_url),
-                 'tumblr_url': str(social_media_post.tumblr_url),
-                 'fb_url': str(social_media_post.facebook_url)}
-    logdict['object'] = logobject
-    addToMongo(logdict)
+    s_b = ShotgunBlast(praw_obj=top_month, announce_input=announce_month).post_to_all_social()
+    my_diag.tweet = s_b['tweet_url']
+    log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
 except Exception as ex:
-    logdict['time'] = time.time()
-    logdict['error'] = str(ex)
-    addToMongo(logdict)
+    my_diag.traceback = "Could not run top_of_month script    \n{}   \n\n".format(ex)
+    my_diag.severity = 2
+    log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
