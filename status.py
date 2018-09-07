@@ -77,8 +77,7 @@ def main():
 
     message += "***   \n"
 
-    # Check Time Zones in Soc Database
-    # TODO: why is this in status.py, shouldn't it be a SocDB class method?
+    # Create report of quantities for each time zone group
     try:
         for k, v in soc_db.zone_dict.items():
             if v <= 5:
@@ -150,7 +149,7 @@ def main():
     test_db_time = main_test_db()
 
     message += "    \n---------------    \n"
-    message += "Test_DB time = {}".format(test_db_time)
+    message += "Test_DB benchmark time = {}".format(test_db_time)
 
     # Add result to daily journal database
     journal_db.update_todays_status(benchmark_time=test_db_time)
