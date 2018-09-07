@@ -382,3 +382,22 @@ class JournalDB(MapDB):
             assert isinstance(i[3], int)
             assert isinstance(i[4], int)
             assert isinstance(i[7], (int, float))
+
+        assert self.schema == OrderedDict([('date', 'NUMERIC'),
+                                          ('hist_rows', 'NUMERIC'),
+                                          ('log_rows', 'NUMERIC'),
+                                          ('soc_rows', 'NUMERIC'),
+                                          ('fresh_rows', 'NUMERIC'),
+                                          ('errors_24', 'NUMERIC'),
+                                          ('successes_24', 'NUMERIC'),
+                                          ('benchmark_time', 'REAL'),
+                                          ('dict', 'TEXT')])
+
+    def average_benchmark_times(self):
+        my_sum = 0
+        counter = 0
+        for i in self.all_rows_list():
+            if i[4] > 0:
+                counter += 1
+                my_sum += int(i[4])
+        return my_sum / counter
