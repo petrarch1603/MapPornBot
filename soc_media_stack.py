@@ -1,6 +1,6 @@
 import datetime
 from classes import *
-from functions import shotgun_blast, send_reddit_message_to_self
+from functions import send_reddit_message_to_self
 import os
 import praw
 
@@ -35,6 +35,7 @@ def postsocmedia(map_row):
     my_diag.raw_id = local_raw_id
     error_message = ''
     praw_obj = r.submission(id=local_raw_id)
+
     try:
         s_b = ShotgunBlast(praw_obj, title=map_row.dict['text'])
         assert s_b.check_integrity() == "PASS"
@@ -42,12 +43,14 @@ def postsocmedia(map_row):
         soc_db.update_to_not_fresh(raw_id=local_raw_id)
         my_diag.tweet = s_b_dict['tweet_url']
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
+
     except Exception as e:
         error_message = ("Error Encountered: \n"
                          "Could not post to social media.\n" + str(e) + "\nMap with problem: \n" + map_row['text'])
         my_diag.traceback = error_message
         my_diag.severity = 1
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+
     return error_message
 
 
