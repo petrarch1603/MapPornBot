@@ -661,3 +661,52 @@ class ShotgunBlast:
         else:
             print(status)
         return status
+
+
+class GenericPost:
+    def __init__(self, filename, title):
+        self.filename = filename
+        self.title = title
+
+    def post_to_all_social(self):
+        ShotgunBlast.init_shotgun_blast()
+        # Post to Twitter
+        tweeted = api.update_with_media(self.filename, status=self.title)  # Post to Twitter
+        tweet_id = str(tweeted._json['id'])  # This took way too long to figure out.
+
+        # Post to Tumblr
+        tumbld = client.create_photo('mappornofficial',
+                                     state="published",
+                                     tags=['#mapporn'],  # Post to Tumblr
+                                     caption=self.title,
+                                     source="http://mapporn.org")
+        try:
+            tumbld_url = tumbld['id']
+            tumbld_url = ('http://mappornofficial.tumblr.com/post/' + str(tumbld_url))
+        except Exception as e:
+            tumbld_url = "Error encountered: " + str(e)
+
+        # Post to Facebook
+        rq = requests.get(
+            'https://graph.facebook.com/v2.11/me/accounts?access_token=EAAB5zddLiesBABHZB9iOgZAmuuapdSvLvfmwB2jkDvxjFyS'
+            'OOXeMdRDozYkAZAaxMNGUT8EMNZABtIgTmC8tDgIzYoleEAK5g7EN8k73YdD80Ic1FPUTp3NZBkofGYgzM802KNA3JenjYRUGJ27vKQTV2'
+            'RF1ZB3fGNSUNxs1bMwwZDZD%27')
+        stuff = rq.json()
+        bloody_access_token = (stuff['data'][0]['access_token'])
+        graph = facebook.GraphAPI(access_token=bloody_access_token)
+        faced = graph.put_photo(image=open(self.filename, 'rb').read(), message=self.title)
+        fb_post_id = faced['post_id']
+        fb_post_id = fb_post_id.replace('_', '/')
+        fb_url = str('https://www.facebook.com/OfficialMapPorn/photos/rpp.' + str(fb_post_id))
+        tweet_url = ('https://twitter.com/MapPornTweet/status/' + tweet_id)
+        socialmediadict = {
+            "tweet_url": tweet_url,
+            "tumblr_url": tumbld_url,
+            "facebook_url": fb_url,
+            "title": self.title}
+        print(socialmediadict)
+        return socialmediadict
+
+
+
+
