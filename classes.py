@@ -450,6 +450,7 @@ class JournalDB(MapDB):
 
 class ShotgunBlast:
     def __init__(self, praw_obj, title=None, announce_input=None):
+        self.twitter_max = 280
         self.announce_input = announce_input
         self.praw_obj = praw_obj
         self.shortlink = praw_obj.shortlink
@@ -492,8 +493,7 @@ class ShotgunBlast:
 
     @classmethod
     def init_shotgun_blast(cls):
-        global api, twitter_max
-        twitter_max = 280
+        global api
 
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_token, access_secret)
@@ -508,17 +508,17 @@ class ShotgunBlast:
             raw_title = self.praw_obj.title
         working_title = (working_title + ' ' + raw_title).lstrip()
         working_title = self.remove_text_inside_brackets(text=working_title)
-        if len(working_title) > twitter_max - 26:  # 25 is the length of a reddit short url
-            working_title = working_title[:(twitter_max - 26)] + '... ' + str(shortlink)
+        if len(working_title) > self.twitter_max - 26:  # 25 is the length of a reddit short url
+            working_title = working_title[:(self.twitter_max - 26)] + '... ' + str(shortlink)
         else:
-            if len(working_title) + len(' #MapPorn') + len(shortlink) < twitter_max:
+            if len(working_title) + len(' #MapPorn') + len(shortlink) < self.twitter_max:
                 working_title += ' ' + str(shortlink) + ' #MapPorn'
                 for w in self.get_hashtag_locations(working_title).split(' '):
-                    if (len(working_title) + len('#')) <= twitter_max:
+                    if (len(working_title) + len('#')) <= self.twitter_max:
                         working_title = working_title.replace((w[1:]), w)
             else:
                 working_title += ' ' + str(shortlink)
-        assert len(working_title) <= twitter_max
+        assert len(working_title) <= self.twitter_max
         return working_title
 
     def download_image(self):
@@ -706,7 +706,3 @@ class GenericPost:
             "title": self.title}
         print(socialmediadict)
         return socialmediadict
-
-
-
-
