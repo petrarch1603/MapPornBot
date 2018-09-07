@@ -1,27 +1,22 @@
+from classes import *
 from functions import *
-import datetime
-import time
+import os
 
 # Post the top /r/MapPorn submission from the last week.
 
-top = r.subreddit('mapporn').top('week', limit=1)
-top = list(top)
-top_week = (top[0])
-announce_week = 'Top post of the week:\n'
-logdict = {'type': 'socmediapost'}
-
+r = praw.Reddit('bot1')
+my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+log_db = LoggingDB()
 try:
-    social_media_post = shotgun_blast(raw_id_input=top_week, announce_input=announce_week)
-    logdict['time'] = time.time()
-    logobject = {'script': 'Top Post of Week'}
-    logobject['message'] = str(social_media_post.message)
-    logobject['tweet_url'] = str(social_media_post.tweet_url)
-    logobject['tumblr_url'] = str(social_media_post.tumblr_url)
-    logobject['fb_url'] = str(social_media_post.facebook_url)
-    logdict['object'] = logobject
-    addToMongo(logdict)
-
+    top_week = list(r.subreddit('mapporn').top('week', limit=1))[0]
+    announce_week = 'Top post of the week:\n'
+    my_diag.raw_id = top_week.id
+    s_b = ShotgunBlast(praw_obj=top_week, announce_input=announce_week)
+    assert s_b.check_integrity() == "PASS"
+    s_b_dict = s_b.post_to_all_social()
+    my_diag.tweet = s_b_dict['tweet_url']
+    log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
 except Exception as ex:
-    logdict['time'] = time.time()
-    logdict['error'] = str(ex)
-    addToMongo(logdict)
+    my_diag.traceback = "Could not run {} script    \n{}   \n\n".format(str(os.path.basename(__file__)), ex)
+    my_diag.severity = 2
+    log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
