@@ -34,11 +34,13 @@ def postsocmedia(map_row):
     local_raw_id = map_row.dict['raw_id']
     my_diag.raw_id = local_raw_id
     error_message = ''
-    redditobject = r.submission(id=local_raw_id)
+    praw_obj = r.submission(id=local_raw_id)
     try:
-        blast = shotgun_blast(raw_id_input=redditobject, title=map_row.dict['text'])
+        s_b = ShotgunBlast(praw_obj, title=map_row.dict['text'])
+        assert s_b.check_integrity() == "PASS"
+        s_b_dict = s_b.post_to_all_social()
         soc_db.update_to_not_fresh(raw_id=local_raw_id)
-        my_diag.tweet = blast.tweet_url
+        my_diag.tweet = s_b_dict['tweet_url']
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
     except Exception as e:
         error_message = ("Error Encountered: \n"
