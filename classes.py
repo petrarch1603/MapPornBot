@@ -124,6 +124,12 @@ class HistoryDB(MapDB):
                 status += "* raw_id of {} in {} is not acceptable\n  {}\n\n".format(
                     i[0], self.table, e
                 )
+        for _ in range(5):
+            try:
+                assert isinstance(self.get_rows_by_date(random.randint(1, 365)), list)
+            except AssertionError as e:
+                status += "* Randoms days do not return a list\n   {}\n\n".format(e)
+
         if status == '':
             return 'PASS: {} integrity test passed.'.format(self.table)
         else:
