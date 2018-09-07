@@ -222,14 +222,15 @@ class SocMediaDB(MapDB):
         my_row = filtered_map_list[random_int]
         return MapRow(schema=self.schema, row=my_row)
 
-    def add_row_to_db(self, raw_id, text, time_zone, fresh=1, post_error=0):
+    def add_row_to_db(self, raw_id, text, time_zone, fresh=1, date_posted='NULL', post_error=0):
         self.curs.execute("INSERT INTO {table} values("
-                          "'{raw_id}', '{text}', {time_zone}, {fresh}, NULL, {post_error})"
+                          "'{raw_id}', '{text}', {time_zone}, {fresh}, {date_posted}, {post_error})"
                           .format(table=self.table,
                                   raw_id=raw_id,
                                   text=text,
                                   time_zone=time_zone,
                                   fresh=int(fresh),
+                                  date_posted=date_posted,
                                   post_error=int(post_error)))
         self.conn.commit()
 
