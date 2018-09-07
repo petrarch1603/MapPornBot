@@ -236,6 +236,12 @@ class SocMediaDB(MapDB):
                                   post_error=int(post_error)))
         self.conn.commit()
 
+    def check_if_already_in_db(self, raw_id):
+        if len(self.curs.execute("SELECT * FROM {} WHERE raw_id = '{}'".format(self.table, raw_id)).fetchall()) >= 1:
+            return True
+        else:
+            return False
+
     def check_integrity(self):
         status = ''
         for i in self.all_rows_list():
@@ -277,6 +283,14 @@ class SocMediaDB(MapDB):
                 status += "* Item {} has a date_posted older than a year.\n  {}\n\n".format(
                     i, e
                 )
+            try:
+                assert self.check_if_already_in_db(i[0]) is True
+            except AssertionError as e:
+                status += "* Check if already in db method failed.    \nRaw_id{}    \n{}\n\n".format(i, e)
+            try:
+                assert self.check_if_already_in_db('abc123') is False
+            except AssertionError as e:
+                status += "* Check if already in db method failed using a fake raw_id    \n{}    \n".format(e)
         try:
             assert self.schema == OrderedDict([('raw_id', 'TEXT'),
                                                ('text', 'TEXT'),
