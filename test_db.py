@@ -121,6 +121,7 @@ def test_days_in_history():
     init()
 
     # Check that the five raw_ids have the new random dates
+    # k is a raw_id, v is a date integer
     for k, v in raw_ids_dict.items():
         assert str(k) in str(test_hist_db.get_rows_by_date(v))
     test_close_all()
