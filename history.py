@@ -1,7 +1,7 @@
 import calendar
 from classes import *
 import datetime
-from functions import shotgun_blast, send_reddit_message_to_self
+from functions import send_reddit_message_to_self
 import os
 import praw
 import random
