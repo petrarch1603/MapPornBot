@@ -9,7 +9,6 @@ import time
 # database because it will interact and change data in each database. For that reason this script copies
 # the live database and runs the methods on a copy. The original database remains unchanged.
 
-#TODO add journal testing to this script!
 source_db_path = 'data/mapporn.db'
 test_db_path = 'data/test.db'
 copyfile(source_db_path, test_db_path)
@@ -96,13 +95,13 @@ def test_days_in_history():
     test_close_all()
 
 
-def test_time_zone():
-    # Change the timze zones on five random raw_ids
+def test_time_zone(count=5):
+    # Change the time zones on five random raw_ids
     init()
     print("Testing SocMediaDB time zones.")
     # Get five random raw_ids
     raw_ids_dict = {}
-    for _ in range(5):
+    for _ in range(count):
         random_zone = random.randint(-10, 12)
         random_zone_list = test_soc_db.get_rows_by_time_zone(time_zone=random_zone, fresh='0 OR 1')
         if len(random_zone_list) > 0:
@@ -155,9 +154,10 @@ def test_update_to_not_fresh():
 def test_make_fresh_again():
     print("Testing making fresh again")
     init()
-    # TODO need to give post_date to all entries or make fresh again will crash
     for i in test_soc_db.all_rows_list():
-        test_soc_db.curs.execute("UPDATE {} SET date_posted={} WHERE raw_id='{}'".format('socmediamaps', time.time(), i[0]))
+        test_soc_db.curs.execute("UPDATE {} SET date_posted={} WHERE raw_id='{}'".format('socmediamaps',
+                                                                                         time.time(),
+                                                                                         i[0]))
     test_soc_db.make_fresh_again(current_time=9999999999)
     init()
     test_row_count()
