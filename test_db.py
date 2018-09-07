@@ -16,10 +16,11 @@ copyfile(source_db_path, test_db_path)
 
 
 def init():
-    global test_hist_db, test_log_db, test_soc_db
+    global test_hist_db, test_log_db, test_soc_db, test_jour_db
     test_hist_db = HistoryDB(path=test_db_path)
     test_log_db = LoggingDB(path=test_db_path)
     test_soc_db = SocMediaDB(path=test_db_path)
+    test_jour_db = JournalDB(path=test_db_path)
 
 
 def test_close_all():
@@ -35,6 +36,10 @@ def test_close_all():
         test_soc_db.close()
     except sqlite3.ProgrammingError:
         pass
+    try:
+        test_jour_db.close()
+    except sqlite3.ProgrammingError:
+        pass
 
 
 def test_check_integrity():
@@ -43,6 +48,7 @@ def test_check_integrity():
     test_hist_db.check_integrity()
     test_log_db.check_integrity()
     test_soc_db.check_integrity()
+    test_jour_db.check_integrity()
     test_close_all()
 
 
@@ -58,10 +64,11 @@ def test_row_count(delta=0):
     # will be changed and this argument is to verify the new count.
 
     init()
-    # Check that row count is equal to length of .all_rows_list() method
+    # Check that row count of test_db's are equal to length of .all_rows_list() method
     assert test_hist_db_old_count + delta == len(test_hist_db.all_rows_list())
     assert test_log_db_old_count + delta == len(test_log_db.all_rows_list())
     assert test_soc_db_old_count + delta == len(test_soc_db.all_rows_list())
+    assert test_jour_db_old_count + delta == len(test_jour_db.all_rows_list())
     test_close_all()
 
 
@@ -82,6 +89,16 @@ def test_schema():
                                               ('fresh', 'NUMERIC'),
                                               ('date_posted', 'DATE'),
                                               ('post_error', 'NUMERIC')])
+    assert test_jour_db.schema == OrderedDict([('date', 'NUMERIC'),
+                                              ('hist_rows', 'NUMERIC'),
+                                              ('log_rows', 'NUMERIC'),
+                                              ('soc_rows', 'NUMERIC'),
+                                              ('fresh_rows', 'NUMERIC'),
+                                              ('errors_24', 'NUMERIC'),
+                                              ('successes_24', 'NUMERIC'),
+                                              ('benchmark_time', 'REAL'),
+                                              ('dict', 'TEXT')])
+
     test_close_all()
 
 
@@ -263,6 +280,7 @@ init()
 test_hist_db_old_count = test_hist_db.rows_count
 test_log_db_old_count = test_log_db.rows_count
 test_soc_db_old_count = test_soc_db.rows_count
+test_jour_db_old_count = test_jour_db.rows_count
 
 if __name__ == "__main__":
     main_test_db(5)
