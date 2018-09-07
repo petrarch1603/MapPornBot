@@ -44,11 +44,18 @@ def test_close_all():
 def test_check_integrity():
     init()
     print("Checking Database Integrity")
-    print(test_hist_db.check_integrity())
-    print(test_jour_db.check_integrity())
-    print(test_log_db.check_integrity())
-    print(test_soc_db.check_integrity())
+    report = ''
+    checks = [test_hist_db.check_integrity(),
+              test_jour_db.check_integrity(),
+              test_log_db.check_integrity(),
+              test_soc_db.check_integrity()]
+    for i in checks:
+        if i.startswith('PASS'):
+            pass
+        else:
+            report += i
     test_close_all()
+    return report
 
 
 def create_random_string(char_count):
@@ -220,7 +227,7 @@ def main_test_db(num_of_entries=5):
     t_start = time.perf_counter()
     init()
     # Get count of all rows of each database
-    test_check_integrity()
+    report = test_check_integrity()
     test_row_count()
     test_days_in_history()
     test_time_zone()
@@ -229,12 +236,12 @@ def main_test_db(num_of_entries=5):
 
     test_add_entries(num_of_entries=num_of_entries)
     print("Checking DB integrity again.")
-    test_check_integrity()
+    report += test_check_integrity()
     print("Tests Passed, deleting test database")
     os.remove(test_db_path)
     t_stop = time.perf_counter()
     print(t_stop-t_start)
-    return t_stop - t_start
+    return t_stop - t_start, report
 
 
 init()
