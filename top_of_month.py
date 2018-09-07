@@ -17,6 +17,7 @@ try:
     s_b_dict = s_b.post_to_all_social()
     my_diag.tweet = s_b_dict['tweet_url']
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
+
 except Exception as ex:
     my_diag.traceback = "Could not run top_of_month script    \n{}   \n\n".format(ex)
     my_diag.severity = 2
