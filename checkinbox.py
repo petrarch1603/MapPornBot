@@ -129,7 +129,7 @@ for message in r.inbox.unread():
             send_reddit_message_to_self(title="problem adding to DB", message=errorMessage)
             message.mark_read()
 
-    elif message.subject == 'day_of_year' and message.author == 'Petrarch1603':
+    elif message.subject == ('day_of_year' or 'dayinhistory') and message.author == 'Petrarch1603':
         my_diag.table = "historymaps"
         DIHmessage = message.body
         DIHmessage = os.linesep.join([s for s in DIHmessage.splitlines() if s])
