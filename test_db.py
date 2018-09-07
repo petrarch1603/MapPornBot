@@ -243,6 +243,7 @@ def main_test_db(num_of_entries=5):
     os.remove(test_db_path)
     t_stop = time.perf_counter()
     print(t_stop-t_start)
+    print(report)
     return t_stop - t_start, report
 
 

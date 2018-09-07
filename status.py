@@ -21,7 +21,7 @@ def main():
     message = "Daily Status Check   \n   \n"
     fresh_count = soc_db.fresh_count
     if fresh_count <= 10:
-        message += "* NOTE: ONLY {} FRESH SOC MEDIA MAPS LEFT! *   \n\n".format(fresh_count)
+        message += "* *NOTE: ONLY {} FRESH SOC MEDIA MAPS LEFT!* *   \n\n".format(fresh_count)
     else:
         message += "{maps} Maps Left   \nThat's {days} days, {hours} hours of content.    \n\n".format(
             maps=fresh_count,
@@ -123,9 +123,9 @@ def main():
                       " {}   \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), i[2])
         if errors == '':
             errors = 'No errors logged in last 24 hours    \n\n'
-        message += "***"
+        message += "    \n***    \n"
         message += errors
-        message += "***"
+        message += "    \n***    \n"
     except Exception as e:
         error_message = ("Could not run log_db.get_fails_previous_24    \n{}    \n".format(str(e)))
         my_diag.traceback = error_message
@@ -141,7 +141,7 @@ def main():
             successes += "**Success** recorded at {}    \n" \
                       " {}    \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), i[2])
         if successes == '':
-            successes = 'No scripts logged in last 24 hours    \n'
+            successes = 'No successes logged in last 24 hours    \n'
         message += successes
     except Exception as e:
         error_message = ("Could not run log_db.get_successes_previous_24    \n{}    \n".format(str(e)))
@@ -161,6 +161,7 @@ def main():
     message += "Test_DB benchmark time = {}".format(test_db_time)
     message += "Total rows in Soc Media DB = {}   \n    \n".format(soc_db.rows_count)
     message += "Total rows in History DB = {}    \n    \n".format(hist_db.rows_count)
+
     # Add result to daily journal database
     message += report + "    \n"
     journal_db.update_todays_status(benchmark_time=test_db_time)
