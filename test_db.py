@@ -218,6 +218,8 @@ def test_add_entries(num_of_entries):
         elif rand_boolean == 1:
             assert rand_log_text in str(test_log_db.get_successes_previous_24(current_time=time.time()))
             assert my_diag_dic.raw_id in str(test_log_db.get_successes_previous_24(current_time=time.time()))
+        assert test_soc_db.check_if_already_in_db(raw_id=rand_soc_id) is True
+        assert test_soc_db.check_if_already_in_db(raw_id=rand_hist_id) is False
     test_close_all()
     init()
     test_row_count(delta=num_of_entries)
