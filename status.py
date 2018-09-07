@@ -33,7 +33,7 @@ def main():
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
     try:
         soc_db_integrity = soc_db.check_integrity()
@@ -46,7 +46,7 @@ def main():
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
     try:
         log_db_integrity = log_db.check_integrity()
@@ -59,7 +59,7 @@ def main():
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
     try:
         jour_db_integrity = journal_db.check_integrity()
@@ -72,7 +72,7 @@ def main():
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
 
     message += "***   \n"
@@ -92,7 +92,7 @@ def main():
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
 
     # Make posts older than a year fresh again
@@ -103,7 +103,7 @@ def main():
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
 
     # Get failures from last 24 hours and report on them
@@ -123,7 +123,7 @@ def main():
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
 
     # Get successes from last 24 hours and report on them
@@ -140,7 +140,7 @@ def main():
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
 
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
@@ -158,6 +158,7 @@ def main():
     # Send results to myself on Reddit
     print(message)
     send_reddit_message_to_self(title="Status Report", message=message)
+
 
 init()
 main()
