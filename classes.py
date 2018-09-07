@@ -1,8 +1,14 @@
 import ast
 from collections import OrderedDict
+import facebook
+import os
 import random
+import requests
+from secrets import *
+from secret_tumblr import *
 import sqlite3
 import time
+import tweepy
 
 
 class MapRow:
@@ -440,3 +446,218 @@ class JournalDB(MapDB):
                 counter += 1
                 my_sum += int(i[4])
         return my_sum / counter
+
+
+class ShotgunBlast:
+    def __init__(self, praw_obj, title=None, announce_input=None):
+        self.announce_input = announce_input
+        self.praw_obj = praw_obj
+        self.shortlink = praw_obj.shortlink
+        self.title = self.get_title(title)
+        self.announce_input = announce_input
+        self.image_url = self.praw_obj.url
+        self.raw_id = self.praw_obj.id
+
+    @classmethod
+    def get_hashtag_locations(cls, string):
+        my_hashes = ''
+        string_list = string.split(' ')
+        with open('data/locations.txt') as locationstext:
+            locationstext = locationstext.read().split()
+            for w in string_list:
+                if str(w) in locationstext:
+                    my_hashes += '#' + str(w) + ' '
+        return my_hashes.rstrip()
+
+    @classmethod
+    def remove_text_inside_brackets(cls, text, brackets="[]"):
+        count = [0] * (len(brackets) // 2)  # count open/close brackets
+        saved_chars = []
+        for character in text:
+            for i, b in enumerate(brackets):
+                if character == b:  # found bracket
+                    kind, is_close = divmod(i, 2)
+                    count[kind] += (-1) ** is_close  # `+1`: open, `-1`: close
+                    if count[kind] < 0:  # unbalanced bracket
+                        count[kind] = 0  # keep it
+                    else:  # found bracket to remove
+                        break
+            else:  # character is not a [balanced] bracket
+                if not any(count):  # outside brackets
+                    saved_chars.append(character)
+        return ''.join(saved_chars) \
+            .replace("  ", " ") \
+            .rstrip() \
+            .lstrip()
+
+    @classmethod
+    def init_shotgun_blast(cls):
+        global api, twitter_max
+        twitter_max = 280
+
+        auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+        auth.set_access_token(access_token, access_secret)
+        api = tweepy.API(auth)
+
+    def get_title(self, raw_title):
+        shortlink = self.shortlink
+        working_title = ''
+        if self.announce_input is not None:
+            working_title = str(self.announce_input) + ' '
+        if raw_title is None:
+            raw_title = self.praw_obj.title
+        working_title = (working_title + ' ' + raw_title).lstrip()
+        working_title = self.remove_text_inside_brackets(text=working_title)
+        if len(working_title) > twitter_max - 26:  # 25 is the length of a reddit short url
+            working_title = working_title[:(twitter_max - 26)] + '... ' + str(shortlink)
+        else:
+            if len(working_title) + len(' #MapPorn') + len(shortlink) < twitter_max:
+                working_title += ' ' + str(shortlink) + ' #MapPorn'
+                for w in self.get_hashtag_locations(working_title).split(' '):
+                    if (len(working_title) + len('#')) <= twitter_max:
+                        working_title = working_title.replace((w[1:]), w)
+            else:
+                working_title += ' ' + str(shortlink)
+        assert len(working_title) <= twitter_max
+        return working_title
+
+    def download_image(self):
+        filename = 'temp.jpg'
+        request = requests.get(self.image_url, stream=True)
+        try:
+            assert request.status_code == 200
+            with open(filename, 'wb') as image:
+                for chunk in request:
+                    image.write(chunk)
+            filesize = os.path.getsize('temp.jpg')
+            if filesize > 3070000:
+                os.remove(filename)
+                filename = 'temp.jpg'
+                url = self.praw_obj.preview['images'][0]['resolutions'][3][
+                    'url']  # This is the smaller image. Using this because Twitter doesn't like huge files.
+                request = requests.get(url, stream=True)
+                try:
+                    assert request.status_code == 200
+                    with open(filename, 'wb') as image:
+                        for chunk in request:
+                            image.write(chunk)
+                except AssertionError as e:
+                    raise Exception('Could not download image!    \n{}    \n\n'.format(e))
+            return filename
+        except AssertionError as e:
+            raise Exception('Could not download image!    \n{}    \n\n'.format(e))
+
+    def post_to_all_social(self):
+        self.init_shotgun_blast()
+        filename = self.download_image()
+
+        # Post to Twitter
+        tweeted = api.update_with_media(filename, status=self.title)  # Post to Twitter
+        tweet_id = str(tweeted._json['id'])  # This took way too long to figure out.
+
+        # Post to Tumblr
+        tumbld = client.create_photo('mappornofficial',
+                                     state="published",
+                                     tags=['#mapporn'],  # Post to Tumblr
+                                     caption=self.title + ' ' + self.image_url,
+                                     source=self.shortlink)
+        try:
+            tumbld_url = tumbld['id']
+            tumbld_url = ('http://mappornofficial.tumblr.com/post/' + str(tumbld_url))
+        except Exception as e:
+            tumbld_url = "Error encountered: " + str(e)
+        # Post to Facebook
+
+        rq = requests.get(
+            'https://graph.facebook.com/v2.11/me/accounts?access_token=EAAB5zddLiesBABHZB9iOgZAmuuapdSvLvfmwB2jkDvxjFyS'
+            'OOXeMdRDozYkAZAaxMNGUT8EMNZABtIgTmC8tDgIzYoleEAK5g7EN8k73YdD80Ic1FPUTp3NZBkofGYgzM802KNA3JenjYRUGJ27vKQTV2'
+            'RF1ZB3fGNSUNxs1bMwwZDZD%27')
+        stuff = rq.json()
+        bloody_access_token = (stuff['data'][0]['access_token'])
+        graph = facebook.GraphAPI(access_token=bloody_access_token)
+        faced = graph.put_photo(image=open(filename, 'rb').read(), message=self.title)
+        fb_post_id = faced['post_id']
+        fb_post_id = fb_post_id.replace('_', '/')
+        fb_url = str('https://www.facebook.com/OfficialMapPorn/photos/rpp.' + str(fb_post_id))
+
+        tweet_url = ('https://twitter.com/MapPornTweet/status/' + tweet_id)
+        socialmediadict = {
+            "tweet_url": tweet_url,
+            "tumblr_url": tumbld_url,
+            "facebook_url": fb_url,
+            "title": self.title}
+        os.remove(filename)
+        print(socialmediadict)
+        return socialmediadict
+
+    def check_integrity(self):
+        status = ''
+        long_lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis turpis ante, eget " \
+                     "pellentesque tellus sagittis sed. Nullam vel finibus metus. Aenean bibendum, nisl nec varius " \
+                     "ultrices, augue arcu rutrum nunc, vel pharetra justo lorem vel leo. Aenean ut varius justo. " \
+                     "Nunc non dui rutrum, commodo magna a posuere."
+        try:
+            assert len(self.raw_id) == 6
+        except AssertionError as e:
+            status += 'raw_id not length 6!    \n{}    \n\n'.format(e)
+
+        # Test Bracket Removal
+        try:
+            assert (self.remove_text_inside_brackets("[123] Happy [123] Birthday")) == "Happy Birthday"
+            assert (self.remove_text_inside_brackets("[123][123]Happy    ")) == "Happy"
+            assert (self.remove_text_inside_brackets("[OC][123]My Map   ")) == "My Map"
+        except AssertionError as e:
+            status += 'Remove text inside bracket test FAILED    \n{}    \n\n'.format(e)
+
+        # Test get_hashtag_locations
+        try:
+            assert (self.get_hashtag_locations('England London capital city') == '#England #London')
+            assert (self.get_hashtag_locations('Germany is in Europe') == '#Germany #Europe')
+            assert (self.get_hashtag_locations('My Map is here') == '')
+            assert (self.get_hashtag_locations('USA is great []123297ofhdsd[][]#') == '#USA')
+            assert (self.get_title(raw_title="England [123]") ==
+                    '#England ' + str(self.praw_obj.shortlink) + ' #MapPorn')
+        except AssertionError as e:
+            status += 'Hashtag_locations test FAILED    \n{}    \n\n'.format(e)
+
+        # Test Edge cases
+        try:
+            # Test title input of 320 chars
+            assert (self.get_title(raw_title=long_lorem)) == \
+                   'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis turpis ante, ' \
+                   'eget pellentesque tellus sagittis sed. Nullam vel finibus metus. Aenean bibendum, nisl nec ' \
+                   'varius ultrices, augue arcu rutrum nunc, vel pharetra justo lorem vel leo. Aen... ' + \
+                   str(self.shortlink)
+            # Test title length of 270
+            assert (self.get_title(raw_title='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec '
+                                             'magna luctus, vestibulum diam sed, condimentum ante. Sed pharetra '
+                                             'blandit tortor, non tempus ex suscipit vel. Nulla facilisi. Quisque orci '
+                                             'est, aliquam in ornare ac, scelerisque quis dui. Nullam metus.')) \
+                == 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec magna luctus, vestibulum ' \
+                   'diam sed, condimentum ante. Sed pharetra blandit tortor, non tempus ex suscipit vel. Nulla ' \
+                   'facilisi. Quisque orci est, aliquam in ornare ac, scelerisque quis du... ' + self.shortlink
+            # Test title input of length 245 (280 - shortlink length). Should include #MapPorn
+            assert (self.get_title(raw_title='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis '
+                                             'turpis ante, eget pellentesque Quebec sagittis sed. Nullam vel finibus '
+                                             'metus. Aenean bibendum, nisl nec varius ultrices, augue arcu rutrum '
+                                             'nunc, vel pharetra justo lorem vel yz')) \
+                == 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis turpis ante, eget ' \
+                   'pellentesque Quebec sagittis sed. Nullam vel finibus metus. Aenean bibendum, nisl nec varius ' \
+                   'ultrices, augue arcu rutrum nunc, vel pharetra justo lorem vel yz ' + self.shortlink + ' #MapPorn'
+            # Test title input with location hashtag
+            assert (self.get_title(raw_title='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis '
+                                             'turpis ante, eget pellentesque tellus sagittis sed. Nullam vel finibus '
+                                             'metus. Aenean bibendum, nisl nec varius ultrices, augue arcu rutrum '
+                                             'nunc, vel pharetra justo lore London')) \
+                == 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis turpis ante, eget ' \
+                   'pellentesque tellus sagittis sed. Nullam vel finibus metus. Aenean bibendum, nisl nec varius ' \
+                   'ultrices, augue arcu rutrum nunc, vel pharetra justo lore #London ' + self.shortlink + ' #MapPorn'
+        except AssertionError as e:
+            status += 'get_title test FAILED    \n{}    \n\n'.format(e)
+            print(status)
+
+        if status == '':
+            status = "PASS"
+        else:
+            print(status)
+        return status
