@@ -3,10 +3,10 @@
 # the map. The idea is to post it every Wednesday, hence the name "Where in the world
 # Wednesday."
 
-import time
 from classes import *
-from functions import *
+import csv
 import datetime
+from functions import send_reddit_message_to_self
 import os
 
 
@@ -46,6 +46,3 @@ except Exception as e:
     my_diag.traceback = e
     my_diag.severity = 2
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-
-
-
