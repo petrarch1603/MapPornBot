@@ -129,7 +129,12 @@ class HistoryDB(MapDB):
                 assert isinstance(self.get_rows_by_date(random.randint(1, 365)), list)
             except AssertionError as e:
                 status += "* Randoms days do not return a list\n   {}\n\n".format(e)
-
+        try:
+            assert self.schema == OrderedDict([('raw_id', 'TEXT'),
+                                               ('text', 'TEXT'),
+                                               ('day_of_year', 'NUMERIC')])
+        except AssertionError as e:
+            status += "* Schema check failed!\n   {}\n\n".format(e)
         if status == '':
             return 'PASS: {} integrity test passed.'.format(self.table)
         else:
@@ -269,6 +274,15 @@ class SocMediaDB(MapDB):
                 status += "* Item {} has a date_posted older than a year.\n  {}\n\n".format(
                     i, e
                 )
+        try:
+            assert self.schema == OrderedDict([('raw_id', 'TEXT'),
+                                               ('text', 'TEXT'),
+                                               ('time_zone', 'NUMERIC'),
+                                               ('fresh', 'NUMERIC'),
+                                               ('date_posted', 'DATE'),
+                                               ('post_error', 'NUMERIC')])
+        except AssertionError as e:
+            status += "* Schema check failed!\n    {}\n\n".format(e)
         if status == '':
             return 'PASS: {} integrity test passed.'.format(self.table)
         else:
@@ -347,8 +361,17 @@ class LoggingDB(MapDB):
                     raise AssertionError
                 this_diag = diag_dict_to_obj(i[2])
                 assert str(this_diag.script).endswith(".py")
+                assert self.schema == OrderedDict([('date', 'NUMERIC'),
+                                                   ('error_text', 'TEXT'),
+                                                   ('diagnostics', 'TEXT'),
+                                                   ('passfail', 'NUMERIC')])
         except AssertionError as e:
             status += 'Error encountered: {}\n'.format(e)
+        try:
+            assert isinstance(self.get_fails_previous_24(current_time=time.time()), list)
+            assert isinstance(self.get_successes_previous_24(current_time=time.time()), list)
+        except AssertionError as e:
+            status += '* previous 24 methods did not return lists.\n    {}\n\n'.format(e)
         return status
 
 
@@ -365,9 +388,7 @@ class JournalDB(MapDB):
         soc_db = SocMediaDB()
         my_dict = {i[0]: str(i[1:]).replace('"', "\\'") for i in log_db.get_fails_previous_24(date)}
         my_dict = str(my_dict)
-        print(my_dict)
         my_dict = my_dict.replace('"', '\'')
-        print(my_dict)
         query = """INSERT INTO {table} values(?, ?, ?, ?, ?, ?, ?, ?, ?)""".format(table=self.table)
         self.curs.execute(query, (date,
                                   hist_db.rows_count,
@@ -380,24 +401,29 @@ class JournalDB(MapDB):
                                   str(my_dict)))
 
     def check_integrity(self):
-        #TODO add more integrity checks
-        for i in self.all_rows_list():
-            assert isinstance(i[0], int)
-            assert isinstance(i[1], int)
-            assert isinstance(i[2], int)
-            assert isinstance(i[3], int)
-            assert isinstance(i[4], int)
-            assert isinstance(i[7], (int, float))
-
-        assert self.schema == OrderedDict([('date', 'NUMERIC'),
-                                          ('hist_rows', 'NUMERIC'),
-                                          ('log_rows', 'NUMERIC'),
-                                          ('soc_rows', 'NUMERIC'),
-                                          ('fresh_rows', 'NUMERIC'),
-                                          ('errors_24', 'NUMERIC'),
-                                          ('successes_24', 'NUMERIC'),
-                                          ('benchmark_time', 'REAL'),
-                                          ('dict', 'TEXT')])
+        status = ''
+        try:
+            for i in self.all_rows_list():
+                assert isinstance(i[0], int)
+                assert isinstance(i[1], int)
+                assert isinstance(i[2], int)
+                assert isinstance(i[3], int)
+                assert isinstance(i[4], int)
+                assert isinstance(i[7], (int, float))
+        except AssertionError as e:
+            status += "* column type check failed!\n     {}\n\n".format(e)
+        try:
+            assert self.schema == OrderedDict([('date', 'NUMERIC'),
+                                              ('hist_rows', 'NUMERIC'),
+                                              ('log_rows', 'NUMERIC'),
+                                              ('soc_rows', 'NUMERIC'),
+                                              ('fresh_rows', 'NUMERIC'),
+                                              ('errors_24', 'NUMERIC'),
+                                              ('successes_24', 'NUMERIC'),
+                                              ('benchmark_time', 'REAL'),
+                                              ('dict', 'TEXT')])
+        except AssertionError as e:
+            status += "* Schema Check Failed!\n     {}\n\n".format(e)
 
     def average_benchmark_times(self):
         my_sum = 0
