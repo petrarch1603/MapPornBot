@@ -150,7 +150,8 @@ def main():
 
     message += "    \n---------------    \n"
     message += "Test_DB benchmark time = {}".format(test_db_time)
-
+    message += "Total rows in Soc Media DB = {}   \n    \n".format(soc_db.rows_count)
+    message += "Total rows in History DB = {}    \n    \n".format(hist_db.rows_count)
     # Add result to daily journal database
     journal_db.update_todays_status(benchmark_time=test_db_time)
 
