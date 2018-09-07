@@ -19,6 +19,15 @@ def init():
 def main():
     my_diag = Diagnostic(script=str(os.path.basename(__file__)))
     message = "Daily Status Check   \n   \n"
+    fresh_count = soc_db.fresh_count
+    if fresh_count <= 10:
+        message += "* NOTE: ONLY {} FRESH SOC MEDIA MAPS LEFT! *   \n\n".format(fresh_count)
+    else:
+        message += "{maps} Maps Left   \nThat's {days} days, {hours} hours of content.    \n\n".format(
+            maps=fresh_count,
+            days=int(fresh_count/8),
+            hours=((fresh_count % 8) * 3)
+        )
     time_zone_table = "Time Zone|Map Count\n-|-\n"
 
     # Integrity Checks on databases
