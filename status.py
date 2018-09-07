@@ -35,7 +35,6 @@ def main():
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))
         print(error_message)
-
     try:
         soc_db_integrity = soc_db.check_integrity()
         if soc_db_integrity.startswith("PASS"):
@@ -49,7 +48,32 @@ def main():
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))
         print(error_message)
-    # TODO add integrity checks for logging and journal databases
+    try:
+        log_db_integrity = log_db.check_integrity()
+        if log_db_integrity.startswith("PASS"):
+            message += " {}    \n".format(log_db_integrity)
+        else:
+            message += "* *{}*   \n".format(log_db_integrity)
+    except Exception as e:
+        error_message = ("Could not do log_db Integrity Test\n{}\n".format(str(e)))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+        print(error_message)
+    try:
+        jour_db_integrity = journal_db.check_integrity()
+        if jour_db_integrity.startswith("PASS"):
+            message += " {}    \n".format(jour_db_integrity)
+        else:
+            message += "* *{}*   \n".format(jour_db_integrity)
+    except Exception as e:
+        error_message = ("Could not do journal_db Integrity Test\n{}\n".format(str(e)))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+        print(error_message)
 
     message += "***   \n"
 
