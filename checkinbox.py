@@ -97,8 +97,14 @@ for message in r.inbox.unread():
             title = r.submission(id=raw_id).title
 
         title = title.replace("\"", "'")
+        title = ShotgunBlast.remove_text_inside_brackets(title)
 
-        # TODO make sure the submission isn't already added
+        try:
+            assert soc_db.check_if_already_in_db(raw_id=raw_id) is False
+        except AssertionError as e:
+            errorMessage = "Map already in database    \n{}    \n\n".format(e)
+            message.mark_read()
+            break
         old_count = soc_db.rows_count
         soc_db.add_row_to_db(raw_id=raw_id, text=title, time_zone=int(get_time_zone((strip_punc(title)).upper())))
         soc_db.close()
