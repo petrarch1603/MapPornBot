@@ -53,7 +53,6 @@ for message in r.inbox.unread():
     my_diag = Diagnostic(script=os.path.basename(__file__))
     init()
     if message.subject == "Map Contest Submission":
-        # TODO add logging here
         submission = message.body
         submission = os.linesep.join([s for s in submission.splitlines() if s])  # removes extraneous line breaks
         submission = submission.splitlines()  # Turn submission into a list
@@ -89,9 +88,11 @@ for message in r.inbox.unread():
             send_reddit_message_to_self(title="Socmedia Message Error", message=errorMessage)
         raw_id = socmediamap[0][-6:]
         my_diag.raw_id = raw_id
+
         try:
             if socmediamap[1]:
                 title = socmediamap[1]
+
         except IndexError:
             title = r.submission(id=raw_id).title
 
@@ -103,12 +104,14 @@ for message in r.inbox.unread():
         soc_db.close()
         init()
         new_count = soc_db.rows_count
+
         try:
             assert int(new_count) == (int(old_count) + 1)
             log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
             log_db.conn.commit()
             log_db.close()
             message.mark_read()
+
         except AssertionError as e:
             errorMessage = "Error: new count did not go up by 1"
             my_diag.traceback = e
@@ -129,8 +132,10 @@ for message in r.inbox.unread():
         raw_id = ''
         text = ''
         for item in DIHmessage:
+
             try:
                 item = int(item)
+
             except ValueError:
                 pass
             if isinstance(item, int) and 0 < item < 366:
@@ -153,6 +158,7 @@ for message in r.inbox.unread():
             send_reddit_message_to_self(title='Error processing day in history',
                                         message=errorMessage)
         else:
+
             try:
                 hist_db.add_row_to_db(raw_id=raw_id, text=text, day_of_year=day_of_year)
                 hist_db.conn.commit()
@@ -160,6 +166,7 @@ for message in r.inbox.unread():
                 log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
                 log_db.conn.commit()
                 log_db.close()
+
             except Exception as my_e:
                 my_error_message = "Could not add map to historymaps\n" \
                                    "Error: " + str(my_e) + "\n" \
@@ -170,6 +177,7 @@ for message in r.inbox.unread():
                 log_db.conn.commit()
                 log_db.close()
                 send_reddit_message_to_self(title="Could not add to day_of_year.db", message=my_error_message)
+
         message.mark_read()
 
     else:
