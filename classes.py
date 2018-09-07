@@ -196,10 +196,6 @@ class SocMediaDB(MapDB):
     def get_one_map_row(self, target_zone):
         min_target = (int(target_zone) - 3)
         max_target = (int(target_zone) + 3)
-        if min_target < -11:
-            min_target += 24
-        elif max_target > 12:
-            max_target -= 24
         filtered_map_list = list(row for row in self.curs.execute(
             "SELECT * FROM {} WHERE fresh=1 AND time_zone >= {} AND time_zone <= {}"
             .format(self.table, min_target, max_target)
