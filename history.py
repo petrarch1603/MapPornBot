@@ -37,16 +37,18 @@ if len(today_list) > 1:
 
 raw_id = today_list[random_int][0][-6:]
 my_diag.raw_id = raw_id
-redditobject = r.submission(id=raw_id)
+praw_obj = r.submission(id=raw_id)
 my_title = today_list[random_int][1]
 
 try:
-    x = shotgun_blast(raw_id_input=redditobject, title=my_title)
-    my_diag.tweet = x.tweet_url
+    s_b = ShotgunBlast(praw_obj, title=my_title)
+    assert s_b.check_integrity() == "PASS"
+    s_b_dict = s_b.post_to_all_social()
+    my_diag.tweet = s_b_dict['tweet_url']
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
 except Exception as shotgun_error:
     my_message = ('Error encountered: \n' + str(shotgun_error))
     my_diag.severity = 2
-    my_diag.traceback = shotgun_error
+    my_diag.traceback = my_message
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=my_message)
     send_reddit_message_to_self(title="Problem posting this day in history", message=my_message)
