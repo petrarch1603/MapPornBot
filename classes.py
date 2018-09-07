@@ -373,7 +373,11 @@ class LoggingDB(MapDB):
             assert isinstance(self.get_successes_previous_24(current_time=time.time()), list)
         except AssertionError as e:
             status += '* previous 24 methods did not return lists.\n    {}\n\n'.format(e)
-        return status
+        if status == '':
+            return "PASS: LoggingDB integrity test passed."
+        else:
+            print(status)
+            return status
 
 
 class JournalDB(MapDB):
@@ -400,12 +404,13 @@ class JournalDB(MapDB):
                                   len(log_db.get_successes_previous_24(date)),
                                   benchmark_time,
                                   str(my_dict)))
+        self.conn.commit()
 
     def check_integrity(self):
         status = ''
         try:
             for i in self.all_rows_list():
-                assert isinstance(i[0], int)
+                assert isinstance(i[0], (int, float))
                 assert isinstance(i[1], int)
                 assert isinstance(i[2], int)
                 assert isinstance(i[3], int)
@@ -425,6 +430,11 @@ class JournalDB(MapDB):
                                               ('dict', 'TEXT')])
         except AssertionError as e:
             status += "* Schema Check Failed!\n     {}\n\n".format(e)
+        if status == '':
+            return "PASS: JournalDB integrity test passed."
+        else:
+            print(status)
+            return status
 
     def average_benchmark_times(self):
         my_sum = 0
