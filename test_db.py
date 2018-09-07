@@ -104,11 +104,6 @@ def test_schema():
 
 def test_days_in_history():
     init()
-    # Check that random days will return list
-    print("Testing days in history")
-    for _ in range(5):
-        assert isinstance(test_hist_db.get_rows_by_date(random.randint(1, 365)), list)
-
     # Check the change_date() method works
     # Get five random raw_ids and five random dates
     raw_ids_dict = {}
