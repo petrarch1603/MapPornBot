@@ -8,6 +8,7 @@ import praw
 r = praw.Reddit('bot1')
 my_diag = Diagnostic(script=str(os.path.basename(__file__)))
 log_db = LoggingDB()
+
 try:
     top_month = list(r.subreddit('mapporn').top('month', limit=1))[0]
     announce_month = 'Top post of the month:\n'
