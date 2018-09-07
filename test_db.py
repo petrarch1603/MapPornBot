@@ -166,14 +166,6 @@ def test_make_fresh_again():
     test_close_all()
 
 
-def test_last_24_hour_methods():
-    print("Testing previous 24 hour methods")
-    init()
-    assert isinstance(test_log_db.get_fails_previous_24(current_time=time.time()), list)
-    assert isinstance(test_log_db.get_successes_previous_24(current_time=time.time()), list)
-    test_close_all()
-
-
 def test_add_entries(num_of_entries):
     # Add random new entries to database
     init()
