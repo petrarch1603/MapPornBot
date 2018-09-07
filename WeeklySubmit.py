@@ -4,14 +4,15 @@
 # There are two parts of the post: an image and the message.
 # The image will be randomly picked from a sub-folder for containing only those images.
 
+from classes import *
 import os
 import random
 import fnmatch
 from functions import *
 import time
-# from PIL import Image # This is only for testing
 
-logdict = {'type': 'socmediapost'}
+log_db = LoggingDB()
+my_diag = Diagnostic(script=str(os.path.basename(__file__)))
 
 # Create a random number for choosing image
 os.chdir('submitimages')
@@ -29,19 +30,15 @@ image_file = image_file_name[0]  # There should only be one image with that name
 # im = Image.open(image_file_name) # This is to test if an image can be opened.
 # im.show()
 
-message = "Now taking entries for the /r/MapPorn Monthly Map Contest\nSubmit a map here:\nhttps://www.reddit.com/r/MapPorn/wiki/meta/contest#wiki_submit_a_map"
+title = "Now taking entries for the /r/MapPorn Monthly Map Contest\nSubmit a map here:\n" \
+        "https://www.reddit.com/r/MapPorn/wiki/meta/contest#wiki_submit_a_map"
 
 try:
-    social_media_post = generic_post(image_file, message)
-    logdict['time'] = time.time()
-    logobject = {'script': 'Advertisement for Map Contest',
-                 'message': str(social_media_post.message),
-                 'tweet_url': str(social_media_post.tweet_url),
-                 'tumblr_url': str(social_media_post.tumblr_url),
-                 'fb_url': str(social_media_post.facebook_url)}
-    logdict['object'] = logobject
-    addToMongo(logdict)
-except Exception as ex:
-    logdict['time'] = time.time()
-    logdict['error'] = str(ex)
-    addToMongo(logdict)
+    socmediadict = GenericPost(image_file, title).post_to_all_social()
+    my_diag.tweet = socmediadict['tweet_url']
+    log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
+
+except Exception as e:
+    my_diag.traceback = e
+    my_diag.severity = 2
+    log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
