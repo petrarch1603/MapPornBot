@@ -1,7 +1,7 @@
 from classes import *
 import csv
 from functions \
-    import my_reddit_ID, bot_disclaimer, SubmissionObject, strip_punc, send_reddit_message_to_self
+    import my_reddit_ID, bot_disclaimer, strip_punc, send_reddit_message_to_self
 import os
 import praw
 
@@ -60,13 +60,6 @@ for message in r.inbox.unread():
         submission = [w.replace('Link: ', '') for w in submission]  # Replace the text 'Link: ' with blankspace.
         submission.append(message.author)  # Add author value
         submission.append(message)  # Add unique value for the message. This is important for indexing later on.
-        newmap = SubmissionObject(
-            map_name=submission[0],
-            map_url=submission[1],
-            map_desc=(str(submission[2])),
-            creator=(str(submission[3])),
-            unique_message=(str(submission[4]))
-        )
         # Now make that list a row a CSV
         with open('submissions.csv', 'a') as submitFile:
             reader = csv.reader(submitFile)
@@ -77,9 +70,6 @@ for message in r.inbox.unread():
             r.redditor(my_reddit_ID).message('New Map added to CSV', 'A new map has been submitted. '
                                              'Check the CSV for formatting\n' + message.body)
         message.mark_read()
-        newmap = newmap.toJSON()
-        # logdict['object'] = newmap
-        # addToMongo(logdict)
 
     elif message.subject == 'socmedia' and message.author == 'Petrarch1603':
         my_diag.table = 'socmediamaps'
