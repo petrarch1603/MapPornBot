@@ -45,10 +45,10 @@ def test_close_all():
 def test_check_integrity():
     init()
     print("Checking Database Integrity")
-    test_hist_db.check_integrity()
-    test_log_db.check_integrity()
-    test_soc_db.check_integrity()
-    test_jour_db.check_integrity()
+    print(test_hist_db.check_integrity())
+    print(test_jour_db.check_integrity())
+    print(test_log_db.check_integrity())
+    print(test_soc_db.check_integrity())
     test_close_all()
 
 
@@ -59,7 +59,6 @@ def create_random_string(char_count):
 
 
 def test_row_count(delta=0):
-    print("Testing Row Count")
     # Delta will be to test for changes in count. In some tests the database
     # will be changed and this argument is to verify the new count.
 
@@ -98,6 +97,7 @@ def test_days_in_history():
 
 
 def test_time_zone():
+    # Change the timze zones on five random raw_ids
     init()
     print("Testing SocMediaDB time zones.")
     # Get five random raw_ids
@@ -129,9 +129,9 @@ def test_time_zone():
 
 
 def test_update_to_not_fresh():
+    # Testing SocDB method for making not fresh
     init()
     print("Testing update to not fresh")
-    # Testing SocDB method for making not fresh
     my_list = []
     for _ in range(5):
         random_index = random.randint(1, (len(test_soc_db.all_rows_list()) - 1))
@@ -184,7 +184,7 @@ def test_add_entries(num_of_entries):
         rand_hist_id = create_random_string(6)
         rand_soc_id = create_random_string(6)
         rand_log_text = create_random_string(11)
-        rand_passfail = random.randint(0, 1)
+        rand_boolean = random.randint(0, 1)
         test_hist_db.add_row_to_db(raw_id=rand_hist_id,
                                    text=create_random_string(10),
                                    day_of_year=random.randint(1, 365))
@@ -196,19 +196,27 @@ def test_add_entries(num_of_entries):
         my_diag_dic.tweet = "http://" + str(create_random_string(8))
         test_log_db.add_row_to_db(diagnostics=my_diag_dic.make_dict(),
                                   error_text=rand_log_text,
-                                  passfail=rand_passfail)
+                                  passfail=rand_boolean)
         init()
+        # Integrity checks will make sure all fresh == 0 rows include a date_posted.
+        # This logic ensures that test won't fail.
+        if rand_boolean == 0:
+            date_posted = time.time()
+        else:
+            date_posted = 'NULL'
         test_soc_db.add_row_to_db(raw_id=rand_soc_id,
                                   text=create_random_string(11),
                                   time_zone=random.randint(-10, 12),
-                                  fresh=random.randint(0, 1))
+                                  fresh=rand_boolean,
+                                  date_posted=date_posted)
+        test_jour_db.update_todays_status(benchmark_time=.5)
         test_close_all()
         init()
-        if rand_passfail == 0:
+        if rand_boolean == 0:
             assert rand_log_text in str(test_log_db.get_fails_previous_24(current_time=time.time()))
             # TODO make a better assertion for checking diagnositcs in previous 24 hours
             assert my_diag_dic.raw_id in str(test_log_db.get_fails_previous_24(current_time=time.time()))
-        elif rand_passfail == 1:
+        elif rand_boolean == 1:
             assert rand_log_text in str(test_log_db.get_successes_previous_24(current_time=time.time()))
             assert my_diag_dic.raw_id in str(test_log_db.get_successes_previous_24(current_time=time.time()))
     test_close_all()
@@ -220,17 +228,12 @@ def main_test_db(num_of_entries=5):
     t_start = time.perf_counter()
     init()
     # Get count of all rows of each database
-    test_hist_db_old_count = test_hist_db.rows_count
-    test_log_db_old_count = test_log_db.rows_count
-    test_soc_db_old_count = test_soc_db.rows_count
     test_check_integrity()
     test_row_count()
-    test_schema()
     test_days_in_history()
     test_time_zone()
     test_update_to_not_fresh()
     test_make_fresh_again()
-    test_last_24_hour_methods()
 
     test_add_entries(num_of_entries=num_of_entries)
     print("Checking DB integrity again.")
