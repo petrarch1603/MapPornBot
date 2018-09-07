@@ -23,9 +23,18 @@ def init():
 
 
 def test_close_all():
-    test_hist_db.close()
-    test_log_db.close()
-    test_soc_db.close()
+    try:
+        test_hist_db.close()
+    except sqlite3.ProgrammingError:
+        pass
+    try:
+        test_log_db.close()
+    except sqlite3.ProgrammingError:
+        pass
+    try:
+        test_soc_db.close()
+    except sqlite3.ProgrammingError:
+        pass
 
 
 def test_check_integrity():
