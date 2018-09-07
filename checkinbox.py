@@ -106,6 +106,9 @@ for message in r.inbox.unread():
             message.mark_read()
             break
         old_count = soc_db.rows_count
+        print(raw_id)
+        print(title)
+        print(int(get_time_zone((strip_punc(title)).upper())))
         soc_db.add_row_to_db(raw_id=raw_id, text=title, time_zone=int(get_time_zone((strip_punc(title)).upper())))
         soc_db.close()
         init()
