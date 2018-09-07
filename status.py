@@ -146,13 +146,14 @@ def main():
     log_db.close()
 
     # Test the database
-    test_db_time = main_test_db()
+    test_db_time, report = main_test_db()
 
     message += "    \n---------------    \n"
     message += "Test_DB benchmark time = {}".format(test_db_time)
     message += "Total rows in Soc Media DB = {}   \n    \n".format(soc_db.rows_count)
     message += "Total rows in History DB = {}    \n    \n".format(hist_db.rows_count)
     # Add result to daily journal database
+    message += report + "    \n"
     journal_db.update_todays_status(benchmark_time=test_db_time)
 
     # Send results to myself on Reddit
@@ -163,4 +164,4 @@ def main():
 init()
 main()
 
-#TODO: Make backups of database when it's successfully executed
+# TODO: Make backups of database when it's successfully executed
