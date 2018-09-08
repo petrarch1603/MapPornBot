@@ -541,11 +541,23 @@ class ShotgunBlast:
         filename = 'temp.jpg'
         request = requests.get(self.image_url, stream=True)
         try:
-            assert request.status_code == 200
-            with open(filename, 'wb') as image:
-                for chunk in request:
-                    image.write(chunk)
-            filesize = os.path.getsize('temp.jpg')
+            if request.status_code == 200:
+                with open(filename, 'wb') as image:
+                    for chunk in request:
+                        image.write(chunk)
+                filesize = os.path.getsize('temp.jpg')
+            else:
+                url = self.praw_obj.preview['images'][0]['resolutions'][3][
+                    'url']  # This is the smaller image. Using this because Twitter doesn't like huge files.
+                request = requests.get(url, stream=True)
+                try:
+                    assert request.status_code == 200
+                    with open(filename, 'wb') as image:
+                        for chunk in request:
+                            image.write(chunk)
+                    filesize = os.path.getsize('temp.jpg')
+                except AssertionError as e:
+                    raise Exception('Could not download image!    \n{}    \n\n'.format(str(e)))
             if filesize > 3070000:
                 os.remove(filename)
                 filename = 'temp.jpg'
