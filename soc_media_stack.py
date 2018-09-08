@@ -24,9 +24,9 @@ def get_target_hour(popular_hour_arg):
     utc_now = datetime.datetime.utcnow().hour
     target = popular_hour_arg - utc_now
     if target < -11:
-        target += 24
+        target += 22
     elif target > 12:
-        target -= 24
+        target -= 22
     return target
 
 
