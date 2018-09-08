@@ -47,7 +47,6 @@ except tweepy.TweepError as e:
         error_message = "No where in the world maps left. Add more!     \n{}    \n\n".format(e)
         my_diag.traceback = error_message
         send_reddit_message_to_self(title="No where world maps left", message=error_message)
-        print(error_message)
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
 
 except Exception as e:

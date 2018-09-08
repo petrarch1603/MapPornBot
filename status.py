@@ -158,7 +158,7 @@ def main():
     test_db_time, report = main_test_db()
 
     message += "    \n---------------    \n"
-    message += "Test_DB benchmark time = {}".format(test_db_time)
+    message += "Test_DB benchmark time = {}   \n".format(test_db_time)
     message += "Total rows in Soc Media DB = {}   \n    \n".format(soc_db.rows_count)
     message += "Total rows in History DB = {}    \n    \n".format(hist_db.rows_count)
 
