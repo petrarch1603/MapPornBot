@@ -85,15 +85,15 @@ for message in r.inbox.unread():
         try:
             assert socmediamap[0].startswith("https://redd.it/")
         except Exception as e:
-            errorMessage = ("Error detected: Message does not include a valid URL   \n{}   \n\n".format(e) +
-                            str(message.body))
-            my_diag.traceback = errorMessage
+            error_message = ("Error detected: Message does not include a valid URL   \n{}   \n\n".format(e) +
+                             str(message.body))
+            my_diag.traceback = error_message
             my_diag.severity = 2
-            log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=errorMessage)
+            log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=error_message)
             my_diag = Diagnostic(script=os.path.basename(__file__))
             log_db.conn.commit()
             log_db.close()
-            send_reddit_message_to_self(title="Socmedia Message Error", message=errorMessage)
+            send_reddit_message_to_self(title="Socmedia Message Error", message=error_message)
             continue
 
         # Get raw_id
@@ -112,8 +112,8 @@ for message in r.inbox.unread():
         try:
             assert soc_db.check_if_already_in_db(raw_id=raw_id) is False
         except AssertionError as e:
-            errorMessage = "Map already in database    \n{}    \n\n".format(e)
-            my_diag.traceback = errorMessage
+            error_message = "Map already in database    \n{}    \n\n".format(e)
+            my_diag.traceback = error_message
             my_diag.severity = 1
             log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
             my_diag = Diagnostic(script=os.path.basename(__file__))
@@ -128,8 +128,8 @@ for message in r.inbox.unread():
             init()
             new_count = soc_db.rows_count
         except Exception as e:
-            errorMessage = "Error: could not add to soc_db    \n{}    \n\n".format(e)
-            my_diag.traceback = errorMessage
+            error_message = "Error: could not add to soc_db    \n{}    \n\n".format(e)
+            my_diag.traceback = error_message
             my_diag.severity = 2
             log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
             my_diag = Diagnostic(script=os.path.basename(__file__))
@@ -147,13 +147,13 @@ for message in r.inbox.unread():
             log_db.close()
             message.mark_read()
         except AssertionError as e:
-            errorMessage = "Error: new count did not go up by 1    \n{}    \n\n".format(e)
-            my_diag.traceback = errorMessage
+            error_message = "Error: new count did not go up by 1    \n{}    \n\n".format(e)
+            my_diag.traceback = error_message
             my_diag.severity = 2
-            log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=errorMessage)
+            log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=error_message)
             log_db.conn.commit()
             log_db.close()
-            send_reddit_message_to_self(title="problem adding to DB", message=errorMessage)
+            send_reddit_message_to_self(title="problem adding to DB", message=error_message)
             my_diag = Diagnostic(script=os.path.basename(__file__))
             message.mark_read()
 
@@ -186,17 +186,17 @@ for message in r.inbox.unread():
 
         # Validate all parameters are included
         if text == '' or raw_id == '' or day_of_year == '':
-            errorMessage = 'Error: Missing parameters \n'
+            error_message = 'Error: Missing parameters \n'
             for line in DIHmessage:
-                errorMessage += (line + '\n')
-            my_diag.traceback = errorMessage
+                error_message += (line + '\n')
+            my_diag.traceback = error_message
             my_diag.severity = 1
-            log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=errorMessage)
+            log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=error_message)
             my_diag = Diagnostic(script=os.path.basename(__file__))
             log_db.conn.commit()
             log_db.close()
             send_reddit_message_to_self(title='Error processing day in history',
-                                        message=errorMessage)
+                                        message=error_message)
             message.mark_read()
             continue
         else:
@@ -211,16 +211,16 @@ for message in r.inbox.unread():
                 log_db.conn.commit()
                 log_db.close()
             except Exception as e:
-                errorMessage = "Could not add map to historymaps\n" \
+                error_message = "Could not add map to historymaps\n" \
                                    "Error: " + str(e) + "\n" \
                                                            "Post Title: " + str(text)
                 my_diag.severity = 2
-                my_diag.traceback = errorMessage
-                log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=errorMessage)
+                my_diag.traceback = error_message
+                log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=error_message)
                 my_diag = Diagnostic(script=os.path.basename(__file__))
                 log_db.conn.commit()
                 log_db.close()
-                send_reddit_message_to_self(title="Could not add to day_of_year.db", message=errorMessage)
+                send_reddit_message_to_self(title="Could not add to day_of_year.db", message=error_message)
 
         message.mark_read()
 
