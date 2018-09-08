@@ -28,6 +28,7 @@ for message in r.inbox.unread():
     newMessage = 'true'
 
 if newMessage is 'false':
+    my_diag.traceback = "No New Mail"
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
     exit()
 
