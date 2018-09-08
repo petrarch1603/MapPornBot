@@ -202,7 +202,7 @@ for message in r.inbox.unread():
         else:
             # Try to add to hist_db
             try:
-                text = ShotgunBlast.remove_text_inside_brackets(text)
+                text = ShotgunBlast.remove_text_inside_brackets(text.replace("\"", "'"))
                 hist_db.add_row_to_db(raw_id=raw_id, text=text, day_of_year=day_of_year)
                 hist_db.conn.commit()
                 hist_db.close()
