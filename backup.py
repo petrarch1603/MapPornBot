@@ -22,3 +22,6 @@ def upload_file(filepath, filename):
     f = drive.CreateFile({"parents": [{"kind": "drive", "id": mapporn_db_backups_folder}], 'title': filename})
     f.SetContentFile(filepath)
     f.Upload()
+
+if __name__ == "__main__":
+    upload_file()
