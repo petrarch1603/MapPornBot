@@ -44,6 +44,11 @@ def postsocmedia(map_row):
         my_diag.tweet = s_b_dict['tweet_url']
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
 
+    except tweepy.TweepError as e:
+        error_message = "Problem with tweepy    \n{}    \n\n".format(e)
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+
     except Exception as e:
         error_message = ("Error Encountered: \n"
                          "Could not post to social media.\n" + str(e) + "\nMap with problem: \n" + map_row['text'])

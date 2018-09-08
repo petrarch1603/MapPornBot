@@ -18,7 +18,13 @@ try:
     my_diag.tweet = s_b_dict['tweet_url']
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
 
-except AssertionError as ex:
-    my_diag.traceback = "Could not run {} script    \n{}   \n\n".format(str(os.path.basename(__file__)), ex)
+except tweepy.TweepError as e:
+    error_message = "Problem with tweepy    \n{}    \n\n".format(e)
     my_diag.severity = 2
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+
+except AssertionError as e:
+    my_diag.traceback = "Could not run {} script    \n{}   \n\n".format(str(os.path.basename(__file__)), e)
+    my_diag.severity = 2
+    log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+
