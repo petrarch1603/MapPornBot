@@ -40,7 +40,7 @@ def main():
         else:
             message += "* *{}*   \n".format(hist_db_integrity)
     except Exception as e:
-        error_message = ("Could not do hist_db Integrity Test\n{}\n".format(str(e)))
+        error_message = ("Could not do hist_db Integrity Test    \n{}    \n{}".format(str(e), str(type(e))))
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
@@ -53,7 +53,7 @@ def main():
         else:
             message += "* *{}*   \n".format(soc_db_integrity)
     except Exception as e:
-        error_message = ("Could not do soc_db Integrity Test   \n{}    \n".format(str(e)))
+        error_message = ("Could not do soc_db Integrity Test   \n{}    \n{}    \n".format(str(e), str(type(e))))
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
@@ -66,7 +66,7 @@ def main():
         else:
             message += "* *{}*   \n".format(log_db_integrity)
     except Exception as e:
-        error_message = ("Could not do log_db Integrity Test\n{}\n".format(str(e)))
+        error_message = ("Could not do log_db Integrity Test    \n{}    \n{}    \n".format(str(e), str(type(e))))
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
@@ -79,7 +79,7 @@ def main():
         else:
             message += "* *{}*   \n".format(jour_db_integrity)
     except Exception as e:
-        error_message = ("Could not do journal_db Integrity Test\n{}\n".format(str(e)))
+        error_message = ("Could not do journal_db Integrity Test\n{}\n".format(str(e), str(type(e))))
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
@@ -98,7 +98,7 @@ def main():
         message += time_zone_table + "   \n"
         print(message)
     except Exception as e:
-        error_message = ("Could not create time zone table   \n{}   \n".format(str(e)))
+        error_message = ("Could not create time zone table   \n{}   \n{}    \n".format(str(e), str(type(e))))
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
@@ -109,7 +109,7 @@ def main():
     try:
         soc_db.make_fresh_again(current_time=time.time())
     except Exception as e:
-        error_message = ("Could not run soc_db.make_fresh_again   \n{}   \n".format(str(e)))
+        error_message = ("Could not run soc_db.make_fresh_again   \n{}   \n{}    \n".format(str(e), str(type(e))))
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
@@ -129,7 +129,7 @@ def main():
         message += errors
         message += "    \n***    \n"
     except Exception as e:
-        error_message = ("Could not run log_db.get_fails_previous_24    \n{}    \n".format(str(e)))
+        error_message = ("Could not run log_db.get_fails_previous_24    \n{}    \n{}   \n".format(str(e), str(type(e))))
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
@@ -146,7 +146,8 @@ def main():
             successes = 'No successes logged in last 24 hours    \n'
         message += successes
     except Exception as e:
-        error_message = ("Could not run log_db.get_successes_previous_24    \n{}    \n".format(str(e)))
+        error_message = ("Could not run log_db.get_successes_previous_24    \n"
+                         "{}    \n{}   \n".format(str(e), str(type(e))))
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
@@ -168,7 +169,7 @@ def main():
     try:
         make_backup()
     except Exception as e:
-        error_message = "Could not make backup!    \n{}    \n\n".format(e)
+        error_message = ("Could not make backup!    \n{}    \n{}   \n".format(str(e), str(type(e))))
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
