@@ -84,8 +84,9 @@ for message in r.inbox.unread():
         try:
             assert socmediamap[0].startswith("https://redd.it/")
         except Exception as e:
-            errorMessage = ("Error detected: Message does not include a valid URL" + str(message.body))
-            my_diag.traceback = e
+            errorMessage = ("Error detected: Message does not include a valid URL   \n{}   \n\n".format(e) +
+                            str(message.body))
+            my_diag.traceback = errorMessage
             my_diag.severity = 2
             log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=errorMessage)
             my_diag = Diagnostic(script=os.path.basename(__file__))
@@ -209,16 +210,16 @@ for message in r.inbox.unread():
                 log_db.conn.commit()
                 log_db.close()
             except Exception as e:
-                my_error_message = "Could not add map to historymaps\n" \
+                errorMessage = "Could not add map to historymaps\n" \
                                    "Error: " + str(e) + "\n" \
                                                            "Post Title: " + str(text)
                 my_diag.severity = 2
-                my_diag.traceback = e
-                log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=my_error_message)
+                my_diag.traceback = errorMessage
+                log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=errorMessage)
                 my_diag = Diagnostic(script=os.path.basename(__file__))
                 log_db.conn.commit()
                 log_db.close()
-                send_reddit_message_to_self(title="Could not add to day_of_year.db", message=my_error_message)
+                send_reddit_message_to_self(title="Could not add to day_of_year.db", message=errorMessage)
 
         message.mark_read()
 

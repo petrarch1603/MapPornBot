@@ -114,7 +114,7 @@ class HistoryDB(MapDB):
         status = ''
         for i in self.all_rows_list():
             try:
-                assert isinstance(i[2], int) and (0 < i[2] < 366)
+                assert isinstance(i[2], int) and (0 < i[2] < 366), "Dates must be between 1 and 365"
             except AssertionError as e:
                 status += "* Not all day_of_year in {} are valid days\n  {}\n  {}\n\n"\
                     .format(self.table, str(i), e)
@@ -279,7 +279,7 @@ class SocMediaDB(MapDB):
             try:
                 if i[3] == 0:
                     assert int(i[4]) >= (time.time() - 37500000)
-            except Exception as e:
+            except AssertionError as e:
                 status += "* Item {} has a date_posted older than a year.\n  {}\n\n".format(
                     i, e
                 )

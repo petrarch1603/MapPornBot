@@ -47,8 +47,8 @@ try:
     my_diag.tweet = s_b_dict['tweet_url']
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
 except Exception as shotgun_error:
-    my_message = ('Error encountered: \n' + str(shotgun_error))
+    errorMessage = ('Error encountered: \n' + str(shotgun_error))
     my_diag.severity = 2
-    my_diag.traceback = my_message
-    log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=my_message)
-    send_reddit_message_to_self(title="Problem posting this day in history", message=my_message)
+    my_diag.traceback = errorMessage
+    log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=errorMessage)
+    send_reddit_message_to_self(title="Problem posting this day in history", message=errorMessage)

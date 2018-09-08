@@ -18,7 +18,7 @@ try:
     my_diag.tweet = s_b_dict['tweet_url']
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
 
-except Exception as ex:
+except AssertionError as ex:
     my_diag.traceback = "Could not run {} script    \n{}   \n\n".format(str(os.path.basename(__file__)), ex)
     my_diag.severity = 2
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)

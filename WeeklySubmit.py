@@ -32,6 +32,7 @@ try:
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
 
 except Exception as e:
-    my_diag.traceback = e
+    error_message = "Could not run WeeklySubmit.py.   \n{}    \n\n".format(e)
+    my_diag.traceback = error_message
     my_diag.severity = 2
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
