@@ -158,7 +158,7 @@ for message in r.inbox.unread():
             message.mark_read()
 
     # Day in History Messages
-    elif message.subject == ('day_of_year' or 'dayinhistory') and message.author == 'Petrarch1603':
+    elif message.subject == ('dayinhistory') and message.author == 'Petrarch1603':
 
         # Split message into a list
         my_diag.table = "historymaps"
