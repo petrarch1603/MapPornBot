@@ -1,6 +1,7 @@
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
-
+from shutil import copyfile
+import time
 
 def upload_file(filepath, filename):
     gauth = GoogleAuth()
@@ -23,5 +24,13 @@ def upload_file(filepath, filename):
     f.SetContentFile(filepath)
     f.Upload()
 
+
+def make_backup(source_db_path='data/mapporn.db'):
+    backup_filename = 'backup' + str(time.strftime("%Y%m%d")) + '.db'
+    backup_filepath = 'data/backup/' + backup_filename
+    copyfile(source_db_path, backup_filepath)
+    upload_file(backup_filepath, backup_filename)
+
+
 if __name__ == "__main__":
-    upload_file()
+    make_backup()

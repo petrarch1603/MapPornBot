@@ -160,10 +160,7 @@ def main():
     message += "Test_DB benchmark time = {}   \n".format(test_db_time)
     message += "Total rows in Soc Media DB = {}   \n    \n".format(soc_db.rows_count)
     message += "Total rows in History DB = {}    \n    \n".format(hist_db.rows_count)
-
-
     message += report + "    \n"
-
 
     # Send results to myself on Reddit
     print(message)
@@ -180,11 +177,13 @@ def main():
     log_db.close()
     journal_db.update_todays_status(benchmark_time=test_db_time)
 
+
 def make_backup(source_db_path='data/mapporn.db'):
     backup_filename = 'backup' + str(time.strftime("%Y%m%d")) + '.db'
     backup_filepath = 'data/backup/' + backup_filename
     copyfile(source_db_path, backup_filepath)
     upload_file(backup_filepath, backup_filename)
+
 
 init()
 main()
