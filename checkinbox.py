@@ -213,7 +213,7 @@ for message in r.inbox.unread():
             except Exception as e:
                 error_message = "Could not add map to historymaps\n" \
                                    "Error: " + str(e) + "\n" \
-                                                           "Post Title: " + str(text)
+                                   "Post Title: " + str(text)
                 my_diag.severity = 2
                 my_diag.traceback = error_message
                 log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=error_message)

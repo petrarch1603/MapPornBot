@@ -176,7 +176,7 @@ def main():
 def make_backup(source_db_path='data/mapporn.db'):
     copyfile(source_db_path, ('data/backup/backup' + str(datetime.datetime.today().weekday())))
 
+
 init()
 main()
 make_backup()
-# TODO: Make backups of database when it's successfully executed
