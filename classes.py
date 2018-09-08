@@ -102,8 +102,7 @@ class HistoryDB(MapDB):
         self.conn.commit()
 
     def add_row_to_db(self, raw_id, text, day_of_year):
-        self.curs.execute('''INSERT INTO {table} values("
-                          "'{raw_id}', "{text}", {day_of_year})'''
+        self.curs.execute('''INSERT INTO {table} values("{raw_id}", "{text}", {day_of_year})'''
                           .format(table=self.table,
                                   raw_id=raw_id,
                                   text=text,
