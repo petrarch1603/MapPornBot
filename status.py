@@ -1,5 +1,5 @@
+from backup import upload_file
 from classes import *
-import datetime
 from functions import send_reddit_message_to_self
 import praw
 import os
@@ -153,9 +153,6 @@ def main():
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
 
-    log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
-    log_db.close()
-
     # Test the database
     test_db_time, report = main_test_db()
 
@@ -164,19 +161,30 @@ def main():
     message += "Total rows in Soc Media DB = {}   \n    \n".format(soc_db.rows_count)
     message += "Total rows in History DB = {}    \n    \n".format(hist_db.rows_count)
 
-    # Add result to daily journal database
+
     message += report + "    \n"
-    journal_db.update_todays_status(benchmark_time=test_db_time)
+
 
     # Send results to myself on Reddit
     print(message)
     send_reddit_message_to_self(title="Status Report", message=message)
-
+    try:
+        make_backup()
+    except Exception as e:
+        error_message = "Could not make backup!    \n{}    \n\n".format(e)
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+    log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
+    log_db.close()
+    journal_db.update_todays_status(benchmark_time=test_db_time)
 
 def make_backup(source_db_path='data/mapporn.db'):
-    copyfile(source_db_path, ('data/backup/backup' + str(datetime.datetime.today().weekday())))
-
+    backup_filename = 'backup' + str(time.strftime("%Y%m%d")) + '.db'
+    backup_filepath = 'data/backup/' + backup_filename
+    copyfile(source_db_path, backup_filepath)
+    upload_file(backup_filepath, backup_filename)
 
 init()
 main()
-make_backup()
