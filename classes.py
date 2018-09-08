@@ -134,13 +134,13 @@ class HistoryDB(MapDB):
             try:
                 assert isinstance(self.get_rows_by_date(random.randint(1, 365)), list)
             except AssertionError as e:
-                status += "* Randoms days do not return a list\n   {}\n\n".format(e)
+                status += "* Randoms days do not return a list   \n{}    \n{}   \n".format(str(e), str(type(e)))
         try:
             assert self.schema == OrderedDict([('raw_id', 'TEXT'),
                                                ('text', 'TEXT'),
                                                ('day_of_year', 'NUMERIC')])
         except AssertionError as e:
-            status += "* Schema check failed!\n   {}\n\n".format(e)
+            status += "* Schema check failed!   \n{}    \n{}   \n".format(str(e), str(type(e)))
         if status == '':
             return 'PASS: {} integrity test passed.'.format(self.table)
         else:
@@ -248,49 +248,51 @@ class SocMediaDB(MapDB):
             try:
                 assert i[1] != ''
             except AssertionError as e:
-                status += "* Title of {} is blank in {}\n  {}\n\n".format(
-                    i[0], self.table, e
+                status += "* Title of {} is blank in {}     \n{}    \n{}    \n".format(
+                    str(i[0]), str(self.table), str(e), str(type(e))
                 )
             try:
                 assert len(i[0]) == 6
             except AssertionError as e:
-                status += "* raw_id of {} in {} is not acceptable\n  {}\n\n".format(
-                    i[0], self.table, e
+                status += "* raw_id of {} in {} is not acceptable    \n{}     \n{}    \n".format(
+                    str(i[0]), str(self.table), str(e), str(type(e))
                 )
             try:
                 assert (-10 <= int(i[2]) <= 12) or int(i[2]) == 99
             except AssertionError as e:
-                status += "* time_zone of {} in {} is not acceptable\n  {}\n\n".format(
-                    i[0], self.table, e
+                status += "* time_zone of {} in {} is not acceptable    \n{}    \n{}   \n".format(
+                    str(i[0]), str(self.table), str(e), str(type(e))
                 )
             try:
                 assert (int(i[3]) == 0) or (int(i[3]) == 1)
             except AssertionError as e:
-                status += "* fresh of {} is not a boolean in {}\n  {}\n\n".format(
-                    i[0], self.table, e
+                status += "* fresh of {} is not a boolean in {}   \n{}    \n{}    \n".format(
+                    str(i[0]), str(self.table), str(e), str(type(e))
                 )
             try:
                 if int(i[3]) == 0:
                     assert len(str(i[4])) >= 10
             except AssertionError as e:
-                status += "* Item {} is not fresh and does not have a date_posted date\n  {}\n\n".format(
-                    i[0], e
+                status += "* Item {} is not fresh and does not have a date_posted date    \n{}    \n{}    \n".format(
+                    str(i[0]), str(e), str(type(e))
                 )
             try:
                 if i[3] == 0:
                     assert int(i[4]) >= (time.time() - 37500000)
             except AssertionError as e:
-                status += "* Item {} has a date_posted older than a year.\n  {}\n\n".format(
-                    i, e
+                status += "* Item {} has a date_posted older than a year.   \n{}    \n{}   \n".format(
+                    str(i), str(e), str(type(e))
                 )
             try:
                 assert self.check_if_already_in_db(raw_id=i[0]) is True
             except AssertionError as e:
-                status += "* Check if already in db method failed.    \nRaw_id{}    \n{}\n\n".format(i, e)
+                status += "* Check if already in db method failed.    \n" \
+                          "Raw_id{}    \n{}   \n{}    \n".format(str(i), str(e), str(type(e)))
             try:
                 assert self.check_if_already_in_db(raw_id='PATRIC') is False
             except AssertionError as e:
-                status += "* Check if already in db method failed using a fake raw_id    \n{}    \n".format(e)
+                status += "* Check if already in db method failed using a fake raw_id    \n" \
+                          "{}    \n{}    \n".format(str(e), str(type(e)))
         try:
             assert self.schema == OrderedDict([('raw_id', 'TEXT'),
                                                ('text', 'TEXT'),
@@ -299,7 +301,7 @@ class SocMediaDB(MapDB):
                                                ('date_posted', 'DATE'),
                                                ('post_error', 'NUMERIC')])
         except AssertionError as e:
-            status += "* Schema check failed!\n    {}\n\n".format(e)
+            status += "* Schema check failed!   \n{}    \n{}    \n".format(str(e), str(type(e)))
         if status == '':
             return 'PASS: {} integrity test passed.'.format(self.table)
         else:
@@ -383,12 +385,12 @@ class LoggingDB(MapDB):
                                                    ('diagnostics', 'TEXT'),
                                                    ('passfail', 'NUMERIC')])
         except AssertionError as e:
-            status += 'Error encountered: {}\n'.format(e)
+            status += 'Error encountered: {}\n'.format(str(e))
         try:
             assert isinstance(self.get_fails_previous_24(current_time=time.time()), list)
             assert isinstance(self.get_successes_previous_24(current_time=time.time()), list)
         except AssertionError as e:
-            status += '* previous 24 methods did not return lists.\n    {}\n\n'.format(e)
+            status += '* previous 24 methods did not return lists.\n    {}\n\n'.format(str(e))
         if status == '':
             return "PASS: LoggingDB integrity test passed."
         else:
@@ -433,7 +435,7 @@ class JournalDB(MapDB):
                 assert isinstance(i[4], int)
                 assert isinstance(i[7], (int, float))
         except AssertionError as e:
-            status += "* column type check failed!\n     {}\n\n".format(e)
+            status += "* column type check failed!\n     {}\n\n".format(str(e))
         try:
             assert self.schema == OrderedDict([('date', 'NUMERIC'),
                                               ('hist_rows', 'NUMERIC'),
@@ -445,7 +447,7 @@ class JournalDB(MapDB):
                                               ('benchmark_time', 'REAL'),
                                               ('dict', 'TEXT')])
         except AssertionError as e:
-            status += "* Schema Check Failed!\n     {}\n\n".format(e)
+            status += "* Schema Check Failed!\n     {}\n\n".format(str(e))
         if status == '':
             return "PASS: JournalDB integrity test passed."
         else:
@@ -556,10 +558,10 @@ class ShotgunBlast:
                         for chunk in request:
                             image.write(chunk)
                 except AssertionError as e:
-                    raise Exception('Could not download image!    \n{}    \n\n'.format(e))
+                    raise Exception('Could not download image!    \n{}    \n\n'.format(str(e)))
             return filename
         except AssertionError as e:
-            raise Exception('Could not download image!    \n{}    \n\n'.format(e))
+            raise Exception('Could not download image!    \n{}    \n\n'.format(str(e)))
 
     def post_to_all_social(self):
         self.init_shotgun_blast()
@@ -579,7 +581,7 @@ class ShotgunBlast:
             tumbld_url = tumbld['id']
             tumbld_url = ('http://mappornofficial.tumblr.com/post/' + str(tumbld_url))
         except Exception as e:
-            tumbld_url = "Error encountered: " + str(e)
+            tumbld_url = "Error encountered: {}   \n{}   \n\n".format(str(e), str(type(e)))
         # Post to Facebook
 
         rq = requests.get(
@@ -613,7 +615,7 @@ class ShotgunBlast:
         try:
             assert len(self.raw_id) == 6
         except AssertionError as e:
-            status += 'raw_id not length 6!    \n{}    \n\n'.format(e)
+            status += 'raw_id not length 6!    \n{}    \n\n'.format(str(e))
 
         # Test Bracket Removal
         try:
@@ -621,7 +623,7 @@ class ShotgunBlast:
             assert (self.remove_text_inside_brackets("[123][123]Happy    ")) == "Happy"
             assert (self.remove_text_inside_brackets("[OC][123]My Map   ")) == "My Map"
         except AssertionError as e:
-            status += 'Remove text inside bracket test FAILED    \n{}    \n\n'.format(e)
+            status += 'Remove text inside bracket test FAILED    \n{}    \n\n'.format(str(e))
 
         # Test get_hashtag_locations
         try:
@@ -632,7 +634,7 @@ class ShotgunBlast:
             assert (self.get_title(raw_title="England [123]") ==
                     '#England ' + str(self.praw_obj.shortlink) + ' #MapPorn')
         except AssertionError as e:
-            status += 'Hashtag_locations test FAILED    \n{}    \n\n'.format(e)
+            status += 'Hashtag_locations test FAILED    \n{}    \n\n'.format(str(e))
 
         # Test Edge cases
         try:
@@ -667,7 +669,7 @@ class ShotgunBlast:
                    'pellentesque tellus sagittis sed. Nullam vel finibus metus. Aenean bibendum, nisl nec varius ' \
                    'ultrices, augue arcu rutrum nunc, vel pharetra justo lore #London ' + self.shortlink + ' #MapPorn'
         except AssertionError as e:
-            status += 'get_title test FAILED    \n{}    \n\n'.format(e)
+            status += 'get_title test FAILED    \n{}    \n\n'.format(str(e))
             print(status)
 
         if status == '':
@@ -698,7 +700,7 @@ class GenericPost:
             tumbld_url = tumbld['id']
             tumbld_url = ('http://mappornofficial.tumblr.com/post/' + str(tumbld_url))
         except Exception as e:
-            tumbld_url = "Error encountered: " + str(e)
+            tumbld_url = "Error encountered: {}   \n{}    \n".format(str(e), str(type(e)))
 
         # Post to Facebook
         rq = requests.get(
