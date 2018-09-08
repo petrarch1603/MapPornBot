@@ -103,7 +103,7 @@ class HistoryDB(MapDB):
 
     def add_row_to_db(self, raw_id, text, day_of_year):
         self.curs.execute("INSERT INTO {table} values("
-                          "'{raw_id}', '{text}', {day_of_year})"
+                          "'{raw_id}', "{text}", {day_of_year})"
                           .format(table=self.table,
                                   raw_id=raw_id,
                                   text=text,
@@ -557,7 +557,7 @@ class ShotgunBlast:
                             image.write(chunk)
                     filesize = os.path.getsize('temp.jpg')
                 except AssertionError as e:
-                    raise Exception('Could not download image!    \n{}    \n\n'.format(str(e)))
+                    raise Exception('Could not download image! Reddit might be down.    \n{}    \n\n'.format(str(e)))
             if filesize > 3070000:
                 os.remove(filename)
                 filename = 'temp.jpg'
@@ -570,7 +570,7 @@ class ShotgunBlast:
                         for chunk in request:
                             image.write(chunk)
                 except AssertionError as e:
-                    raise Exception('Could not download image!    \n{}    \n\n'.format(str(e)))
+                    raise Exception('Could not download image! Reddit might be down.    \n{}    \n\n'.format(str(e)))
             return filename
         except AssertionError as e:
             raise Exception('Could not download image!    \n{}    \n\n'.format(str(e)))
