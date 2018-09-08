@@ -1,7 +1,9 @@
 from classes import *
+import datetime
 from functions import send_reddit_message_to_self
 import praw
 import os
+from shutil import copyfile
 from test_db import main_test_db
 import time
 
@@ -171,7 +173,10 @@ def main():
     send_reddit_message_to_self(title="Status Report", message=message)
 
 
+def make_backup(source_db_path='data/mapporn.db'):
+    copyfile(source_db_path, ('data/backup/backup' + str(datetime.datetime.today().weekday())))
+
 init()
 main()
-
+make_backup()
 # TODO: Make backups of database when it's successfully executed
