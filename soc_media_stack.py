@@ -55,7 +55,7 @@ def postsocmedia(map_row):
 
 
 init()
-status = postsocmedia(soc_db.get_one_map_row(target_zone=popular_hour))
+status = postsocmedia(soc_db.get_one_map_row(target_zone=get_target_hour(popular_hour)))
 if status == '':
     print('Successfully posted to social media')
 else:
