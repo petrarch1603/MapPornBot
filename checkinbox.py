@@ -40,8 +40,8 @@ def get_time_zone(title_str):
     for place in zonedict:
         if place in title_str:
             this_zone = int(zonedict[place])
+
     if this_zone == 99:  # 99 is for maps that don't have a time zone associated with them
-        this_zone = int(this_zone)
         my_message = ("No time zone parsed from this title.\n"
                       "Check it and see if there are any "
                       "locations to add to the CSV.\n" + str(title))
