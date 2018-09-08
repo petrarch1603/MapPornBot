@@ -28,8 +28,14 @@ try:
 
     # Post to Social Media
     os.chdir('WW')
-    socmediadict = GenericPost(image_file_name, post_message).post_to_all_social()
-    my_diag.tweet = socmediadict['tweet_url']
+    try:
+        socmediadict = GenericPost(image_file_name, post_message).post_to_all_social()
+        my_diag.tweet = socmediadict['tweet_url']
+    except FileNotFoundError as e:
+        error_message = "No where in the world maps left. Add more!     \n{}    \n\n".format(e)
+        my_diag.traceback = error_message
+        send_reddit_message_to_self(title="No where world maps left", message=error_message)
+        exit()
     os.chdir('..')
     with open('/data/locations.csv') as current_csv:
         csvreader = csv.reader(current_csv)
