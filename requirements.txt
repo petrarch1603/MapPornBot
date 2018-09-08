@@ -1,3 +1,4 @@
+pydrive
 facebook-sdk==2.0.0
 praw==5.2.0
 prawcore==0.12.0
