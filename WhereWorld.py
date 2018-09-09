@@ -38,7 +38,7 @@ try:
             if image_number == row[0]:
                 true_location = row[1]
                 send_reddit_message_to_self(title="Where in world answer", message='The correct location is: ' +
-                                                  str(true_location) + '\nThe Twitter thread is here: ' +
+                                                  str(true_location) + '    \nThe Twitter thread is here: ' +
                                                   str(my_diag.tweet))
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
 
