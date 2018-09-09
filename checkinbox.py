@@ -50,6 +50,12 @@ def get_time_zone(title_str):
     return this_zone
 
 
+def split_message(message_str):
+    message_str = os.linesep.join([s for s in message_str.splitlines() if s])
+    message_list = message_str.splitlines()
+    return message_list
+
+
 for message in r.inbox.unread():
     my_diag = Diagnostic(script=os.path.basename(__file__))
     init()
@@ -76,9 +82,7 @@ for message in r.inbox.unread():
     # Social Media Maps
     elif message.subject == 'socmedia' and message.author == 'Petrarch1603':
         my_diag.table = 'socmediamaps'
-        socmediamap = message.body
-        socmediamap = os.linesep.join([s for s in socmediamap.splitlines() if s])  # removes extraneous line breaks
-        socmediamap = socmediamap.splitlines()  # Turn submission into a list
+        socmediamap = split_message(message)
         title = None
 
         # Verify that there is a Reddit shortlink in the message
@@ -158,13 +162,11 @@ for message in r.inbox.unread():
             message.mark_read()
 
     # Day in History Messages
-    elif message.subject == ('dayinhistory') and message.author == 'Petrarch1603':
+    elif message.subject == 'dayinhistory' and message.author == 'Petrarch1603':
 
         # Split message into a list
         my_diag.table = "historymaps"
-        DIHmessage = message.body
-        DIHmessage = os.linesep.join([s for s in DIHmessage.splitlines() if s])
-        DIHmessage = DIHmessage.splitlines()
+        DIHmessage = split_message(message.body)
         day_of_year = ''
         raw_id = ''
         text = ''
