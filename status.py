@@ -124,7 +124,7 @@ def main():
     print(message)
     try:
         send_reddit_message_to_self(title="Status Report", message=message)
-    except 'praw.exceptions.APIException' as e:
+    except praw.exceptions.APIException as e:
         message += "Could not send message on Reddit.    \n{}     \n{}".format(str(e), str(type(e)))
         with open('data/daily_status.txt', 'w') as text_file:
             text_file.write(message)
