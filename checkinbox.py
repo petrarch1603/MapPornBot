@@ -47,7 +47,6 @@ def split_message(message_str):
 def main():
     for message in r.inbox.unread():
         my_diag = Diagnostic(script=os.path.basename(__file__))
-        init()
 
         # Map Contest Submissions
         if message.subject == "Map Contest Submission":
