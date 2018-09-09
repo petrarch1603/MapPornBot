@@ -144,9 +144,11 @@ def make_backup(source_db_path='data/mapporn.db'):
 
 
 def test_functions():
+    init()
     error_message = ''
     my_diag = Diagnostic(script=str(os.path.basename(__file__)))
     my_diag.traceback = 'test_function script'
+
     # Test Functions in Checkinbox.py
     try:    # Test get_time_zone()
         assert get_time_zone('London') == 0
@@ -192,9 +194,12 @@ def test_functions():
 
 def test_db_integrity():
     # Integrity Checks on databases
+    init()
     error_message = ''
     my_diag = Diagnostic(script=str(os.path.basename(__file__)))
     my_diag.traceback = 'test_db_integrity script'
+
+    # hist_db_integrity check
     try:
         hist_db_integrity = hist_db.check_integrity()
         if hist_db_integrity.startswith("PASS"):
@@ -208,6 +213,8 @@ def test_db_integrity():
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
+
+    # soc_db_integrity check
     try:
         soc_db_integrity = soc_db.check_integrity()
         if soc_db_integrity.startswith("PASS"):
@@ -221,6 +228,8 @@ def test_db_integrity():
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
+
+    # log_db_integrity check
     try:
         log_db_integrity = log_db.check_integrity()
         if log_db_integrity.startswith("PASS"):
@@ -234,6 +243,8 @@ def test_db_integrity():
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
+
+    # jour_db_integrity check
     try:
         jour_db_integrity = journal_db.check_integrity()
         if jour_db_integrity.startswith("PASS"):
@@ -247,6 +258,7 @@ def test_db_integrity():
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
+
     return error_message
 
 
