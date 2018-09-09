@@ -39,7 +39,7 @@ def get_time_zone(title_str):
 
 
 def split_message(message_str):
-    message_str = os.linesep.join([s for s in message_str.splitlines() if s])
+    message_str = os.linesep.join([s for s in str(message_str).splitlines() if s])
     message_list = message_str.splitlines()
     return message_list
 
@@ -68,7 +68,7 @@ def main():
         # Social Media Maps
         elif message.subject == 'socmedia' and message.author == 'Petrarch1603':
             my_diag.table = 'socmediamaps'
-            socmediamap = split_message(message)
+            socmediamap = split_message(message.body)
             title = None
 
             # Verify that there is a Reddit shortlink in the message
