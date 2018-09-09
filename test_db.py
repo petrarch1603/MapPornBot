@@ -1,4 +1,5 @@
 from classes import *
+from functions import create_random_string
 import os
 import random
 from shutil import copyfile
@@ -56,12 +57,6 @@ def test_check_integrity():
             report += i
     test_close_all()
     return report
-
-
-def create_random_string(char_count):
-    allchar = string.ascii_letters + string.digits
-    rand_str = "".join(random.choice(allchar) for _ in range(char_count))
-    return rand_str
 
 
 def test_row_count(delta=0):
