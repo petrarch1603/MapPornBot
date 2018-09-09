@@ -40,6 +40,23 @@ class Diagnostic:
         self.traceback = traceback
         self.tweet = tweet
 
+    @classmethod
+    def diag_dict_to_obj(cls, diag_dict):
+        diag_dict = ast.literal_eval(diag_dict)
+        my_diag = Diagnostic(script=diag_dict['script'])
+        for k, v in diag_dict.items():
+            if k == 'raw_id':
+                my_diag.raw_id = v
+            elif k == 'severity':
+                my_diag.severity = v
+            elif k == 'table':
+                my_diag.table = v
+            elif k == 'traceback':
+                my_diag.traceback = v
+            elif k == 'tweet':
+                my_diag.tweet = v
+        return my_diag
+
     def make_dict(self):
         return {
             "raw_id": self.raw_id,
@@ -50,22 +67,37 @@ class Diagnostic:
             "tweet": self.tweet
         }
 
+    def concise_diag(self):
+        # TODO need to add testing on this method
+        # This method prunes out any blank/null/empty fields and returns string of contents
+        if self.traceback == 'No New Mail':
+            return '***\n    \n'
+        else:
+            my_string = "Script: {}   \n".format(str(self.script))
+            my_string += "Raw_id: {}   \n".format(str(self.raw_id)) if self.raw_id is not None else ''
+            my_string += "Severity: {}    \n".format(str(self.severity)) if self.severity is not None else ''
+            my_string += "Table: {}    \n".format(str(self.table)) if self.table is not None else ''
+            my_string += "Traceback: {}    \n".format(str(self.traceback)) if self.traceback is not None else ''
+            my_string += "Tweet: {}    \n".format(str(self.tweet)) if self.tweet is not None else ''
+            my_string += "***\n   \n"
+            return my_string
 
-def diag_dict_to_obj(diag_dict):
-    diag_dict = ast.literal_eval(diag_dict)
-    my_diag = Diagnostic(script=diag_dict['script'])
-    for k, v in diag_dict.items():
-        if k == 'raw_id':
-            my_diag.raw_id = v
-        elif k == 'severity':
-            my_diag.severity = v
-        elif k == 'table':
-            my_diag.table = v
-        elif k == 'traceback':
-            my_diag.traceback = v
-        elif k == 'tweet':
-            my_diag.tweet = v
-    return my_diag
+
+# def diag_dict_to_obj(diag_dict):
+#     diag_dict = ast.literal_eval(diag_dict)
+#     my_diag = Diagnostic(script=diag_dict['script'])
+#     for k, v in diag_dict.items():
+#         if k == 'raw_id':
+#             my_diag.raw_id = v
+#         elif k == 'severity':
+#             my_diag.severity = v
+#         elif k == 'table':
+#             my_diag.table = v
+#         elif k == 'traceback':
+#             my_diag.traceback = v
+#         elif k == 'tweet':
+#             my_diag.tweet = v
+#     return my_diag
 
 
 class MapDB:
@@ -377,7 +409,7 @@ class LoggingDB(MapDB):
                 assert i[3] == 1 or i[3] == 0
                 if i[2] is None:
                     raise AssertionError
-                this_diag = diag_dict_to_obj(i[2])
+                this_diag = Diagnostic.diag_dict_to_obj(i[2])
                 assert str(this_diag.script).endswith(".py")
                 assert self.schema == OrderedDict([('date', 'NUMERIC'),
                                                    ('error_text', 'TEXT'),
