@@ -1,6 +1,7 @@
 from backup import upload_file
+from checkinbox import get_time_zone, split_message
 from classes import *
-from functions import send_reddit_message_to_self
+from functions import create_random_string, send_reddit_message_to_self
 import praw
 import os
 from shutil import copyfile
@@ -31,6 +32,44 @@ def main():
             hours=((fresh_count % 8) * 3)
         )
     time_zone_table = "Time Zone|Map Count\n-|-\n"
+
+    # Test Functions in Checkinbox.py
+    try:    # Test get_time_zone()
+        assert get_time_zone('London') == 0
+        assert get_time_zone('909523[reteopipgfrtAfrica436i') == 1
+        assert get_time_zone(create_random_string(10)) == 99
+        assert get_time_zone('354tp4t[fds..dsfDenverre9sg') == -7
+    except AssertionError as e:
+        error_message = ("get_time_zone function not working    \n{}    \n".format(str(e)))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        print(error_message)
+    try:    # Test split_message()
+        assert split_message("https://redd.it/9cmxi1\ntext goes here\n12") == \
+               ['https://redd.it/9cmxi1', 'text goes here', '12']
+        assert split_message("1\n2\n3") == ['1', '2', '3']
+        assert split_message('https://redd.it/9e6vbg') == ['https://redd.it/9e6vbg']
+    except AssertionError as e:
+        error_message = ("Could not run split_message() function   \n{}   \n\n".format(e))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        print(error_message)
+
+    # Test Functions in functions.py
+    try:    # Test create_random_string() function
+        for x in range(6, 15, 2):
+            assert len(create_random_string(x)) == x
+    except AssertionError as e:
+        error_message = ("create_random_string() test FAILED    \n{}    \n\n".format(e))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        print(error_message)
 
     # Integrity Checks on databases
     try:
