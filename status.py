@@ -20,7 +20,7 @@ def init():
 
 def main():
     my_diag = Diagnostic(script=str(os.path.basename(__file__)))
-    message = "Daily Status Check   \n   \n"
+    message = "**Daily Status Check**   \n   \n"
     fresh_count = soc_db.fresh_count
     if fresh_count <= 10:
         message += "* *NOTE: ONLY {} FRESH SOC MEDIA MAPS LEFT!* *   \n\n".format(fresh_count)
@@ -78,8 +78,9 @@ def main():
         # TODO: Make the failures into a well formatted table like the time zones
         errors = ''
         for i in log_db.get_fails_previous_24(current_time=time.time()):
+            my_info = Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
             errors += "**Failure** recorded at {}    \n" \
-                      " {}   \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), i[2])
+                      " {}   \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_info)
         if errors == '':
             errors = 'No errors logged in last 24 hours    \n\n'
         message += "    \n***    \n"
@@ -97,8 +98,9 @@ def main():
     try:
         successes = ''
         for i in log_db.get_successes_previous_24(current_time=time.time()):
+            my_info = Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
             successes += "**Success** recorded at {}    \n" \
-                      " {}    \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), i[2])
+                      " {}    \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_info)
         if successes == '':
             successes = 'No successes logged in last 24 hours    \n'
         message += successes
@@ -130,12 +132,14 @@ def main():
             text_file.write(message)
     try:
         make_backup()
+        print("Backing up Database to Google Drive")
     except Exception as e:
         error_message = ("Could not make backup!    \n{}    \n{}   \n".format(str(e), str(type(e))))
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        print(error_message)
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
     log_db.close()
     journal_db.update_todays_status(benchmark_time=test_db_time)
