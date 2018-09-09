@@ -11,20 +11,9 @@ MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting po
 
 def init():
     global hist_db, log_db, r, soc_db
-    print("Running checkinbox.py")
-    new_message = False
     hist_db = HistoryDB()
     log_db = LoggingDB()
-    r = praw.Reddit('bot1')
     soc_db = SocMediaDB()
-    for _ in r.inbox.unread():
-        new_message = True
-    if new_message is False:
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
-        my_diag.traceback = "No New Mail"
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
-        exit()
-    main()
 
 
 def get_time_zone(title_str):
@@ -46,6 +35,7 @@ def split_message(message_str):
 
 def main():
     for message in r.inbox.unread():
+        init()
         my_diag = Diagnostic(script=os.path.basename(__file__))
 
         # Map Contest Submissions
@@ -82,6 +72,7 @@ def main():
                 log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=error_message)
                 log_db.conn.commit()
                 log_db.close()
+                init()
                 send_reddit_message_to_self(title="Socmedia Message Error", message=error_message)
                 continue
 
@@ -109,6 +100,7 @@ def main():
                 log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
                 log_db.conn.commit()
                 log_db.close()
+                init()
                 message.mark_read()
                 continue
 
@@ -129,9 +121,10 @@ def main():
                 error_message = "Error: could not add to soc_db    \n{}    \n\n".format(e)
                 my_diag.traceback = error_message
                 my_diag.severity = 2
-                log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
+                log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
                 log_db.conn.commit()
                 log_db.close()
+                init()
                 message.mark_read()
                 continue
 
@@ -142,6 +135,7 @@ def main():
                 my_diag = Diagnostic(script=os.path.basename(__file__))
                 log_db.conn.commit()
                 log_db.close()
+                init()
                 message.mark_read()
             except AssertionError as e:
                 error_message = "Error: new count did not go up by 1    \n{}    \n\n".format(e)
@@ -150,6 +144,7 @@ def main():
                 log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=error_message)
                 log_db.conn.commit()
                 log_db.close()
+                init()
                 send_reddit_message_to_self(title="problem adding to DB", message=error_message)
                 message.mark_read()
 
@@ -188,6 +183,7 @@ def main():
                 log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=error_message)
                 log_db.conn.commit()
                 log_db.close()
+                init()
                 send_reddit_message_to_self(title='Error processing day in history',
                                             message=error_message)
                 message.mark_read()
@@ -206,6 +202,7 @@ def main():
                     my_diag = Diagnostic(script=os.path.basename(__file__))
                     log_db.conn.commit()
                     log_db.close()
+                    init()
                 except Exception as e:
                     error_message = "Could not add map to historymaps\n" \
                                        "Error: " + str(e) + "\n" \
@@ -215,6 +212,7 @@ def main():
                     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=error_message)
                     log_db.conn.commit()
                     log_db.close()
+                    init()
                     send_reddit_message_to_self(title="Could not add to day_of_year.db", message=error_message)
 
             message.mark_read()
@@ -233,8 +231,19 @@ def main():
             log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
             log_db.conn.commit()
             log_db.close()
+            init()
             message.mark_read()
 
 
 if __name__ == '__main__':
+    new_message = False
+    r = praw.Reddit('bot1')
+    for _ in r.inbox.unread():
+        new_message = True
+    if new_message is False:
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+        my_diag.traceback = "No New Mail"
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
+        exit()
     init()
+    main()
