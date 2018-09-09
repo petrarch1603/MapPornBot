@@ -46,6 +46,7 @@ def create_random_string(char_count):
     rand_str = "".join(random.choice(allchar) for _ in range(char_count))
     return rand_str
 
+
 # def shotgun_blast(raw_id_input, announce_input=None, title=None):
 #     if announce_input is not None:
 #         announce = str(announce_input)
@@ -280,14 +281,14 @@ def next_weekday(d, weekday):
     return d + timedelta(days_ahead)
 
 
-def subreddit_top_post(subreddit, time_window):
-    top = r.subreddit(subreddit).top(time_window, limit=1)
-    top = list(top)
-    top_week = (top[0])
-    social_media_post = shotgun_blast(raw_id_input=top_week, announce_input='')
-    sub = r.submission(id=top_week)
-    return subreddit, sub.title, social_media_post
-
+# def subreddit_top_post(subreddit, time_window):
+#     top = r.subreddit(subreddit).top(time_window, limit=1)
+#     top = list(top)
+#     top_week = (top[0])
+#     social_media_post = shotgun_blast(raw_id_input=top_week, announce_input='')
+#     sub = r.submission(id=top_week)
+#     return subreddit, sub.title, social_media_post
+#
 
 # A function to take a string, search the locations.txt file for a matching string and add a
 # hashtag to the string.
