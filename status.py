@@ -122,7 +122,12 @@ def main():
 
     # Send results to myself on Reddit
     print(message)
-    send_reddit_message_to_self(title="Status Report", message=message)
+    try:
+        send_reddit_message_to_self(title="Status Report", message=message)
+    except Exception as e:
+        message += "Could not send message on Reddit.    \n{}     \n{}".format(str(e), str(type(e)))
+        with open('data/daily_status.txt', 'w') as text_file:
+            text_file.write(message)
     try:
         make_backup()
     except Exception as e:
