@@ -137,6 +137,7 @@ def main():
                 log_db.close()
                 init()
                 message.mark_read()
+                print('Successfully added to soc_db')
             except AssertionError as e:
                 error_message = "Error: new count did not go up by 1    \n{}    \n\n".format(e)
                 my_diag.traceback = error_message
