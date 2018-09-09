@@ -82,7 +82,7 @@ def main():
             errors += "**Failure** recorded at {}    \n" \
                       " {}   \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_info)
         if errors == '':
-            errors = 'No errors logged in last 24 hours    \n\n'
+            errors = 'No failures logged in last 24 hours    \n\n'
         message += "    \n***    \n"
         message += errors
         message += "    \n***    \n"

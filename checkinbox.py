@@ -40,8 +40,10 @@ def main():
 
         # Map Contest Submissions
         if message.subject == "Map Contest Submission":
+            my_diag.table = 'contest'
             submission = split_message(message.body)
-            submission = [w.replace('Link: ', '') for w in submission]  # Replace the text 'Link: ' with blankspace.
+            submission = [w.replace('Link: ', '') for w in submission]  # Replace the title 'Link: ' with blankspace.
+            my_diag.title = submission[0]
             submission.append(message.author)  # Add author value
             submission.append(message)  # Add unique value for the message. This is important for indexing later on.
             # Now make that list a row in a CSV
@@ -53,6 +55,7 @@ def main():
                 send_reddit_message_to_self('New Map added to CSV',
                                             'A new map has been submitted. Check the CSV for formatting    \n{}    \n\n'
                                             .format(message.body))
+            log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
             message.mark_read()
 
         # Social Media Maps
@@ -89,7 +92,7 @@ def main():
 
             # Remove double quotes, very important for inserting into database
             title = ShotgunBlast.remove_text_inside_brackets(title.replace("\"", "'"))
-
+            my_diag.title = title
             # Check if raw_id is already in soc_db
             try:
                 assert soc_db.check_if_already_in_db(raw_id=raw_id) is False
@@ -132,7 +135,6 @@ def main():
             try:
                 assert int(new_count) == (int(old_count) + 1)
                 log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
-                my_diag = Diagnostic(script=os.path.basename(__file__))
                 log_db.conn.commit()
                 log_db.close()
                 init()
@@ -157,7 +159,7 @@ def main():
             dih_message = split_message(message.body)
             day_of_year = ''
             raw_id = ''
-            text = ''
+            title = ''
 
             # Parse Message
             for item in dih_message:
@@ -172,10 +174,11 @@ def main():
                     raw_id = item[-6:]
                     my_diag.raw_id = raw_id
                 else:
-                    text = item
+                    title = item
 
             # Validate all parameters are included
-            if text == '' or raw_id == '' or day_of_year == '':
+            my_diag.title = title
+            if title == '' or raw_id == '' or day_of_year == '':
                 error_message = 'Error: Missing parameters \n'
                 for line in dih_message:
                     error_message += (line + '\n')
@@ -192,22 +195,21 @@ def main():
             else:
                 # Try to add to hist_db
                 try:
-                    text = ShotgunBlast.remove_text_inside_brackets(text.replace("\"", "'"))
+                    title = ShotgunBlast.remove_text_inside_brackets(title.replace("\"", "'"))
                     print(day_of_year)
-                    print(text)
+                    print(title)
                     print(raw_id)
-                    hist_db.add_row_to_db(raw_id=raw_id, text=text, day_of_year=day_of_year)
+                    hist_db.add_row_to_db(raw_id=raw_id, text=title, day_of_year=day_of_year)
                     hist_db.conn.commit()
                     hist_db.close()
                     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
-                    my_diag = Diagnostic(script=os.path.basename(__file__))
                     log_db.conn.commit()
                     log_db.close()
                     init()
                 except Exception as e:
                     error_message = "Could not add map to historymaps\n" \
                                        "Error: " + str(e) + "\n" \
-                                       "Post Title: " + str(text)
+                                       "Post Title: " + str(title)
                     my_diag.severity = 2
                     my_diag.traceback = error_message
                     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=error_message)

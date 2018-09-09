@@ -1,6 +1,7 @@
 import ast
 from collections import OrderedDict
 import facebook
+from functions import send_reddit_message_to_self
 import os
 import random
 import requests
@@ -32,13 +33,14 @@ class MapRow:
 
 
 class Diagnostic:
-    def __init__(self, script, raw_id=None, severity=None, table=None, traceback=None, tweet=None):
+    def __init__(self, script, raw_id=None, severity=None, table=None, traceback=None, tweet=None, title=None):
         self.raw_id = raw_id
         self.script = script
         self.severity = severity
         self.table = table
         self.traceback = traceback
         self.tweet = tweet
+        self.title = title
 
     @classmethod
     def diag_dict_to_obj(cls, diag_dict):
@@ -55,16 +57,26 @@ class Diagnostic:
                 my_diag.traceback = v
             elif k == 'tweet':
                 my_diag.tweet = v
+            elif k == 'title':
+                my_diag.title = v
         return my_diag
 
     def make_dict(self):
+        try:
+            if self.raw_id is not None:
+                assert self.title is not None
+        except AssertionError:
+                send_reddit_message_to_self(title="Missing title",
+                                            message="{} script is missing a title. When you pass in a raw_id there "
+                                                    "should be a title too.".format(self.script))
         return {
             "raw_id": self.raw_id,
             "script": self.script,
             "severity": self.severity,
             "table": self.table,
             "traceback": self.traceback,
-            "tweet": self.tweet
+            "tweet": self.tweet,
+            "title": self.title
         }
 
     def concise_diag(self):
@@ -75,6 +87,7 @@ class Diagnostic:
         else:
             my_string = "Script: {}   \n".format(str(self.script))
             my_string += "Raw_id: {}   \n".format(str(self.raw_id)) if self.raw_id is not None else ''
+            my_string += "Title: {}    \n".format(str(self.title)) if self.title is not None else ''
             my_string += "Severity: {}    \n".format(str(self.severity)) if self.severity is not None else ''
             my_string += "Table: {}    \n".format(str(self.table)) if self.table is not None else ''
             my_string += "Traceback: {}    \n".format(str(self.traceback)) if self.traceback is not None else ''
