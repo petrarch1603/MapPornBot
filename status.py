@@ -33,99 +33,18 @@ def main():
         )
     time_zone_table = "Time Zone|Map Count\n-|-\n"
 
-    # Test Functions in Checkinbox.py
-    try:    # Test get_time_zone()
-        assert get_time_zone('London') == 0
-        assert get_time_zone('909523[reteopipgfrtAfrica436i') == 1
-        assert get_time_zone(create_random_string(10)) == 99
-        assert get_time_zone('354tp4t[fds..dsfDenverre9sg') == -7
-    except AssertionError as e:
-        error_message = ("get_time_zone function not working    \n{}    \n".format(str(e)))
-        my_diag.traceback = error_message
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
-        print(error_message)
-    try:    # Test split_message()
-        assert split_message("https://redd.it/9cmxi1\ntext goes here\n12") == \
-               ['https://redd.it/9cmxi1', 'text goes here', '12']
-        assert split_message("1\n2\n3") == ['1', '2', '3']
-        assert split_message('https://redd.it/9e6vbg') == ['https://redd.it/9e6vbg']
-    except AssertionError as e:
-        error_message = ("Could not run split_message() function   \n{}   \n\n".format(e))
-        my_diag.traceback = error_message
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
-        print(error_message)
+    functions_result = test_functions()
 
-    # Test Functions in functions.py
-    try:    # Test create_random_string() function
-        for x in range(6, 15, 2):
-            assert len(create_random_string(x)) == x
-    except AssertionError as e:
-        error_message = ("create_random_string() test FAILED    \n{}    \n\n".format(e))
-        my_diag.traceback = error_message
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
-        print(error_message)
+    if functions_result == '':
+        message += 'Functions Test Passed    \n'
+    else:
+        message += 'Functions Test Failed:    \n{}    \n\n'.format(functions_result)
 
-    # Integrity Checks on databases
-    try:
-        hist_db_integrity = hist_db.check_integrity()
-        if hist_db_integrity.startswith("PASS"):
-            message += " {}    \n".format(hist_db_integrity)
-        else:
-            message += "* *{}*   \n".format(hist_db_integrity)
-    except Exception as e:
-        error_message = ("Could not do hist_db Integrity Test    \n{}    \n{}".format(str(e), str(type(e))))
-        my_diag.traceback = error_message
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
-        print(error_message)
-    try:
-        soc_db_integrity = soc_db.check_integrity()
-        if soc_db_integrity.startswith("PASS"):
-            message += " {}   \n".format(soc_db_integrity)
-        else:
-            message += "* *{}*   \n".format(soc_db_integrity)
-    except Exception as e:
-        error_message = ("Could not do soc_db Integrity Test   \n{}    \n{}    \n".format(str(e), str(type(e))))
-        my_diag.traceback = error_message
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
-        print(error_message)
-    try:
-        log_db_integrity = log_db.check_integrity()
-        if log_db_integrity.startswith("PASS"):
-            message += " {}    \n".format(log_db_integrity)
-        else:
-            message += "* *{}*   \n".format(log_db_integrity)
-    except Exception as e:
-        error_message = ("Could not do log_db Integrity Test    \n{}    \n{}    \n".format(str(e), str(type(e))))
-        my_diag.traceback = error_message
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
-        print(error_message)
-    try:
-        jour_db_integrity = journal_db.check_integrity()
-        if jour_db_integrity.startswith("PASS"):
-            message += " {}    \n".format(jour_db_integrity)
-        else:
-            message += "* *{}*   \n".format(jour_db_integrity)
-    except Exception as e:
-        error_message = ("Could not do journal_db Integrity Test\n{}\n".format(str(e), str(type(e))))
-        my_diag.traceback = error_message
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
-        print(error_message)
+    message += "    \n***    \n"
 
-    message += "***   \n"
+    message += test_db_integrity()
+
+    message += "    \n***   \n"
 
     # Create report of quantities for each time zone group
     try:
@@ -225,5 +144,113 @@ def make_backup(source_db_path='data/mapporn.db'):
     upload_file(backup_filepath, backup_filename)
 
 
-init()
-main()
+def test_functions():
+    error_message = ''
+    my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+    my_diag.traceback = 'test_function script'
+    # Test Functions in Checkinbox.py
+    try:    # Test get_time_zone()
+        assert get_time_zone('London') == 0
+        assert get_time_zone('909523[reteopipgfrtAfrica436i') == 1
+        assert get_time_zone(create_random_string(10)) == 99
+        assert get_time_zone('354tp4t[fds..dsfDenverre9sg') == -7
+    except AssertionError as e:
+        error_message += ("get_time_zone function not working    \n{}    \n".format(str(e)))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        print(error_message)
+    try:    # Test split_message()
+        assert split_message("https://redd.it/9cmxi1\ntext goes here\n12") == \
+               ['https://redd.it/9cmxi1', 'text goes here', '12']
+        assert split_message("1\n2\n3") == ['1', '2', '3']
+        assert split_message('https://redd.it/9e6vbg') == ['https://redd.it/9e6vbg']
+    except AssertionError as e:
+        error_message += ("Could not run split_message() function   \n{}   \n\n".format(e))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        print(error_message)
+
+    # Test Functions in functions.py
+    try:    # Test create_random_string() function
+        for x in range(6, 15, 2):
+            assert len(create_random_string(x)) == x
+    except AssertionError as e:
+        error_message += ("create_random_string() test FAILED    \n{}    \n\n".format(e))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+
+        # Leaving this here in case more tests are added below
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+        print(error_message)
+
+    return error_message
+
+
+def test_db_integrity():
+    # Integrity Checks on databases
+    error_message = ''
+    my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+    my_diag.traceback = 'test_db_integrity script'
+    try:
+        hist_db_integrity = hist_db.check_integrity()
+        if hist_db_integrity.startswith("PASS"):
+            error_message += " {}    \n".format(hist_db_integrity)
+        else:
+            error_message += "* *{}*   \n".format(hist_db_integrity)
+    except Exception as e:
+        error_message += ("Could not do hist_db Integrity Test    \n{}    \n{}".format(str(e), str(type(e))))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        print(error_message)
+    try:
+        soc_db_integrity = soc_db.check_integrity()
+        if soc_db_integrity.startswith("PASS"):
+            error_message += " {}   \n".format(soc_db_integrity)
+        else:
+            error_message += "* *{}*   \n".format(soc_db_integrity)
+    except Exception as e:
+        error_message += ("Could not do soc_db Integrity Test   \n{}    \n{}    \n".format(str(e), str(type(e))))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        print(error_message)
+    try:
+        log_db_integrity = log_db.check_integrity()
+        if log_db_integrity.startswith("PASS"):
+            error_message += " {}    \n".format(log_db_integrity)
+        else:
+            error_message += "* *{}*   \n".format(log_db_integrity)
+    except Exception as e:
+        error_message += ("Could not do log_db Integrity Test    \n{}    \n{}    \n".format(str(e), str(type(e))))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        print(error_message)
+    try:
+        jour_db_integrity = journal_db.check_integrity()
+        if jour_db_integrity.startswith("PASS"):
+            error_message += " {}    \n".format(jour_db_integrity)
+        else:
+            error_message += "* *{}*   \n".format(jour_db_integrity)
+    except Exception as e:
+        error_message += ("Could not do journal_db Integrity Test\n{}\n".format(str(e), str(type(e))))
+        my_diag.traceback = error_message
+        my_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        print(error_message)
+    return error_message
+
+
+if __name__ == '__main__':
+    init()
+    main()
