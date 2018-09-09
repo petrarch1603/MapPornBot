@@ -11,7 +11,6 @@ import time
 
 def init():
     global hist_db, journal_db, log_db, r, soc_db
-    print("Running {}".format(str(os.path.basename(__file__))))
     hist_db = HistoryDB()
     journal_db = JournalDB()
     log_db = LoggingDB()
