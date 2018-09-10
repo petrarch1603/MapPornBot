@@ -177,6 +177,7 @@ def test_add_entries(num_of_entries):
     for _ in range(num_of_entries):
         rand_hist_id = create_random_string(6)
         rand_soc_id = create_random_string(6)
+        rand_title = create_random_string(10)
         rand_log_text = create_random_string(11)
         rand_boolean = random.randint(0, 1)
         test_hist_db.add_row_to_db(raw_id=rand_hist_id,
@@ -188,6 +189,7 @@ def test_add_entries(num_of_entries):
         my_diag_dic.table = create_random_string(6)
         my_diag_dic.traceback = create_random_string(15)
         my_diag_dic.tweet = "http://" + str(create_random_string(8))
+        my_diag_dic.title = rand_title
         test_log_db.add_row_to_db(diagnostics=my_diag_dic.make_dict(),
                                   error_text=rand_log_text,
                                   passfail=rand_boolean)
