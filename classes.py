@@ -264,8 +264,7 @@ class SocMediaDB(MapDB):
             ))
         if len(filtered_map_list) == 0:
             return print("No fresh maps in database!")
-        random_int = random.randint(0, (len(filtered_map_list) - 1))
-        my_row = filtered_map_list[random_int]
+        my_row = random.choice(filtered_map_list)
         return MapRow(schema=self.schema, row=my_row)
 
     def add_row_to_db(self, raw_id, text, time_zone, fresh=1, date_posted='NULL', post_error=0):
