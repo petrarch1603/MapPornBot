@@ -37,6 +37,7 @@ def postsocmedia(map_row):
     praw_obj = r.submission(id=local_raw_id)
 
     try:
+        my_diag.title = map_row.dict['text']
         s_b = ShotgunBlast(praw_obj, title=map_row.dict['text'])
         assert s_b.check_integrity() == "PASS"
         s_b_dict = s_b.post_to_all_social()
