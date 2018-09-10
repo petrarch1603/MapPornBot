@@ -33,6 +33,7 @@ if len(today_list) == 0:
 # Check if there are multiple entries with today's date
 random_int = 0
 if len(today_list) > 1:
+    # TODO: change this to random.choice
     random_int = random.randint(0, (len(today_list) - 1))
 
 raw_id = today_list[random_int][0][-6:]
