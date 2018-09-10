@@ -39,6 +39,7 @@ raw_id = today_list[random_int][0][-6:]
 my_diag.raw_id = raw_id
 praw_obj = r.submission(id=raw_id)
 my_title = today_list[random_int][1]
+my_diag.title = my_title
 
 try:
     s_b = ShotgunBlast(praw_obj, title=my_title)
