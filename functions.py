@@ -1,5 +1,6 @@
 # These are useful Redditbot functions
 
+from classes import *
 import csv
 import datetime
 from datetime import datetime, timedelta
@@ -22,20 +23,21 @@ import signal
 import json
 import pymongo
 
-# Reddit Bot Login
-r = praw.Reddit('bot1')
+def init_soc_posting():
+    # Reddit Bot Login
+    r = praw.Reddit('bot1')
 
-# Twitter Authentication
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_secret)
-api = tweepy.API(auth)
+    # Twitter Authentication
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_secret)
+    api = tweepy.API(auth)
 
-# PRAW logging stuff
-handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
-logger = logging.getLogger('prawcore')
-logger.setLevel(logging.DEBUG)
-logger.addHandler(handler)
+    # PRAW logging stuff
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.DEBUG)
+    logger = logging.getLogger('prawcore')
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(handler)
 
 
 my_reddit_ID = 'petrarch1603'  # This is the human reddit user name, NOT the bot's user name.
@@ -314,6 +316,7 @@ def bot_disclaimer():
 
 
 def send_reddit_message_to_self(title, message):
+    r = praw.Reddit('bot1')
     r.redditor(my_reddit_ID).message(title, message)
 
 
