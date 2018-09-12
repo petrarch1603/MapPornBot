@@ -1,7 +1,7 @@
 import ast
 from collections import OrderedDict
 import facebook
-from functions import send_reddit_message_to_self
+from functions import create_random_string, send_reddit_message_to_self
 import os
 import random
 import requests
@@ -33,7 +33,14 @@ class MapRow:
 
 
 class Diagnostic:
-    def __init__(self, script, raw_id=None, severity=None, table=None, traceback=None, tweet=None, title=None):
+    def __init__(self,
+                 script,
+                 raw_id=None,
+                 severity=None,
+                 table=None,
+                 traceback=None,
+                 tweet=None,
+                 title=None, zone=None):
         self.raw_id = raw_id
         self.script = script
         self.severity = severity
@@ -41,10 +48,12 @@ class Diagnostic:
         self.traceback = traceback
         self.tweet = tweet
         self.title = title
+        self.zone = zone
 
     @classmethod
     def diag_dict_to_obj(cls, diag_dict):
-        diag_dict = ast.literal_eval(diag_dict)
+        if type(diag_dict) == str:
+            diag_dict = ast.literal_eval(diag_dict)
         my_diag = Diagnostic(script=diag_dict['script'])
         for k, v in diag_dict.items():
             if k == 'raw_id':
@@ -59,6 +68,8 @@ class Diagnostic:
                 my_diag.tweet = v
             elif k == 'title':
                 my_diag.title = v
+            elif k == 'zone':
+                my_diag.zone = v
         return my_diag
 
     def make_dict(self):
@@ -76,7 +87,8 @@ class Diagnostic:
             "table": self.table,
             "traceback": self.traceback,
             "tweet": self.tweet,
-            "title": self.title
+            "title": self.title,
+            "zone": self.zone
         }
 
     def concise_diag(self):
@@ -92,6 +104,7 @@ class Diagnostic:
             my_string += "Table: {}    \n".format(str(self.table)) if self.table is not None else ''
             my_string += "Traceback: {}    \n".format(str(self.traceback)) if self.traceback is not None else ''
             my_string += "Tweet: {}    \n".format(str(self.tweet)) if self.tweet is not None else ''
+            my_string += "Time Zone: {}    \n".format(str(self.zone)) if self.zone is not None else ''
             my_string += "***\n   \n"
             return my_string
 
