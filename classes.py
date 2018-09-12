@@ -523,7 +523,6 @@ class JournalDB(MapDB):
 class ShotgunBlast:
     def __init__(self, praw_obj, title=None, announce_input=None):
         self.twitter_max = 280
-        self.announce_input = announce_input
         self.praw_obj = praw_obj
         self.shortlink = praw_obj.shortlink
         self.title = self.get_title(title)
