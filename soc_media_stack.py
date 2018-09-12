@@ -32,6 +32,7 @@ def get_target_hour(popular_hour_arg):
 
 def postsocmedia(map_row):
     local_raw_id = map_row.dict['raw_id']
+    my_diag.zone = map_row.dict['time_zone']
     my_diag.raw_id = local_raw_id
     error_message = ''
     praw_obj = r.submission(id=local_raw_id)
