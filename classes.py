@@ -521,12 +521,13 @@ class JournalDB(MapDB):
 
 
 class ShotgunBlast:
+    #TODO add generic Shotgun Blas
     def __init__(self, praw_obj, title=None, announce_input=None):
+        self.announce_input = announce_input
         self.twitter_max = 280
         self.praw_obj = praw_obj
         self.shortlink = praw_obj.shortlink
         self.title = self.get_title(title)
-        self.announce_input = announce_input
         self.image_url = self.praw_obj.url
         self.raw_id = self.praw_obj.id
 
