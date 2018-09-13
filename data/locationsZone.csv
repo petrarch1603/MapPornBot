@@ -33,6 +33,7 @@ Burundi,2
 Cambodia,7
 Cameroon,1
 Canada,-5
+Canadian,-5
 Chad,1
 Chile,-4
 China,8
@@ -66,6 +67,7 @@ Georgia,4
 Germany,1
 Ghana,0
 Greece,2
+Peloponnesian,2
 Grenada,-4
 Guatemala,-6
 Guinea,0
@@ -141,6 +143,7 @@ Portugal,0
 Qatar,1
 Romania,2
 Russia,3
+Kievan,3
 Rwanda,2
 Samoa,12
 Scotland,0
@@ -308,6 +311,7 @@ Canberra,10
 Kamchatka,9
 Baku,4
 New York,-3
+NYC,-3
 Magellan,-4
 Lincoln,-4
 English,0
@@ -368,3 +372,5 @@ Oahu,-10
 Pearl Harbor,-10
 Polynesia,-10
 Pacific,-8
+Medieval,1
+Danube,2
