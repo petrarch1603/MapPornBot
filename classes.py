@@ -139,6 +139,9 @@ class MapDB:
             schema_dic[tup[1]] = tup[2]
         self.schema = schema_dic
 
+    def __len__(self):
+        return self.curs.execute('SELECT count(*) FROM {}'.format(self.table)).fetchall()[0][0]
+
     def all_rows_list(self):
         return self.curs.execute("SELECT * FROM {}".format(self.table)).fetchall()
 
