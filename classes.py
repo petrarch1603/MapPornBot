@@ -400,7 +400,7 @@ class SocMediaDB(MapDB):
         return self.curs.execute("""SELECT * FROM {} WHERE raw_id='{}'""".format(
             self.table,
             raw_id
-        )).fetchall()
+        )).fetchall()[0]
 
 
 class LoggingDB(MapDB):
