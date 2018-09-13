@@ -1,5 +1,7 @@
 from functions import *
 
+r = praw.Reddit('bot1')
+
 # Verify before running in case of accidental execution.
 # If this script is automated, this line will need to be deleted.
 input('Are you ready?')
@@ -77,7 +79,7 @@ for sortedItem in sortedWinnerList[:4]:
         str(sortedItem[1]),
         str(sortedItem[0])
     ))
-    congratsData = str(congratsData)  # congratsData is the Congratulations text template, now we're going to replace variables
+    congratsData = str(congratsData)  # congratsData is the Congratulations text template
     congratsData = congratsData.replace(str('%' + str(n) + 'PLACEUSER%'), str(placeuser))
     congratsData = congratsData.replace(str('%' + str(n) + 'PLACEVOTES%'), str(sortedItem[0]))
     placemap = placemap.replace('Map Name: ', '')
@@ -136,14 +138,16 @@ else:
 
 # Post to social media.
 # Now that we have the image we can run the function to post it to the social media sites
-generic_message = generic_post(imagefile=winningImage, message=(post_title + ' ' + congrats_shortlink))
+try:
+    generic_post = GenericPost(filename=winningImage, title=(post_title + ' ' + congrats_shortlink))
+    social_media_dict = generic_post.post_to_all_social()
+    send_reddit_message_to_self(title='The new Congratulations post has just posted.',
+                                message='The congrats post is here:    {}\n    \n{}    \n{}')\
+        .format(str(congrats_shortlink), str(votingPost.shortlink), str(social_media_dict['tweet_url']))
+except Exception as e:
+    send_reddit_message_to_self('Could not post to social media',
+                                message='Could not post announcement to socialmeda:    \n{}    \n\n').format(str(e))
 
-# # 8) Send message to me with shortlinks for QC and social media URLs
-message_to_me = ('The new Congratulations post has just posted.    \nThe congrats post is here: ' + congrats_shortlink + '   \n' + '' +
-                 str(votingPost.shortlink) + '   \n' + str(generic_message) + '\n')
-send_reddit_message_to_self(title='Congratulation post posted', message=message_to_me)
-
-# # 9) Rename and move the submissions_current.csv to a new name in the archive directory
 source = 'submissions_current.csv'
 destination = ('SubmissionsArchive/' + contest_year + '-' + contest_month + '-AllSubmissions.csv')
 shutil.move(source, destination)
