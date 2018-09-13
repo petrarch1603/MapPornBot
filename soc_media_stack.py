@@ -41,15 +41,24 @@ def postsocmedia(map_row):
         my_diag.title = map_row.dict['text']
         s_b = ShotgunBlast(praw_obj, title=map_row.dict['text'])
         assert s_b.check_integrity() == "PASS"
-        s_b_dict = s_b.post_to_all_social()
         soc_db.update_to_not_fresh(raw_id=local_raw_id)
+        s_b_dict = s_b.post_to_all_social()
         my_diag.tweet = s_b_dict['tweet_url']
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
 
     except tweepy.TweepError as e:
-        error_message = "Problem with tweepy    \n{}    \n\n".format(e)
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        this_diag = my_diag
+        try:
+            soc_db.close()
+        except sqlite3.ProgrammingError:
+            pass
+        init()
+        fresh_status = soc_db.get_row_by_raw_id(local_raw_id)[3]
+        error_message = "Problem with tweepy    \n{}    \n{}    \nNew fresh status: {}    \n"\
+            .format(str(e), str(local_raw_id), str(fresh_status))
+        this_diag.traceback = error_message
+        this_diag.severity = 2
+        log_db.add_row_to_db(diagnostics=this_diag.make_dict(), passfail=0)
 
     except Exception as e:
         error_message = ("Error Encountered: \n"
