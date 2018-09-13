@@ -5,7 +5,7 @@ r = praw.Reddit('bot1')
 log_db = LoggingDB()
 
 
-def get_raw_id(): # # Get the raw ID of the voting post.
+def get_raw_id():  # # Get the raw ID of the voting post.
     votingpostdata = open('data/votingpostdata.txt', 'r')
     raw_id = (votingpostdata.read())
     return r.submission(id=raw_id)
