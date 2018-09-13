@@ -1,7 +1,8 @@
 import ast
 from collections import OrderedDict
+import csv
 import facebook
-from functions import create_random_string, send_reddit_message_to_self
+from functions import send_reddit_message_to_self, strip_punc
 import os
 import random
 import requests
@@ -231,6 +232,18 @@ class SocMediaDB(MapDB):
                                          .format(self.table)).fetchone()[0]
         }
         self.zone_dict = zone_dict
+        self.not_fresh_list = self.curs.execute("SELECT * FROM {} WHERE fresh=0".format(self.table)).fetchall()
+
+    @classmethod
+    def get_time_zone(cls, title_str):
+        with open('data/locationsZone.csv', 'r') as f:
+            csv_reader = csv.reader(f)
+            zonedict = {rows[0].upper(): rows[1] for rows in csv_reader}
+        this_zone = 99
+        for place in zonedict:
+            if place in strip_punc(title_str.upper()):
+                this_zone = int(zonedict[place])
+        return this_zone
 
     def get_rows_by_time_zone(self, time_zone, fresh=1):
         if isinstance(time_zone, int):
@@ -370,13 +383,17 @@ class SocMediaDB(MapDB):
         assert len(str(int(current_time))) == 10
         time_past = 34560000
         cutoff_time = (current_time - int(time_past))
-        for i in self.all_rows_list():
-            if (isinstance(i[3], int)) and (int(i[3]) == 0):
-                if int(i[4]) <= cutoff_time:
-                    self.curs.execute("UPDATE {} SET fresh=1 WHERE raw_id='{}'".format(
-                        self.table, i[0]
-                    ))
-                    self.conn.commit()
+        for i in self.not_fresh_list:
+            if int(i[4]) <= cutoff_time:
+                if i[2] == 99:
+                    new_time_zone = self.get_time_zone(i[1])
+                    if new_time_zone != 99:
+                        self.curs.execute("UPDATE {} SET time_zone={} WHERE raw_id='{}'".format(self.table,
+                                                                                                new_time_zone,
+                                                                                                i[0]))
+                self.curs.execute("UPDATE {} SET fresh=1 WHERE raw_id='{}'".format(self.table,
+                                                                                   i[0]))
+                self.conn.commit()
         self.conn.close()
 
     def get_row_by_raw_id(self, raw_id):
@@ -473,9 +490,9 @@ class JournalDB(MapDB):
         my_dict = my_dict.replace('"', '\'')
         query = """INSERT INTO {table} values(?, ?, ?, ?, ?, ?, ?, ?, ?)""".format(table=self.table)
         self.curs.execute(query, (date,
-                                  hist_db.rows_count,
-                                  log_db.rows_count,
-                                  soc_db.rows_count,
+                                  len(hist_db),
+                                  len(log_db),
+                                  len(soc_db),
                                   soc_db.fresh_count,
                                   len(log_db.get_fails_previous_24(date)),
                                   len(log_db.get_successes_previous_24(date)),
@@ -524,7 +541,6 @@ class JournalDB(MapDB):
 
 
 class ShotgunBlast:
-    #TODO add generic Shotgun Blas
     def __init__(self, praw_obj, title=None, announce_input=None):
         self.announce_input = announce_input
         self.twitter_max = 280
