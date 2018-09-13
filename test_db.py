@@ -156,10 +156,10 @@ def test_update_to_not_fresh():
 def test_make_fresh_again():
     print("Testing making fresh again")
     init()
-    for i in test_soc_db.all_rows_list():
-        test_soc_db.curs.execute("UPDATE {} SET date_posted={} WHERE raw_id='{}'".format('socmediamaps',
-                                                                                         time.time(),
-                                                                                         i[0]))
+    # for i in test_soc_db.all_rows_list():
+    #     test_soc_db.curs.execute("UPDATE {} SET date_posted={} WHERE raw_id='{}'".format('socmediamaps',
+    #                                                                                      time.time(),
+    #                                                                                      i[0]))
     test_soc_db.make_fresh_again(current_time=9999999999)
     init()
     test_row_count()
