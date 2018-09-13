@@ -57,14 +57,14 @@ def postsocmedia(map_row):
         error_message = "Problem with tweepy    \n{}    \n{}    \nNew fresh status: {}    \n"\
             .format(str(e), str(local_raw_id), str(fresh_status))
         this_diag.traceback = error_message
-        this_diag.severity = 2
+        this_diag.severity = 1
         log_db.add_row_to_db(diagnostics=this_diag.make_dict(), passfail=0)
 
     except Exception as e:
         error_message = ("Error Encountered: \n"
                          "Could not post to social media.\n" + str(e) + "\nMap with problem: \n" + map_row['text'])
         my_diag.traceback = error_message
-        my_diag.severity = 1
+        my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
 
     return error_message
