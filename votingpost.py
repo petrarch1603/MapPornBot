@@ -1,27 +1,36 @@
 from functions import *
 
+r = praw.Reddit('bot1')
+error_message = ""
 
 # Verify before running in case of accidental execution.
 # If this script is automated, this line will need to be deleted.
 input('Are you ready?')
 
 # # 1) Prepare the self text of the voting post
-VotingText = open('VotingText.txt', 'r').read()
 botDisclaimerText = bot_disclaimer()
 
 # Include the number of submissions and the contest end date in the text of the post.
 # This code makes the end date next Sunday.
 
-lastmonthfile = open('data/lastmonth.txt', 'r')
-last_month_url = (lastmonthfile.read())
-next_week = datetime.now() + timedelta(days=5)  # Need at least 5 days to vote.
-next_sunday = next_weekday(next_week, 6)  # Pycharm doesn't like the .now(), but in testing seems it should work.
-pretty_next_sunday = next_sunday.strftime('%A %B %d, %Y')
-numbersubmitted = sum(1 for line in open('submissions.csv'))
-VotingText = VotingText.replace('%NUMBERSUBMITTED%', str(numbersubmitted))
-VotingText = VotingText.replace('%ENDDATE%', str(pretty_next_sunday))
-VotingText = VotingText.replace('%MYREDDITID%', my_reddit_ID)
-VotingText = VotingText.replace('%LASTMONTH%', last_month_url)
+
+def prepare_voting_text():
+    with open('VotingText.txt', 'r') as my_file:
+        my_voting_text = my_file.read()
+    lastmonthfile = open('data/lastmonth.txt', 'r')
+    last_month_url = (lastmonthfile.read())
+    next_week = datetime.now() + timedelta(days=5)  # Need at least 5 days to vote.
+    next_sunday = next_weekday(next_week, 6)  # Pycharm doesn't like the .now(), but in testing seems it should work.
+    pretty_next_sunday = next_sunday.strftime('%A %B %d, %Y')
+    numbersubmitted = sum(1 for _ in open('submissions.csv'))
+    my_voting_text = my_voting_text.replace('%NUMBERSUBMITTED%', str(numbersubmitted))
+    my_voting_text = my_voting_text.replace('%ENDDATE%', str(pretty_next_sunday))
+    my_voting_text = my_voting_text.replace('%MYREDDITID%', my_reddit_ID)
+    my_voting_text = my_voting_text.replace('%LASTMONTH%', last_month_url)
+    return my_voting_text
+
+
+voting_text = prepare_voting_text()
 
 # # 2) Get date from 7 days ago
 # We need to get the month from the previous month. Most of the contests are towards the end of the month.
@@ -34,14 +43,14 @@ contest_year = date_7_days_ago.date().year
 
 # # 3) Submit the post to Reddit
 post_message = 'Vote Now for the ' + str(contest_month) + ' ' + str(contest_year) + ' Map Contest!'
-submission = r.subreddit('mapporn').submit(post_message, selftext=VotingText)  # Submits the post to Reddit
+submission = r.subreddit('mapporn').submit(post_message, selftext=voting_text)  # Submits the post to Reddit
 submission.mod.contest_mode()
 submission.mod.distinguish()
 shortlink = submission.shortlink
 
 # # 4) One by one add a comment to the post, each comment being a map to vote on
-f = open('submissions.csv', 'r')
-reader = csv.reader(f)
+with open('submissions.csv', 'r') as f:
+    reader = csv.reader(f)
 for row in reader:
     submission.reply('[' + row[0] + '](' + row[1] + ')   \n' + row[2] + '\n\n----\n\n^^^^' + row[4])
     # the brackets and parentheses are for hyperlinking the name, row[4] is the unique ID of the submission message,
@@ -51,18 +60,19 @@ for row in reader:
     # Now send a message to each contestant letting them know it's live.
     try:
         r.redditor(row[3]).message('The monthly map contest is live!', 'Thank you for contributing a map. '
-                                                                   '[The voting on the monthly contest is '
-                                                                   'open now at this link.]('
-                                                                   + shortlink + ')    \n' + botDisclaimerText)
-    except:
-        print('Could not send message to ' + row[3])
-generalcomment = submission.reply('General Comment Thread')  # Have a general comment thread so
-                                                             # people don't post top level comments.
+                                                                       '[The voting on the monthly contest is '
+                                                                       'open now at this link.]('
+                                                                       + shortlink + ')    \n' + botDisclaimerText)
+    except Exception as e:
+        print('Could not send message to ' + row[3] + '   \n' + str(e))
+
+# General Comment Thread so people don't post top level comments
+generalcomment = submission.reply('General Comment Thread')
 generalcomment.mod.distinguish(sticky=True)
 generalcomment.reply('**What is with the ^^^small characters?**    \n'
                      'This contest is automated with a bot. The bot uses these random characters to index the maps and '
-                     'to calculate the winner at the end of the contest.\n\n----\n\n ^^^[Github](https://github.com/petrarch1603/MapPornBot)')
-f.close()
+                     'to calculate the winner at the end of the contest.\n\n----\n\n'
+                     '^^^[Github](https://github.com/petrarch1603/MapPornBot)')
 
 
 # # 5) Need to save the voting post raw_id for use in parsing the winner after a few days.
@@ -96,31 +106,31 @@ image_file_name = str(randraw).zfill(2)
 # There is probably a better way to do it, but for now it works.
 image_file_name = fnmatch.filter(os.listdir('voteimages/'), image_file_name + '.*')
 image_file_name = image_file_name[0]    # There should only be one image with that name, so this returns the name of
-                                        # that file.
 
 # Post to social media
 # Change the message so it includes URL of the Reddit voting post.
 post_message_url = (post_message + '\n' + shortlink + '\n#MapPorn #Cartography #Contest')
 image_file_name = ('voteimages/' + image_file_name)
+
 # Run a function to post it to different social media accounts
-social_media_post = generic_post(image_file_name, post_message_url)
-# The function returns a text string with the URLs of the relevant social media posts.
-# This is useful for verifying proper posting.
-
-
-# # 8) Send a Reddit message to me with a summary and links to social media posts
-send_reddit_message_to_self('New Voting Post Posted', 'A new votingpost.py has been run. Check the post to make sure the bot did it right.'
-                                   '   \nHere\'s the link to the post: ' + shortlink + '   \nHere\'s the social media '
-                                                                                       'links:    \n' + str(social_media_post))
+try:
+    social_media_post = GenericPost(filename=image_file_name, title=post_message_url)
+    socialmediadict = social_media_post.post_to_all_social()
+    send_reddit_message_to_self('New Voting Post Posted', 'A new votingpost.py has been run. Check the post to make '
+                                                          'sure the bot did it right.   \nHere\'s the link to the '
+                                                          'post: ' + shortlink + '   \nHere\'s the social media '
+                                                          'links:    \n' + str(socialmediadict['tweet_url']))
+except Exception as e:
+    error_message += "Could not post results to social media.   \n{}    \n\n".format(str(e))
 
 try:
     submission.mod.approve()  # Unsure if these two work
 except Exception as e:
-    print('Could not approve post. Exception: ' + e)
+    print('Could not approve post. Exception: ' + str(e))
 try:
     submission.mod.sticky()
 except Exception as e:
-    print('Could not sticky post. Exception: ' + e)
+    print('Could not sticky post. Exception: ' + str(e))
 
 
 # # Notes
