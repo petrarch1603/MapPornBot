@@ -591,7 +591,6 @@ class ShotgunBlast:
         api = tweepy.API(auth)
 
     def get_title(self, raw_title):
-        print(raw_title)
         shortlink = self.shortlink
         working_title = ''
         if self.announce_input is not None:
@@ -611,7 +610,6 @@ class ShotgunBlast:
             else:
                 working_title += ' ' + str(shortlink)
         assert len(working_title) <= self.twitter_max
-        print(working_title)
         return working_title
 
     def download_image(self):
@@ -692,7 +690,6 @@ class ShotgunBlast:
             "facebook_url": fb_url,
             "title": self.title}
         os.remove(filename)
-        print(socialmediadict)
         return socialmediadict
 
     def check_integrity(self):
