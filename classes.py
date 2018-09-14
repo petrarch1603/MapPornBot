@@ -591,6 +591,7 @@ class ShotgunBlast:
         api = tweepy.API(auth)
 
     def get_title(self, raw_title):
+        print(raw_title)
         shortlink = self.shortlink
         working_title = ''
         if self.announce_input is not None:
@@ -610,6 +611,7 @@ class ShotgunBlast:
             else:
                 working_title += ' ' + str(shortlink)
         assert len(working_title) <= self.twitter_max
+        print(working_title)
         return working_title
 
     def download_image(self):
@@ -718,43 +720,46 @@ class ShotgunBlast:
             assert (self.get_hashtag_locations('Germany is in Europe') == '#Germany #Europe')
             assert (self.get_hashtag_locations('My Map is here') == '')
             assert (self.get_hashtag_locations('USA is great []123297ofhdsd[][]#') == '#USA')
-            # assert (self.get_title(raw_title="England [123]") ==
-            #        '#England ' + str(self.praw_obj.shortlink) + ' #MapPorn')
+            if self.announce_input is None:
+                assert (self.get_title(raw_title="England [123]") == '#England ' +
+                        str(self.praw_obj.shortlink) + ' #MapPorn')
         except AssertionError as e:
             status += 'Hashtag_locations test FAILED    \n{}    \n\n'.format(str(e))
 
         # Test Edge cases
         try:
             # Test title input of 320 chars
-            assert (self.get_title(raw_title=long_lorem)) == \
-                   'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis turpis ante, ' \
-                   'eget pellentesque tellus sagittis sed. Nullam vel finibus metus. Aenean bibendum, nisl nec ' \
-                   'varius ultrices, augue arcu rutrum nunc, vel pharetra justo lorem vel leo. Aen... ' + \
-                   str(self.shortlink)
+            # TODO: add tests for variable announce_input lengths
+            if self.announce_input is None:
+                assert (self.get_title(raw_title=long_lorem)) == \
+                       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis turpis ante, ' \
+                       'eget pellentesque tellus sagittis sed. Nullam vel finibus metus. Aenean bibendum, nisl nec ' \
+                       'varius ultrices, augue arcu rutrum nunc, vel pharetra justo lorem vel leo. Aen... ' + \
+                       str(self.shortlink)
             # Test title length of 270
-            assert (self.get_title(raw_title='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec '
-                                             'magna luctus, vestibulum diam sed, condimentum ante. Sed pharetra '
-                                             'blandit tortor, non tempus ex suscipit vel. Nulla facilisi. Quisque orci '
-                                             'est, aliquam in ornare ac, scelerisque quis dui. Nullam metus.')) \
-                == 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec magna luctus, vestibulum ' \
-                   'diam sed, condimentum ante. Sed pharetra blandit tortor, non tempus ex suscipit vel. Nulla ' \
-                   'facilisi. Quisque orci est, aliquam in ornare ac, scelerisque quis du... ' + self.shortlink
+                assert (self.get_title(raw_title='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec '
+                                                 'magna luctus, vestibulum diam sed, condimentum ante. Sed pharetra '
+                                                 'blandit tortor, non tempus ex suscipit vel. Nulla facilisi. Quisque orci '
+                                                 'est, aliquam in ornare ac, scelerisque quis dui. Nullam metus.')) \
+                    == 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec magna luctus, vestibulum ' \
+                       'diam sed, condimentum ante. Sed pharetra blandit tortor, non tempus ex suscipit vel. Nulla ' \
+                       'facilisi. Quisque orci est, aliquam in ornare ac, scelerisque quis du... ' + self.shortlink
             # Test title input of length 245 (280 - shortlink length). Should include #MapPorn
-            assert (self.get_title(raw_title='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis '
-                                             'turpis ante, eget pellentesque Quebec sagittis sed. Nullam vel finibus '
-                                             'metus. Aenean bibendum, nisl nec varius ultrices, augue arcu rutrum '
-                                             'nunc, vel pharetra justo lorem vel yz')) \
-                == 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis turpis ante, eget ' \
-                   'pellentesque Quebec sagittis sed. Nullam vel finibus metus. Aenean bibendum, nisl nec varius ' \
-                   'ultrices, augue arcu rutrum nunc, vel pharetra justo lorem vel yz ' + self.shortlink + ' #MapPorn'
+                assert (self.get_title(raw_title='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis '
+                                                 'turpis ante, eget pellentesque Quebec sagittis sed. Nullam vel finibus '
+                                                 'metus. Aenean bibendum, nisl nec varius ultrices, augue arcu rutrum '
+                                                 'nunc, vel pharetra justo lorem vel yz')) \
+                    == 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis turpis ante, eget ' \
+                       'pellentesque Quebec sagittis sed. Nullam vel finibus metus. Aenean bibendum, nisl nec varius ' \
+                       'ultrices, augue arcu rutrum nunc, vel pharetra justo lorem vel yz ' + self.shortlink + ' #MapPorn'
             # Test title input with location hashtag
-            assert (self.get_title(raw_title='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis '
-                                             'turpis ante, eget pellentesque tellus sagittis sed. Nullam vel finibus '
-                                             'metus. Aenean bibendum, nisl nec varius ultrices, augue arcu rutrum '
-                                             'nunc, vel pharetra justo lore London')) \
-                == 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis turpis ante, eget ' \
-                   'pellentesque tellus sagittis sed. Nullam vel finibus metus. Aenean bibendum, nisl nec varius ' \
-                   'ultrices, augue arcu rutrum nunc, vel pharetra justo lore #London ' + self.shortlink + ' #MapPorn'
+                assert (self.get_title(raw_title='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis '
+                                                 'turpis ante, eget pellentesque tellus sagittis sed. Nullam vel finibus '
+                                                 'metus. Aenean bibendum, nisl nec varius ultrices, augue arcu rutrum '
+                                                 'nunc, vel pharetra justo lore London')) \
+                    == 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis turpis ante, eget ' \
+                       'pellentesque tellus sagittis sed. Nullam vel finibus metus. Aenean bibendum, nisl nec varius ' \
+                       'ultrices, augue arcu rutrum nunc, vel pharetra justo lore #London ' + self.shortlink + ' #MapPorn'
         except AssertionError as e:
             status += 'get_title test FAILED    \n{}    \n\n'.format(str(e))
             print(status)

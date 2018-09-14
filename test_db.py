@@ -174,6 +174,7 @@ def test_add_entries(num_of_entries):
     print("Adding {} random entries to all databases for testing...".format(
         str(num_of_entries)
     ))
+    # TODO use a generator to save memory
     for _ in range(num_of_entries):
         rand_hist_id = create_random_string(6)
         rand_soc_id = create_random_string(6)
