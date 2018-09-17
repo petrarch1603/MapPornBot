@@ -1,6 +1,6 @@
 # These are useful Redditbot functions
 
-from classes import *
+
 import csv
 import datetime
 from datetime import datetime, timedelta
