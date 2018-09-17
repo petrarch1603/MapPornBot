@@ -157,7 +157,7 @@ def main():
             .format(str(congrats_shortlink), str(voting_post.shortlink), str(social_media_dict['tweet_url']))
     except Exception as e:
         send_reddit_message_to_self('Could not post to social media',
-                                    message='Could not post announcement to socialmeda:    \n{}    \n\n').format(str(e))
+                                    message='Could not post announcement to socialmeda:    \n{}    \n\n'.format(str(e)))
 
     source = 'submissions_current.csv'
     destination = ('SubmissionsArchive/' + contest_year + '-' + contest_month + '-AllSubmissions.csv')
