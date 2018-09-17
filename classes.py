@@ -3,6 +3,7 @@ from collections import OrderedDict
 import csv
 import facebook
 from functions import send_reddit_message_to_self, strip_punc
+import praw
 import os
 import random
 import requests
