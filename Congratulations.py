@@ -1,7 +1,7 @@
 import csv
 from datetime import datetime, timedelta
 from functions import bot_disclaimer, my_reddit_ID, GenericPost
-from classes import *
+from classes import Diagnostic, LoggingDB
 import os
 import praw
 import re
@@ -10,6 +10,10 @@ import shutil
 
 r = praw.Reddit('bot1')
 log_db = LoggingDB()
+
+def send_reddit_message_to_self(title, message):
+    r = praw.Reddit('bot1')
+    r.redditor(my_reddit_ID).message(title, message)
 
 
 def get_raw_id():  # # Get the raw ID of the voting post.
