@@ -1,6 +1,6 @@
 import csv
 from datetime import datetime, timedelta
-from functions import bot_disclaimer, my_reddit_ID, send_reddit_message_to_self, GenericPost
+from functions import bot_disclaimer, my_reddit_ID, GenericPost
 from classes import *
 import os
 import praw
