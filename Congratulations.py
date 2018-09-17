@@ -64,7 +64,7 @@ def main():
 
     n = 0
     for sorted_item in sorted_winner_list[:4]:
-        n = n + 1
+        n += 1
         winner_list = []
         with open('submissions_current.csv') as current_csv:
             csvreader = csv.reader(current_csv)
