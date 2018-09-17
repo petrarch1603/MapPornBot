@@ -1,7 +1,7 @@
 import csv
 from datetime import datetime, timedelta
-from functions import bot_disclaimer, my_reddit_ID, GenericPost
-from classes import Diagnostic, LoggingDB
+from functions import bot_disclaimer, my_reddit_ID
+from classes import Diagnostic, LoggingDB, GenericPost
 import os
 import praw
 import re
