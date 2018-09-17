@@ -1,5 +1,12 @@
-from functions import *
+import csv
+from datetime import datetime, timedelta
+from functions import bot_disclaimer, my_reddit_ID, send_reddit_message_to_self, GenericPost
 from classes import LoggingDB, Diagnostic
+import os
+import praw
+import re
+import requests
+import shutil
 
 r = praw.Reddit('bot1')
 log_db = LoggingDB()
