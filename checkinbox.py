@@ -93,6 +93,7 @@ def main():
             # Remove double quotes, very important for inserting into database
             title = ShotgunBlast.remove_text_inside_brackets(title.replace("\"", "'"))
             my_diag.title = title
+            print(my_diag.title)
             # Check if raw_id is already in soc_db
             try:
                 assert soc_db.check_if_already_in_db(raw_id=raw_id) is False
