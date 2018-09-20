@@ -89,7 +89,7 @@ class Diagnostic:
             "table": self.table,
             "traceback": self.traceback,
             "tweet": self.tweet,
-            "title": self.title,
+            "title": str(self.title),
             "zone": self.zone
         }
 
