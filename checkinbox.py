@@ -100,6 +100,7 @@ def main():
                 error_message = "Map already in database    \n{}    \n\n".format(e)
                 my_diag.traceback = error_message
                 my_diag.severity = 1
+                print(my_diag.make_dict())
                 log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
                 log_db.conn.commit()
                 log_db.close()
