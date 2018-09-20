@@ -13,7 +13,6 @@ import sqlite3
 import time
 import tweepy
 
-
 class MapRow:
     def __init__(self, schema, row):
         self.schema = schema.keys()
