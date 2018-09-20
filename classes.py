@@ -409,7 +409,7 @@ class LoggingDB(MapDB):
         MapDB.__init__(self, table, path)
 
     def add_row_to_db(self, diagnostics, passfail, error_text=None):
-        my_sql = '''INSERT INTO logging (time, error_text, diag, passfail) VALUES (?, ?, ?, ?)'''
+        my_sql = '''INSERT INTO logging (date, error_text, diagnostics, passfail) VALUES (?, ?, ?, ?)'''
         my_list = [int(time.time()), error_text, diagnostics, passfail]
         self.curs.execute(my_sql, my_list)
         self.conn.commit()
