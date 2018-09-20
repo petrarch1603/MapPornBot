@@ -44,6 +44,7 @@ try:
 
 except tweepy.TweepError as e:
     if str(e) == 'Unable to access file: No such file or directory':
+        os.chdir('..')
         error_message = "No where in the world maps left. Add more!     \n{}    \n\n".format(e)
         my_diag.traceback = error_message
         send_reddit_message_to_self(title="No where world maps left", message=error_message)
