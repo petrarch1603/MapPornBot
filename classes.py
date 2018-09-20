@@ -409,13 +409,9 @@ class LoggingDB(MapDB):
         MapDB.__init__(self, table, path)
 
     def add_row_to_db(self, diagnostics, passfail, error_text=None):
-        self.curs.execute('''INSERT INTO {table} values({time}, '{error_text}', "{diag}", {passfail})'''.format(
-            table=self.table,
-            time=int(time.time()),
-            error_text=error_text,
-            diag=str(diagnostics),
-            passfail=passfail
-        ))
+        my_sql = '''INSERT INTO logging (time, error_text, diag, passfail) VALUES (?, ?, ?, ?)'''
+        my_list = [int(time.time()), error_text, diagnostics, passfail]
+        self.curs.execute(my_sql, my_list)
         self.conn.commit()
 
     def get_fails_previous_24(self, current_time):
