@@ -16,6 +16,7 @@ try:
     assert s_b.check_integrity() == "PASS"
     s_b_dict = s_b.post_to_all_social()
     my_diag.tweet = s_b_dict['tweet_url']
+    my_diag.title = s_b_dict['title']
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
 
 except tweepy.TweepError as e:
