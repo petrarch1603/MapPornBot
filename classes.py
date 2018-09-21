@@ -13,6 +13,7 @@ import sqlite3
 import time
 import tweepy
 
+
 class MapRow:
     def __init__(self, schema, row):
         self.schema = schema.keys()
@@ -484,6 +485,7 @@ class JournalDB(MapDB):
         hist_db = HistoryDB()
         log_db = LoggingDB()
         soc_db = SocMediaDB()
+        # TODO: do i need these three lines for massaging my_dict??
         my_dict = {i[0]: str(i[1:]).replace('"', "\\'") for i in log_db.get_fails_previous_24(date)}
         my_dict = str(my_dict)
         my_dict = my_dict.replace('"', '\'')
