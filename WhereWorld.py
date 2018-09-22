@@ -32,7 +32,7 @@ try:
     socmediadict = GenericPost(image_file_name, post_message).post_to_all_social()
     my_diag.tweet = socmediadict['tweet_url']
     os.chdir('..')
-    with open('/data/locations.csv') as current_csv:
+    with open('data/locations.csv') as current_csv:
         csvreader = csv.reader(current_csv)
         for row in csvreader:
             if image_number == row[0]:
