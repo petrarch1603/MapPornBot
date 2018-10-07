@@ -100,7 +100,7 @@ def main():
         for i in log_db.get_successes_previous_24(current_time=time.time()):
             my_info = Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
             successes += "**Success** recorded at {}    \n" \
-                      " {}    \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_info)
+                         " {}    \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_info)
         if successes == '':
             successes = 'No successes logged in last 24 hours    \n'
         message += successes
