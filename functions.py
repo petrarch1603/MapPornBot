@@ -23,6 +23,7 @@ import signal
 import json
 import pymongo
 
+
 def init_soc_posting():
     # Reddit Bot Login
     r = praw.Reddit('bot1')
