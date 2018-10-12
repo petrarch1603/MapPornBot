@@ -428,6 +428,16 @@ class LoggingDB(MapDB):
             .format(self.table, twenty_four_ago)
         ))
 
+    def get_fails_in_window(self, newer_time, older_time):
+        newer_time = int(newer_time)
+        older_time = int(older_time)
+        return list(row for row in self.curs.execute(
+            "SELECT * FROM {} WHERE passfail = 0 AND date >= {} AND date <= {}"
+            .format(self.table,
+                    older_time,
+                    newer_time)
+        ))
+
     def get_successes_previous_24(self, current_time):
         current_time = int(current_time)
         assert len(str(current_time)) == 10
