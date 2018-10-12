@@ -78,9 +78,9 @@ def main():
         # TODO: Make the failures into a well formatted table like the time zones
         errors = ''
         for i in log_db.get_fails_previous_24(current_time=time.time()):
-            my_info = Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
+            my_error = Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
             errors += "**Failure** recorded at {}    \n" \
-                      " {}   \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_info)
+                      " {}   \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_error)
         if errors == '':
             errors = 'No failures logged in last 24 hours    \n\n'
         message += "    \n***    \n"
@@ -98,9 +98,9 @@ def main():
     try:
         successes = ''
         for i in log_db.get_successes_previous_24(current_time=time.time()):
-            my_info = Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
+            my_success = Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
             successes += "**Success** recorded at {}    \n" \
-                         " {}    \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_info)
+                         " {}    \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_success)
         if successes == '':
             successes = 'No successes logged in last 24 hours    \n'
         message += successes
