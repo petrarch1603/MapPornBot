@@ -63,7 +63,7 @@ def main():
         print(error_message)
 
     # Make posts older than a year fresh again
-    if soc_db.fresh_count < 10:
+    if soc_db.fresh_count < 20:
         try:
             soc_db.make_fresh_again(current_time=time.time())
         except Exception as e:
