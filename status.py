@@ -63,15 +63,16 @@ def main():
         print(error_message)
 
     # Make posts older than a year fresh again
-    try:
-        soc_db.make_fresh_again(current_time=time.time())
-    except Exception as e:
-        error_message = ("Could not run soc_db.make_fresh_again   \n{}   \n{}    \n".format(str(e), str(type(e))))
-        my_diag.traceback = error_message
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
-        print(error_message)
+    if soc_db.fresh_count < 10:
+        try:
+            soc_db.make_fresh_again(current_time=time.time())
+        except Exception as e:
+            error_message = ("Could not run soc_db.make_fresh_again   \n{}   \n{}    \n".format(str(e), str(type(e))))
+            my_diag.traceback = error_message
+            my_diag.severity = 2
+            log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+            my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+            print(error_message)
 
     # Get failures from last 24 hours and report on them
     try:
