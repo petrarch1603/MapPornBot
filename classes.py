@@ -380,13 +380,14 @@ class SocMediaDB(MapDB):
         else:
             return status
 
-    def make_fresh_again(self, current_time):
+    def make_fresh_again(self, current_time, limit=20):
         assert len(str(int(current_time))) == 10
         default_time_past = 43200000
         # Code below here will increase the amount of time to make fresh when the number of maps in the database is over
         # 4000. My objective is to take a long time before making the maps fresh again.
         time_past = max(int((len(self)/8)*24*59*60), default_time_past)
         cutoff_time = (current_time - int(time_past))
+        count = 0
         for i in self.not_fresh_list:
             if int(i[4]) <= cutoff_time:
                 if i[2] == 99:
@@ -398,6 +399,10 @@ class SocMediaDB(MapDB):
                 self.curs.execute("UPDATE {} SET fresh=1 WHERE raw_id='{}'".format(self.table,
                                                                                    i[0]))
                 self.conn.commit()
+                count += 1
+                if count > limit:
+                    self.conn.close()
+                    break
         self.conn.close()
 
     def get_row_by_raw_id(self, raw_id):

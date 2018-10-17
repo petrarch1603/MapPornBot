@@ -153,18 +153,19 @@ def test_update_to_not_fresh():
     test_close_all()
 
 
-def test_make_fresh_again():
+def test_make_fresh_again(limit=20):
     print("Testing making fresh again")
     init()
     # for i in test_soc_db.all_rows_list():
     #     test_soc_db.curs.execute("UPDATE {} SET date_posted={} WHERE raw_id='{}'".format('socmediamaps',
     #                                                                                      time.time(),
     #                                                                                      i[0]))
-    test_soc_db.make_fresh_again(current_time=9999999999)
+    current_fresh_count = test_soc_db.fresh_count
+    test_soc_db.make_fresh_again(current_time=9999999999, limit=limit)
     init()
-    test_row_count()
+    test_row_count() # Test that row count hasn't changed
     init()
-    assert test_soc_db.fresh_count == test_soc_db.rows_count
+    assert test_soc_db.fresh_count == current_fresh_count + limit
     test_close_all()
 
 
