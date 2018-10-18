@@ -104,7 +104,7 @@ def main():
                          " {}    \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_success)
         if successes == '':
             successes = 'No successes logged in last 24 hours    \n'
-        message += successes
+        # message += successes
     except Exception as e:
         error_message = ("Could not run log_db.get_successes_previous_24    \n"
                          "{}    \n{}   \n".format(str(e), str(type(e))))
