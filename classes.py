@@ -411,6 +411,10 @@ class SocMediaDB(MapDB):
             raw_id
         )).fetchall()[0]
 
+    def get_duplicates(self):
+        return self.curs.execute("""SELECT raw_id, count(*) FROM {} GROUP BY raw_id HAVING count(*) > 1""".format(
+            self.table)).fetchall()
+
 
 class LoggingDB(MapDB):
     def __init__(self, table='logging', path='data/mapporn.db'):
