@@ -379,6 +379,10 @@ class SocMediaDB(MapDB):
                                                ('post_error', 'NUMERIC')])
         except AssertionError as e:
             status += "* Schema check failed!   \n{}    \n{}    \n".format(str(e), str(type(e)))
+        try:
+            assert len(self.get_duplicates()) == 0
+        except AssertionError as e:
+            status += "* Duplicates detected!    \n{}    \n".format(str(e))
         if status == '':
             return 'PASS: {} integrity test passed.'.format(self.table)
         else:
