@@ -106,8 +106,8 @@ def main():
             my_success = Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
             successes += "**Success** recorded at {}    \n" \
                          " {}    \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_success)
-        if successes == '':
-            successes = 'No successes logged in last 24 hours    \n'
+        # if successes == '':
+        #     successes = 'No successes logged in last 24 hours    \n'
         # message += successes
     except Exception as e:
         error_message = ("Could not run log_db.get_successes_previous_24    \n"
