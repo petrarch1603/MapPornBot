@@ -462,12 +462,7 @@ class SocMediaDB(MapDB):
             db_row = soc_db.curs.execute(
                 'SELECT * FROM {} WHERE raw_id = "{}"'.format(self.table, raw_id)).fetchall()
             for j in db_row:
-                assert i[0] == j[0]
-                assert i[1] == j[1]
-                assert i[2] == j[2]
-                assert i[3] == j[3]
-                assert i[4] == j[4]
-                assert i[5] == j[5]
+                assert i == j
         copyfile(test_db_path, source_db_path)
         os.remove(test_db_path)
 
