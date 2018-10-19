@@ -153,7 +153,7 @@ def test_update_to_not_fresh():
     test_close_all()
 
 
-def test_make_fresh_again(limit=20):
+def test_make_fresh_again(limit=100):
     print("Testing making fresh again")
     init()
     # for i in test_soc_db.all_rows_list():
@@ -162,8 +162,6 @@ def test_make_fresh_again(limit=20):
     #                                                                                      i[0]))
     current_fresh_count = test_soc_db.fresh_count
     test_soc_db.make_fresh_again(current_time=9999999999, limit=limit)
-    init()
-    test_row_count() # Test that row count hasn't changed
     init()
     assert test_soc_db.fresh_count == current_fresh_count + limit
     test_close_all()
@@ -223,6 +221,7 @@ def test_add_entries(num_of_entries):
     init()
     test_row_count(delta=num_of_entries)
 
+    #TODO Create a test to check for duplicates
 
 def main_test_db(num_of_entries=5):
     t_start = time.perf_counter()
