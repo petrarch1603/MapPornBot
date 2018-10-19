@@ -329,7 +329,7 @@ class SocMediaDB(MapDB):
                     str(i[0]), str(self.table), str(e), str(type(e))
                 )
             try:
-                assert len(i[0]) == 6
+                assert 4 < len(i[0]) < 7
             except AssertionError as e:
                 status += "* raw_id of {} in {} is not acceptable    \n{}     \n{}    \n".format(
                     str(i[0]), str(self.table), str(e), str(type(e))
@@ -353,6 +353,8 @@ class SocMediaDB(MapDB):
                 status += "* Item {} is not fresh and does not have a date_posted date    \n{}    \n{}    \n".format(
                     str(i[0]), str(e), str(type(e))
                 )
+
+            # Is the following code necessary? Sometimes older posts will stay not-fresh until they are refreshed.
             try:
                 if i[3] == 0:
                     assert int(i[4]) >= (time.time() - 37500000)
