@@ -62,6 +62,10 @@ def main():
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
 
+    # Check for duplicates
+    if len(soc_db.get_duplicates()) > 0:
+        message += "Warning there are duplicates in the SocMediaDatabase!   \n   \n"
+
     # Make posts older than a year fresh again
     if soc_db.fresh_count < 20:
         try:
