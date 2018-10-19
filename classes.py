@@ -9,6 +9,7 @@ import random
 import requests
 from secrets import *
 from secret_tumblr import *
+from shutil import copyfile
 import sqlite3
 import time
 import tweepy
@@ -414,6 +415,51 @@ class SocMediaDB(MapDB):
     def get_duplicates(self):
         return self.curs.execute("""SELECT raw_id, count(*) FROM {} GROUP BY raw_id HAVING count(*) > 1""".format(
             self.table)).fetchall()
+
+    def remove_duplicates(self):
+        source_db_path = 'data/mapporn.db'
+        test_db_path = 'data/test.db'
+        copyfile(source_db_path, test_db_path)
+
+        soc_db = SocMediaDB(path=test_db_path)
+        duplicates_count = len(soc_db.get_duplicates())
+        old_row_count = len(soc_db)
+
+        # Get random rows to check that they are not changed
+        random_rows = soc_db.get_random_row(50)
+
+        # Create temporary table
+        soc_db.curs.execute('CREATE TEMPORARY TABLE to_delete (raw_id TEXT not null, text TEXT, time_zone NUMERIC, '
+                            'fresh NUMERIC, date_posted DATE, post_error NUMERIC, min_id NOT null)').fetchall()
+
+        # Add duplicates to temporary table
+        soc_db.curs.execute(
+            'INSERT INTO to_delete(raw_id, text, time_zone, fresh, date_posted, post_error, min_id) SELECT raw_id, '
+            'text, time_zone, fresh, date_posted, post_error, MIN(rowid) from {} '
+            'GROUP BY raw_id HAVING count(*) > 1'.format(self.table)).fetchall()
+
+        # Delete from main table
+        soc_db.curs.execute(
+            'DELETE FROM socmediamaps WHERE EXISTS(SELECT * FROM to_delete WHERE '
+            'to_delete.raw_id = socmediamaps.raw_id AND to_delete.min_id <> socmediamaps.rowid)').fetchall()
+        soc_db.conn.commit()
+
+        # Check that the remaining rows are still the same
+        assert len(soc_db.get_duplicates()) == 0
+        assert len(soc_db) == (old_row_count - duplicates_count)
+        for i in random_rows:
+            raw_id = i[0]
+            db_row = soc_db.curs.execute(
+                'SELECT * FROM {} WHERE raw_id = "{}"'.format(self.table, raw_id)).fetchall()
+            for j in db_row:
+                assert i[0] == j[0]
+                assert i[1] == j[1]
+                assert i[2] == j[2]
+                assert i[3] == j[3]
+                assert i[4] == j[4]
+                assert i[5] == j[5]
+        copyfile(test_db_path, source_db_path)
+        os.remove(test_db_path)
 
 
 class LoggingDB(MapDB):
