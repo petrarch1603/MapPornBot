@@ -148,6 +148,9 @@ class MapDB:
     def all_rows_list(self):
         return self.curs.execute("SELECT * FROM {}".format(self.table)).fetchall()
 
+    def get_random_row(self, count=1):
+        return self.curs.execute("SELECT * FROM {} ORDER BY RANDOM() LIMIT {}".format(self.table, count)).fetchall()
+
     def close(self):
         self.conn.commit()
         self.conn.close()
