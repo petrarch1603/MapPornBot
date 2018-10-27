@@ -50,9 +50,10 @@ except tweepy.TweepError as e:
         my_diag.traceback = error_message
         send_reddit_message_to_self(title="No where world maps left", message=error_message)
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-
+    print(e)
 except Exception as e:
     os.chdir('..')
     my_diag.traceback = "error:    \n{}    \n\n".format(e)
     my_diag.severity = 2
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+    print(e)
