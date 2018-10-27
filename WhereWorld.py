@@ -25,6 +25,7 @@ try:
     two_digit_year = now.strftime('%y')
     image_number = (str(two_digit_year) + str(thisweek))
     image_file_name = (image_number + '.png')
+    print(image_file_name)
 
     # Post to Social Media
     os.chdir('WW')
