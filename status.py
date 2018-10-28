@@ -167,7 +167,6 @@ def test_functions():
     try:    # Test get_time_zone()
         assert get_time_zone('London') == 0
         assert get_time_zone('909523[reteopipgfrtAfrica436i') == 1
-        assert get_time_zone(create_random_string(10)) == 99
         assert get_time_zone('354tp4t[fds..dsfDenverre9sg') == -7
     except AssertionError as e:
         error_message += ("get_time_zone function not working    \n{}    \n".format(str(e)))
@@ -176,6 +175,16 @@ def test_functions():
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
+    try:
+        random_string = create_random_string(10)
+        assert get_time_zone(random_string) == 99
+    except AssertionError as e:
+        error_message += ("get_time_zone function not working    \n{}    \n{}    \n".format(str(e), random_string))
+        error_message += ("get_time_zone function not working    \n{}    \n".format(str(e)))
+        my_diag.traceback = error_message
+        my_diag.severity = 1
+        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
     try:    # Test split_message()
         assert split_message("https://redd.it/9cmxi1\ntext goes here\n12") == \
                ['https://redd.it/9cmxi1', 'text goes here', '12']
