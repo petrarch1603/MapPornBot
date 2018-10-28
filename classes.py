@@ -151,6 +151,20 @@ class MapDB:
     def get_random_row(self, count=1):
         return self.curs.execute("SELECT * FROM {} ORDER BY RANDOM() LIMIT {}".format(self.table, count)).fetchall()
 
+    def delete_by_raw_id(self, raw_id_to_delete):
+        if len(self.curs.execute("SELECT * FROM {} WHERE raw_id = '{}'".format(
+                self.table,
+                raw_id_to_delete)).fetchall()) == 0:
+            return "Raw_id not in database"
+        else:
+            self.curs.execute("DELETE FROM {} WHERE raw_id = '{}'".format(self.table, raw_id_to_delete))
+            try:
+                assert len(self.curs.execute("SELECT * FROM {} WHERE raw_id = '{}'".format(
+                    self.table,
+                    raw_id_to_delete)).fetchall()) == 0
+            except AssertionError as e:
+                return "Unable to delete raw_id, row still in database"
+
     def close(self):
         self.conn.commit()
         self.conn.close()
@@ -417,7 +431,7 @@ class SocMediaDB(MapDB):
         self.conn.close()
 
     def get_row_by_raw_id(self, raw_id):
-        return self.curs.execute("""SELECT * FROM {} WHERE raw_id='{}'""".format(
+        my_row = self.curs.execute("""SELECT * FROM {} WHERE raw_id='{}'""".format(
             self.table,
             raw_id
         )).fetchall()[0]
