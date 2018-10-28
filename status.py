@@ -1,6 +1,7 @@
 from backup import upload_file
 from checkinbox import get_time_zone, split_message
 from classes import *
+import datetime
 from functions import create_random_string, send_reddit_message_to_self
 import praw
 import os
@@ -120,6 +121,9 @@ def main():
 
     #Check Where in the World
     message += check_where_in_world()
+
+    #Check count of remaining where in world maps
+    message += remaining_where_in_world()
 
     # Test the database
     test_db_time, report = main_test_db()
@@ -298,6 +302,28 @@ def check_where_in_world():
             error_message += 'WhereWorld image files must be smaller than 3.2mb ' \
                              'File: {} is size {}'.format(file, int(fsize / float(1000000)))
     return error_message
+
+
+def remaining_where_in_world():
+    count = 0
+    now = datetime.datetime.now()
+    this_week = str(now.isocalendar()[1]).zfill(2)
+    two_digit_year = now.strftime('%y')
+    my_time = (str(two_digit_year) + str(this_week))
+    for file in os.listdir('WW'):
+        if str(file) == 'submissions.csv' or (str(file)[-3:] != 'png'):
+            continue
+        my_int = int(file[:-4])
+        if my_int > int(my_time):
+            count += 1
+    if count == 0:
+        return "**NO WHERE IN WORLD MAPS LEFT!!!**   \n"
+    elif count <= 5:
+        return "**Only {} Where in World maps left!!**   \nConsider adding more!!   \n    \n".format(count)
+    else:
+        return "Remaining Where in World Maps: {}   \n   \n".format(count)
+
+
 
 
 if __name__ == '__main__':
