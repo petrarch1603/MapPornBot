@@ -221,6 +221,21 @@ def test_add_entries(num_of_entries):
     init()
     test_row_count(delta=num_of_entries)
 
+
+def test_delete_entry(count=5):
+    init()
+    error_message = ''
+    for i in range(count):
+        try:
+            my_raw_id = test_soc_db.get_random_row()[0][0]
+            assert len(test_soc_db.get_row_by_raw_id(my_raw_id)) == 6
+            test_soc_db.delete_by_raw_id(my_raw_id)
+            assert len(test_soc_db.get_row_by_raw_id(my_raw_id)) == 0
+        except AssertionError as e:
+            error_message += 'Error testing delete method   \n{}'.format(e)
+    return error_message
+
+
     #TODO Create a test to check for duplicates
 
 def main_test_db(num_of_entries=5):
@@ -235,6 +250,8 @@ def main_test_db(num_of_entries=5):
     test_make_fresh_again()
 
     test_add_entries(num_of_entries=num_of_entries)
+    print("Testing delete entry")
+    report += test_delete_entry()
     print("Checking DB integrity again.")
     report += test_check_integrity()
     print("Tests Passed, deleting test database")
