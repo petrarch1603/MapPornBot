@@ -119,10 +119,10 @@ def main():
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
 
-    #Check Where in the World
+    # Check Where in the World
     message += check_where_in_world()
 
-    #Check count of remaining where in world maps
+    # Check count of remaining where in world maps
     message += remaining_where_in_world()
 
     # Test the database
