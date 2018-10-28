@@ -434,7 +434,11 @@ class SocMediaDB(MapDB):
         my_row = self.curs.execute("""SELECT * FROM {} WHERE raw_id='{}'""".format(
             self.table,
             raw_id
-        )).fetchall()[0]
+            )).fetchall()
+        if len(my_row) == 1:
+            return my_row[0]
+        else:
+            return my_row
 
     def get_duplicates(self):
         return self.curs.execute("""SELECT raw_id, count(*) FROM {} GROUP BY raw_id HAVING count(*) > 1""".format(
