@@ -118,6 +118,9 @@ def main():
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
 
+    #Check Where in the World
+    message += check_where_in_world()
+
     # Test the database
     test_db_time, report = main_test_db()
 
@@ -282,6 +285,18 @@ def test_db_integrity():
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
 
+    return error_message
+
+
+def check_where_in_world():
+    error_message = ''
+    for file in os.listdir('WW'):
+        fsize = os.stat('WW/' + file).st_size
+        try:
+            assert fsize <= 3200000
+        except AssertionError:
+            error_message += 'WhereWorld image files must be smaller than 3.2mb ' \
+                             'File: {} is size {}'.format(file, int(fsize / float(1000000)))
     return error_message
 
 
