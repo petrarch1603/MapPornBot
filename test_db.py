@@ -3,7 +3,6 @@ from functions import create_random_string
 import os
 import random
 from shutil import copyfile
-import string
 import time
 
 # Script for checking the database class. This is more thorough than the check integriy methods in each
@@ -235,8 +234,6 @@ def test_delete_entry(count=5):
             error_message += 'Error testing delete method   \n{}'.format(e)
     return error_message
 
-
-    #TODO Create a test to check for duplicates
 
 def main_test_db(num_of_entries=5):
     t_start = time.perf_counter()

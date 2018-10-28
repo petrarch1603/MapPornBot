@@ -175,8 +175,8 @@ def test_functions():
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
+    random_string = create_random_string(10)
     try:
-        random_string = create_random_string(10)
         assert get_time_zone(random_string) == 99
     except AssertionError as e:
         error_message += ("get_time_zone function not working    \n{}    \n{}    \n".format(str(e), random_string))
