@@ -11,6 +11,7 @@ import shutil
 r = praw.Reddit('bot1')
 log_db = LoggingDB()
 
+
 def send_reddit_message_to_self(title, message):
     r = praw.Reddit('bot1')
     r.redditor(my_reddit_ID).message(title, message)
