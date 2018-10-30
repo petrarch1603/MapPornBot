@@ -164,6 +164,7 @@ def test_make_fresh_again(limit=100):
 
 
 def test_add_entries(num_of_entries):
+
     # Add random new entries to database
     init()
     print("Adding {} random entries to all databases for testing...".format(
@@ -189,6 +190,7 @@ def test_add_entries(num_of_entries):
                                   error_text=rand_log_text,
                                   passfail=rand_boolean)
         init()
+
         # Integrity checks will make sure all fresh == 0 rows include a date_posted.
         # This logic ensures that test won't fail.
         if rand_boolean == 0:
@@ -234,6 +236,7 @@ def test_delete_entry(count=5):
 def main_test_db(num_of_entries=5):
     t_start = time.perf_counter()
     init()
+
     # Get count of all rows of each database
     report = test_check_integrity()
     test_row_count()
