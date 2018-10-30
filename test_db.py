@@ -15,19 +15,17 @@ copyfile(source_db_path, test_db_path)
 
 
 def init():
-    global test_hist_db, test_log_db, test_soc_db, test_jour_db
+    global test_hist_db, test_log_db, test_soc_db, test_jour_db, test_db_list
     test_hist_db = HistoryDB(path=test_db_path)
     test_log_db = LoggingDB(path=test_db_path)
     test_soc_db = SocMediaDB(path=test_db_path)
     test_jour_db = JournalDB(path=test_db_path)
+    test_db_list = [test_hist_db, test_log_db, test_soc_db, test_jour_db]
+
 
 
 def test_close_all():
-    my_test_dbs = [test_hist_db,
-                   test_log_db,
-                   test_soc_db,
-                   test_jour_db]
-    for db in my_test_dbs:
+    for db in test_db_list:
         try:
             db.close()
         except sqlite3.ProgrammingError as e:
@@ -37,20 +35,16 @@ def test_close_all():
                 raise Exception
 
 
-
 def test_check_integrity():
     init()
     print("Checking Database Integrity")
     report = ''
-    checks = [test_hist_db.check_integrity(),
-              test_jour_db.check_integrity(),
-              test_log_db.check_integrity(),
-              test_soc_db.check_integrity()]
-    for i in checks:
-        if i.startswith('PASS'):
+    for i in test_db_list:
+        check = i.check_integrity()
+        if check.startswith('PASS'):
             pass
         else:
-            report += i
+            report += check
     test_close_all()
     return report
 
