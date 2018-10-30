@@ -346,8 +346,6 @@ def remaining_where_in_world():
         return "Remaining Where in World Maps: {}   \n   \n".format(count)
 
 
-
-
 if __name__ == '__main__':
     init()
     main()
