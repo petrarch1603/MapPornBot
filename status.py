@@ -82,7 +82,6 @@ def main():
 
     # Get failures from last 24 hours and report on them
     try:
-        # TODO: Make the failures into a well formatted table like the time zones
         errors = ''
         for i in log_db.get_fails_previous_24(current_time=time.time()):
             my_error = Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
