@@ -2,7 +2,7 @@ from backup import upload_file
 from checkinbox import get_time_zone, split_message
 from classes import *
 import datetime
-from functions import create_random_string, send_reddit_message_to_self
+from functions import create_random_string, send_reddit_message_to_self, count_lines_of_file
 import praw
 import os
 from shutil import copyfile
@@ -124,6 +124,9 @@ def main():
 
     # Check count of remaining where in world maps
     message += remaining_where_in_world()
+
+    # Post stats on the map contest
+    message += check_map_contest()
 
     # Test the database
     test_db_time, report = main_test_db()
@@ -302,6 +305,25 @@ def check_where_in_world():
             error_message += 'WhereWorld image files must be smaller than 3.2mb ' \
                              'File: {} is size {}'.format(file, int(fsize / float(1000000)))
     return error_message
+
+
+def check_map_contest():
+    message = ''
+    try:
+        map_subms = count_lines_of_file('submissions.csv')
+        with open('data/votingpostdata.txt', 'r') as f:
+            last_contest_raw = f.read()
+        last_contest_time = r.submission(id=last_contest_raw).created
+        days_since_contest = int((datetime.datetime.now().timestamp() - last_contest_time)/60/60/24)
+        message = "**{}** maps submitted for this month's map contest.   \n    \n".format(map_subms)
+        if days_since_contest > 45:
+            message += "It's been **{}** days since a map contest, " \
+                       "perhaps it's time to run the voting post script.    \n    \n"
+        else:
+            message += "**{}** days since the last map contest.    \n    \n"
+    except Exception as e:
+        message += 'Could not check map contest, problem with script   \n{}    \n    \n'.format(e)
+    return message
 
 
 def remaining_where_in_world():
