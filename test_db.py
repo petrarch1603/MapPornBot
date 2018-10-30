@@ -23,22 +23,19 @@ def init():
 
 
 def test_close_all():
-    try:
-        test_hist_db.close()
-    except sqlite3.ProgrammingError:
-        pass
-    try:
-        test_log_db.close()
-    except sqlite3.ProgrammingError:
-        pass
-    try:
-        test_soc_db.close()
-    except sqlite3.ProgrammingError:
-        pass
-    try:
-        test_jour_db.close()
-    except sqlite3.ProgrammingError:
-        pass
+    my_test_dbs = [test_hist_db,
+                   test_log_db,
+                   test_soc_db,
+                   test_jour_db]
+    for db in my_test_dbs:
+        try:
+            db.close()
+        except sqlite3.ProgrammingError as e:
+            if str(e) == "Cannot operate on a closed database.":
+                pass
+            else:
+                raise Exception
+
 
 
 def test_check_integrity():
