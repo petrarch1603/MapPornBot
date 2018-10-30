@@ -50,6 +50,10 @@ def create_random_string(char_count):
     return rand_str
 
 
+def count_lines_of_file(fname):
+    return sum(1 for line in open(fname))
+
+
 # def shotgun_blast(raw_id_input, announce_input=None, title=None):
 #     if announce_input is not None:
 #         announce = str(announce_input)
