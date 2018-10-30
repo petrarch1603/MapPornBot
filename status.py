@@ -22,6 +22,8 @@ def init():
 def main():
     my_diag = Diagnostic(script=str(os.path.basename(__file__)))
     message = "**Daily Status Check**   \n   \n"
+
+    # Check Soc Media DB Fresh Count
     fresh_count = soc_db.fresh_count
     if fresh_count <= 10:
         message += "* *NOTE: ONLY {} FRESH SOC MEDIA MAPS LEFT!* *   \n\n".format(fresh_count)
@@ -33,17 +35,16 @@ def main():
         )
     time_zone_table = "Time Zone|Map Count\n-|-\n"
 
+    # Test Functions
     functions_result = test_functions()
-
     if functions_result == '':
         message += 'Functions Test Passed    \n'
     else:
         message += 'Functions Test Failed:    \n{}    \n\n'.format(functions_result)
-
     message += "    \n***    \n"
 
+    # Test database integrity
     message += test_db_integrity()
-
     message += "    \n***   \n"
 
     # Create report of quantities for each time zone group
@@ -145,6 +146,8 @@ def main():
         message += "Could not send message on Reddit.    \n{}     \n{}".format(str(e), str(type(e)))
         with open('data/daily_status.txt', 'w') as text_file:
             text_file.write(message)
+
+    # Make backup
     try:
         make_backup()
         print("Backing up Database to Google Drive")
@@ -155,6 +158,8 @@ def main():
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
+
+    # Log success of script
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
     log_db.close()
     journal_db.update_todays_status(benchmark_time=test_db_time)
