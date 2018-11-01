@@ -50,20 +50,20 @@ def main():
 
     with open('submissions.csv', 'r') as f:
         reader = csv.reader(f)
-    for row in reader:
-        submission.reply('[' + row[0] + '](' + row[1] + ')   \n' + row[2] + '\n\n----\n\n^^^^' + row[4])
-        # the brackets and parentheses are for hyperlinking the name, row[4] is the unique ID of the submission message,
-        # in the congratulations.py program the bot will parse these comments looking for this code and use it to
-        # determine the winners.
+        for row in reader:
+            submission.reply('[' + row[0] + '](' + row[1] + ')   \n' + row[2] + '\n\n----\n\n^^^^' + row[4])
+            # the brackets and parentheses are for hyperlinking the name, row[4] is the unique ID of the submission
+            # message, in the congratulations.py program the bot will parse these comments looking for this code and
+            # use it to determine the winners.
 
-        # Now send a message to each contestant letting them know it's live.
-        try:
-            r.redditor(row[3]).message('The monthly map contest is live!', 'Thank you for contributing a map. '
-                                                                           '[The voting on the monthly contest is '
-                                                                           'open now at this link.]('
-                                                                           + shortlink + ')    \n' + botDisclaimerText)
-        except Exception as e:
-            print('Could not send message to ' + row[3] + '   \n' + str(e))
+            # Now send a message to each contestant letting them know it's live.
+            try:
+                r.redditor(row[3]).message('The monthly map contest is live!', 'Thank you for contributing a map. '
+                                                                               '[The voting on the monthly contest is '
+                                                                               'open now at this link.]('
+                                                                               + shortlink + ')    \n' + botDisclaimerText)
+            except Exception as e:
+                print('Could not send message to ' + row[3] + '   \n' + str(e))
 
     # General Comment Thread so people don't post top level comments
     generalcomment = submission.reply('General Comment Thread')
