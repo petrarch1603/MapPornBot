@@ -1,8 +1,11 @@
 from backup import upload_file
-from checkinbox import get_time_zone, split_message
 from classes import *
 import datetime
-from functions import create_random_string, send_reddit_message_to_self, count_lines_of_file
+from functions import count_lines_of_file, \
+    create_random_string, \
+    get_time_zone, \
+    send_reddit_message_to_self, \
+    split_message
 import praw
 import os
 from shutil import copyfile

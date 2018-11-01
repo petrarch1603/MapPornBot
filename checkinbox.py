@@ -1,6 +1,6 @@
 from classes import *
 import csv
-from functions import bot_disclaimer, strip_punc, send_reddit_message_to_self
+from functions import bot_disclaimer, get_time_zone, send_reddit_message_to_self, split_message, strip_punc
 import os
 import praw
 
@@ -14,23 +14,6 @@ def init():
     hist_db = HistoryDB()
     log_db = LoggingDB()
     soc_db = SocMediaDB()
-
-
-def get_time_zone(title_str):
-    with open('data/locationsZone.csv', 'r') as f:
-        csv_reader = csv.reader(f)
-        zonedict = {rows[0].upper(): rows[1] for rows in csv_reader}
-    this_zone = 99
-    for place in zonedict:
-        if place in strip_punc(title_str.upper()):
-            this_zone = int(zonedict[place])
-    return this_zone
-
-
-def split_message(message_str):
-    message_str = os.linesep.join([s for s in str(message_str).splitlines() if s])
-    message_list = message_str.splitlines()
-    return message_list
 
 
 def main():

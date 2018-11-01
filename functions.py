@@ -1,13 +1,13 @@
 # These are useful Redditbot functions
 
 
-# import csv
+import csv
 # import datetime
 from datetime import datetime, timedelta
 # import facebook
 # import fnmatch
 import logging
-# import os
+import os
 import praw
 import random
 # import re
@@ -53,6 +53,22 @@ def create_random_string(char_count):
 def count_lines_of_file(fname):
     return sum(1 for line in open(fname))
 
+
+def get_time_zone(title_str):
+    with open('data/locationsZone.csv', 'r') as f:
+        csv_reader = csv.reader(f)
+        zonedict = {rows[0].upper(): rows[1] for rows in csv_reader}
+    this_zone = 99
+    for place in zonedict:
+        if place in strip_punc(title_str.upper()):
+            this_zone = int(zonedict[place])
+    return this_zone
+
+
+def split_message(message_str):
+    message_str = os.linesep.join([s for s in str(message_str).splitlines() if s])
+    message_list = message_str.splitlines()
+    return message_list
 
 # def shotgun_blast(raw_id_input, announce_input=None, title=None):
 #     if announce_input is not None:
