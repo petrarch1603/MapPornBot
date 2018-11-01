@@ -44,6 +44,9 @@ def main():
             submission = split_message(message.body)
             submission = [w.replace('Link: ', '') for w in submission]  # Replace the title 'Link: ' with blankspace.
             my_diag.title = submission[0]
+            error_message = ''
+            if len(submission) > 3:
+                error_message += "**NOTE: the entry is not formatted properly!!**"
             submission.append(message.author)  # Add author value
             submission.append(message)  # Add unique value for the message. This is important for indexing later on.
             # Now make that list a row in a CSV
@@ -54,8 +57,10 @@ def main():
                 # Send a message to a human so that they can QC the CSV.
                 send_reddit_message_to_self('New Map added to CSV',
                                             'A new map has been submitted. Check the CSV for formatting    \n{}    \n\n'
-                                            .format(message.body))
+                                            '{}    \n    \n'
+                                            .format(message.body, error_message))
             log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
+
             message.mark_read()
 
         # Social Media Maps
