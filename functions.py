@@ -1,27 +1,27 @@
 # These are useful Redditbot functions
 
 
-import csv
-import datetime
+# import csv
+# import datetime
 from datetime import datetime, timedelta
-import facebook
-import fnmatch
+# import facebook
+# import fnmatch
 import logging
-import os
+# import os
 import praw
 import random
-import re
-import requests
+# import re
+# import requests
 from secrets import *
-import shutil
-from secret_tumblr import *
-import sqlite3
+# import shutil
+# from secret_tumblr import *
+# import sqlite3
 import string
-import time
+# import time
 import tweepy
-import signal
-import json
-import pymongo
+# import signal
+# import json
+# import pymongo
 
 
 def init_soc_posting():
