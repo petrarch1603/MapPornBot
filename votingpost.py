@@ -1,6 +1,12 @@
+from classes import *
+import csv
+import fnmatch
 from functions import *
+import os
+import praw
 
 r = praw.Reddit('bot1')
+
 
 # Verify before running in case of accidental execution.
 # If this script is automated, this line will need to be deleted.
