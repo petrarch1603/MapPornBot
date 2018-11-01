@@ -136,7 +136,7 @@ def count_lines_of_file(fname):
 #         message = hashtag_locations(message, twitter_char_limit=twitter_char_limit)
 #         return message
 #     else:
-#         message = ((message[:108]) + '…')
+#         message = ((message[:108]) + '')
 #         return message
 #
 
