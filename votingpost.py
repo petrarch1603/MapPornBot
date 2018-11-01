@@ -108,8 +108,8 @@ def main():
     try:
         social_media_post = GenericPost(filename=image_file_name, title=post_message_url)
         socialmediadict = social_media_post.post_to_all_social()
-        send_reddit_message_to_self('New Voting Post Posted', 'A new votingpost.py has been run. Check the post to make '
-                                                              'sure the bot did it right.   \nHere\'s the link to the '
+        send_reddit_message_to_self('New Voting Post Posted', 'A new votingpost.py has been run. Check the post to make'
+                                                              ' sure the bot did it right.   \nHere\'s the link to the '
                                                               'post: ' + shortlink + '   \nHere\'s the social media '
                                                               'links:    \n' + str(socialmediadict['tweet_url']))
     except Exception as e:
