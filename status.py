@@ -53,8 +53,9 @@ def main():
     # Create report of quantities for each time zone group
     try:
         for k, v in soc_db.zone_dict.items():
+            # Zone_dict is a dictionary key: zone, value: quantity of maps in that zone
             if v <= 5:
-                time_zone_table += "{}|{}\n".format(k, v)
+                time_zone_table += "**{}**|**{}**\n".format(k, v)
             else:
                 time_zone_table += "{}|{}\n".format(k, v)
         message += time_zone_table + "   \n"
