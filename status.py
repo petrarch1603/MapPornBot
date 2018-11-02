@@ -1,11 +1,7 @@
 from backup import upload_file
 from classes import *
 import datetime
-from functions import count_lines_of_file, \
-    create_random_string, \
-    get_time_zone, \
-    send_reddit_message_to_self, \
-    split_message
+from functions import *
 import praw
 import os
 from shutil import copyfile
@@ -36,7 +32,6 @@ def main():
             days=int(fresh_count/8),
             hours=((fresh_count % 8) * 3)
         )
-    time_zone_table = "Time Zone|Map Count\n-|-\n"
 
     # Test Functions
     functions_result = test_functions()
@@ -51,26 +46,7 @@ def main():
     message += "    \n***   \n"
 
     # Create report of quantities for each time zone group
-    try:
-        for k, v in soc_db.zone_dict.items():
-            # Zone_dict is a dictionary key: zone, value: quantity of maps in that zone
-            if v <= 5:
-                time_zone_table += "**{}**|**{}**\n".format(k, v)
-            else:
-                time_zone_table += "{}|{}\n".format(k, v)
-        message += time_zone_table + "   \n"
-        print(message)
-    except Exception as e:
-        error_message = ("Could not create time zone table   \n{}   \n{}    \n".format(str(e), str(type(e))))
-        my_diag.traceback = error_message
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
-        print(error_message)
-
-    # Check for duplicates
-    if len(soc_db.get_duplicates()) > 0:
-        message += "Warning there are duplicates in the SocMediaDatabase!   \n   \n"
+    message += create_time_zone_table(soc_db.zone_dict)
 
     # Make posts older than a year fresh again
     if soc_db.fresh_count < 20:
@@ -85,43 +61,10 @@ def main():
             print(error_message)
 
     # Get failures from last 24 hours and report on them
-    try:
-        errors = ''
-        for i in log_db.get_fails_previous_24(current_time=time.time()):
-            my_error = Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
-            errors += "**Failure** recorded at {}    \n" \
-                      " {}   \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_error)
-        if errors == '':
-            errors = 'No failures logged in last 24 hours    \n\n'
-        message += "    \n***    \n"
-        message += errors
-        message += "    \n***    \n"
-    except Exception as e:
-        error_message = ("Could not run log_db.get_fails_previous_24    \n{}    \n{}   \n".format(str(e), str(type(e))))
-        my_diag.traceback = error_message
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
-        print(error_message)
+    message += fails_last_24_report(db_obj=log_db)
 
-    # Get successes from last 24 hours and report on them
-    try:
-        successes = ''
-        for i in log_db.get_successes_previous_24(current_time=time.time()):
-            my_success = Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
-            successes += "**Success** recorded at {}    \n" \
-                         " {}    \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_success)
-        # if successes == '':
-        #     successes = 'No successes logged in last 24 hours    \n'
-        # message += successes
-    except Exception as e:
-        error_message = ("Could not run log_db.get_successes_previous_24    \n"
-                         "{}    \n{}   \n".format(str(e), str(type(e))))
-        my_diag.traceback = error_message
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
-        print(error_message)
+    # Can get successes from last 24 hours and report on them, but removed it because it is too much text
+    # Use the function success_last_24_report(db_obj=log_db) if you'd like to bring it back
 
     # Check Where in the World
     message += check_where_in_world()
@@ -228,7 +171,7 @@ def test_functions():
 
         # Leaving this here in case more tests are added below
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))
-        print(error_message)
+        print(error_message, my_diag)
 
     return error_message
 
@@ -298,7 +241,7 @@ def test_db_integrity():
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
         my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
-        print(error_message)
+        print(error_message, my_diag)
 
     return error_message
 
