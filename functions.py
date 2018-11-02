@@ -14,12 +14,10 @@ import tweepy
 
 def init_soc_posting():
     # Reddit Bot Login
-    r = praw.Reddit('bot1')
 
     # Twitter Authentication
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_secret)
-    api = tweepy.API(auth)
 
     # PRAW logging stuff
     handler = logging.StreamHandler()
@@ -69,7 +67,8 @@ def next_weekday(d, weekday):
 def bot_disclaimer():
     bot_disclaimer_message = 'This is coming from a bot. If you have any feedback [contact the /r/MapPorn Moderators]' \
                              '(https://www.reddit.com/message/compose/?to=' + my_reddit_ID + \
-                             '&subject=MapPorn%20bot%20feedback)' + '\n\n----\n\n ^^^MapPornBot ^^^by ^^^/u/Petrarch1603 ^^^[Github](https://github.com/petrarch1603/MapPornBot)'
+                             '&subject=MapPorn%20bot%20feedback)' + '\n\n----\n\n ^^^MapPornBot ^^^by ' \
+                             '^^^/u/Petrarch1603 ^^^[Github](https://github.com/petrarch1603/MapPornBot)'
     return bot_disclaimer_message
 
 
@@ -81,4 +80,3 @@ def send_reddit_message_to_self(title, message):
 def strip_punc(my_str):
     exclude = set(string.punctuation + '0123456789')
     return ''.join(ch for ch in my_str if ch not in exclude)
-
