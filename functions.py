@@ -2,26 +2,14 @@
 
 
 import csv
-# import datetime
-from datetime import datetime, timedelta
-# import facebook
-# import fnmatch
+from datetime import timedelta
 import logging
 import os
 import praw
 import random
-# import re
-# import requests
 from secrets import *
-# import shutil
-# from secret_tumblr import *
-# import sqlite3
 import string
-# import time
 import tweepy
-# import signal
-# import json
-# import pymongo
 
 
 def init_soc_posting():
@@ -51,7 +39,7 @@ def create_random_string(char_count):
 
 
 def count_lines_of_file(fname):
-    return sum(1 for line in open(fname))
+    return sum(1 for _ in open(fname, 'r'))
 
 
 def get_time_zone(title_str):
@@ -90,7 +78,7 @@ def send_reddit_message_to_self(title, message):
     r.redditor(my_reddit_ID).message(title, message)
 
 
-def strip_punc(str):
+def strip_punc(my_str):
     exclude = set(string.punctuation + '0123456789')
-    return ''.join(ch for ch in str if ch not in exclude)
+    return ''.join(ch for ch in my_str if ch not in exclude)
 
