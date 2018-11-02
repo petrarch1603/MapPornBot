@@ -3,7 +3,6 @@ from collections import OrderedDict
 import csv
 import facebook
 from functions import send_reddit_message_to_self, strip_punc
-import praw
 import os
 import random
 import requests
@@ -110,23 +109,6 @@ class Diagnostic:
             my_string += "Time Zone: {}    \n".format(str(self.zone)) if self.zone is not None else ''
             my_string += "***\n   \n"
             return my_string
-
-
-# def diag_dict_to_obj(diag_dict):
-#     diag_dict = ast.literal_eval(diag_dict)
-#     my_diag = Diagnostic(script=diag_dict['script'])
-#     for k, v in diag_dict.items():
-#         if k == 'raw_id':
-#             my_diag.raw_id = v
-#         elif k == 'severity':
-#             my_diag.severity = v
-#         elif k == 'table':
-#             my_diag.table = v
-#         elif k == 'traceback':
-#             my_diag.traceback = v
-#         elif k == 'tweet':
-#             my_diag.tweet = v
-#     return my_diag
 
 
 class MapDB:
