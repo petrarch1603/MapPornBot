@@ -1,6 +1,6 @@
 # These are useful Redditbot functions
 
-
+from classes import *
 import csv
 from datetime import timedelta
 import logging
@@ -80,3 +80,40 @@ def send_reddit_message_to_self(title, message):
 def strip_punc(my_str):
     exclude = set(string.punctuation + '0123456789')
     return ''.join(ch for ch in my_str if ch not in exclude)
+
+
+def create_time_zone_table(zone_dict):
+    time_zone_table = "Time Zone|Map Count\n-|-\n"
+    for k, v in zone_dict.items():
+        # Zone_dict is a dictionary key: zone, value: quantity of maps in that zone
+        if v <= 5:
+            time_zone_table += "**{}**|**{}**\n".format(k, v)
+        else:
+            time_zone_table += "{}|{}\n".format(k, v)
+    return time_zone_table + "   \n"
+
+
+def fails_last_24_report(db_obj):
+    errors = ''
+    message = ''
+    for i in db_obj.get_fails_previous_24(current_time=time.time()):
+        my_error = Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
+        errors += "**Failure** recorded at {}    \n" \
+                  " {}   \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_error)
+    if errors == '':
+        errors = 'No failures logged in last 24 hours    \n\n'
+    message += "    \n***    \n"
+    message += errors
+    message += "    \n***    \n"
+    return message
+
+
+def success_last_24_report(db_obj):
+    successes = ''
+    for i in db_obj.get_successes_previous_24(current_time=time.time()):
+        my_success = Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
+        successes += "**Success** recorded at {}    \n" \
+                     " {}    \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_success)
+    if successes == '':
+        successes = 'No successes logged in last 24 hours    \n'
+    return successes + '   \n'
