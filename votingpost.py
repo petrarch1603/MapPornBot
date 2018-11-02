@@ -1,5 +1,4 @@
-from classes import *
-import csv
+from datetime import datetime
 import fnmatch
 from functions import *
 import os
@@ -58,10 +57,10 @@ def main():
 
             # Now send a message to each contestant letting them know it's live.
             try:
-                r.redditor(row[3]).message('The monthly map contest is live!', 'Thank you for contributing a map. '
-                                                                               '[The voting on the monthly contest is '
-                                                                               'open now at this link.]('
-                                                                               + shortlink + ')    \n' + botDisclaimerText)
+                r.redditor(row[3]).message('The monthly map contest is live!',
+                                           'Thank you for contributing a map. '
+                                           '[The voting on the monthly contest is '
+                                           'open now at this link.](' + shortlink + ')    \n' + botDisclaimerText)
             except Exception as e:
                 print('Could not send message to ' + row[3] + '   \n' + str(e))
 
@@ -123,6 +122,7 @@ def main():
         submission.mod.sticky()
     except Exception as e:
         print('Could not sticky post. Exception: ' + str(e))
+    print(error_message)
 
 
 if __name__ == "__main__":
