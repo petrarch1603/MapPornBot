@@ -9,6 +9,7 @@ import praw
 import random
 from secrets import *
 import string
+import time
 import tweepy
 
 
@@ -94,9 +95,10 @@ def create_time_zone_table(zone_dict):
 
 
 def fails_last_24_report(db_obj):
+    current_time = time.time()
     errors = ''
     message = ''
-    for i in db_obj.get_fails_previous_24(current_time=time.time()):
+    for i in db_obj.get_fails_previous_24(current_time=current_time):
         my_error = Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
         errors += "**Failure** recorded at {}    \n" \
                   " {}   \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_error)
