@@ -35,22 +35,18 @@ class MapRow:
 
 
 class Diagnostic:
-    def __init__(self,
-                 script,
-                 raw_id=None,
-                 severity=None,
-                 table=None,
-                 traceback=None,
-                 tweet=None,
-                 title=None, zone=None):
-        self.raw_id = raw_id
+    def __init__(self, script, **kwargs):
+        # Object defaults to None on these attributes. If kwarg is passed in it will
+        # over-ride these defaults.
+        self.raw_id = None
+        self.severity = None
+        self.table = None
+        self.traceback = None
+        self.tweet = None
+        self.title = None
+        self.zone = None
         self.script = script
-        self.severity = severity
-        self.table = table
-        self.traceback = traceback
-        self.tweet = tweet
-        self.title = title
-        self.zone = zone
+        self.__dict__.update(kwargs)
 
     @classmethod
     def diag_dict_to_obj(cls, diag_dict):
