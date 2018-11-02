@@ -163,7 +163,7 @@ class MapDB:
                     self.table,
                     raw_id_to_delete)).fetchall()) == 0
             except AssertionError as e:
-                return "Unable to delete raw_id, row still in database"
+                return "Unable to delete raw_id, row still in database. {}".format(e)
 
     def close(self):
         self.conn.commit()
@@ -405,7 +405,7 @@ class SocMediaDB(MapDB):
             for i in my_random_raw_ids:
                 assert self.check_if_already_in_db(raw_id=i[0]) is True
         except AssertionError as e:
-            status += "Failure detecting duplicates in database!"
+            status += "Failure detecting duplicates in database!\n   \n{}".format(str(e))
         if status == '':
             return 'PASS: {} integrity test passed.'.format(self.table)
         else:
