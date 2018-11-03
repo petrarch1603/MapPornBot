@@ -81,7 +81,7 @@ def add_submission_to_csv(submission):
                                     message=message_to_me)
 
 
-def socmedia_message(message):
+def socmedia_message(message, path='data/mapporn.db'):
     my_diag.table = 'socmediamaps'
     socmediamap = split_message(message.body)
     title = None
@@ -158,7 +158,7 @@ def socmedia_message(message):
                              fresh=int(fresh_status),
                              date_posted=date_posted)
         soc_db.close()
-        init()
+        init(path=path)
         new_count = soc_db.rows_count
     except Exception as e:
         error_message = "Error: could not add to soc_db    \n{}    \n\n".format(e)
@@ -177,7 +177,7 @@ def socmedia_message(message):
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
         log_db.conn.commit()
         log_db.close()
-        init()
+        init(path=path)
         message.mark_read()
         print('Successfully added to soc_db')
     except AssertionError as e:
@@ -192,7 +192,7 @@ def socmedia_message(message):
         message.mark_read()
 
 
-def dayinhistory_message(message):
+def dayinhistory_message(message, path='data/mapporn.db'):
 
     # Split message into a list
     my_diag.table = "historymaps"
@@ -243,7 +243,7 @@ def dayinhistory_message(message):
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
         log_db.conn.commit()
         log_db.close()
-        init()
+        init(path=path)
         assert hist_db.rows_count == old_hist_row_count + 1
     except AssertionError as e:
         error_message = "Error: new count did not go up by 1    \n{}    \n\n".format(e)
@@ -270,7 +270,7 @@ def dayinhistory_message(message):
     message.mark_read()
 
 
-def other_message(message):
+def other_message(message, path='data/mapporn.db'):
     msg = message.body
     author = str(message.author)
     subject = message.subject
@@ -283,5 +283,5 @@ def other_message(message):
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
     log_db.conn.commit()
     log_db.close()
-    init()
+    init(path=path)
     message.mark_read()
