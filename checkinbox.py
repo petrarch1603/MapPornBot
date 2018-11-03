@@ -10,11 +10,11 @@ MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting po
                '&nbsp;       ' + '\n' + disclaimer
 
 
-def init():
+def init(path='data/mapporn.db'):
     global hist_db, log_db, r, soc_db
-    hist_db = HistoryDB()
-    log_db = LoggingDB()
-    soc_db = SocMediaDB()
+    hist_db = HistoryDB(path=path)
+    log_db = LoggingDB(path=path)
+    soc_db = SocMediaDB(path=path)
 
 
 def main():
