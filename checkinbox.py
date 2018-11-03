@@ -117,6 +117,9 @@ def main():
                                   "Check it and see if there are any "
                                   "locations to add to the CSV.    \n" + str(title))
                     send_reddit_message_to_self(title="No time zones found", message=my_message)
+                if soc_db.check_if_already_in_db(raw_id=raw_id):
+                    message.mark_read()
+                    continue
                 soc_db.add_row_to_db(raw_id=raw_id,
                                      text=title,
                                      time_zone=time_zone,
