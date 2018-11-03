@@ -23,7 +23,11 @@ def main():
 
         # Map Contest Submissions
         if message.subject == "Map Contest Submission":
-            contest_message(message=message)
+            submission = contest_message(message=message)
+            my_diag.table = 'contest'
+            my_diag.title = submission[0]
+            log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
+            add_submission_to_csv(submission=submission)
 
         # Social Media Maps
         elif message.subject == 'socmedia' and message.author == 'Petrarch1603':
@@ -53,27 +57,28 @@ if __name__ == '__main__':
 
 
 def contest_message(message):
-    my_diag.table = 'contest'
     submission = split_message(message.body)
-    submission = [w.replace('Link: ', '') for w in submission]  # Replace the title 'Link: ' with blankspace.
-    my_diag.title = submission[0]
-    error_message = ''
-    if len(submission) > 3:
-        error_message += "**NOTE: the entry is not formatted properly!!**"
+    submission = [w.replace('Link:', '') for w in submission]  # Replace the title 'Link: ' with blankspace.
+    submission = [w.replace('Map Name:', '') for w in submission]
+    for i, v in enumerate(submission):
+        submission[i] = submission[i].lstrip().rstrip()
     submission.append(message.author)  # Add author value
     submission.append(message)  # Add unique value for the message. This is important for indexing later on.
-    # Now make that list a row in a CSV
+    message.mark_read()
+    message.reply(MessageReply)
+    return submission
+
+
+def add_submission_to_csv(submission):
+    message_to_me = 'A new map has been submitted. Check the CSV for formatting    \n'
+    if len(submission) > 3:
+        message_to_me += "**NOTE: the entry is not formatted properly!!**"
     with open('submissions.csv', 'a') as submitFile:
         wr = csv.writer(submitFile)
         wr.writerow(submission)
-        message.reply(MessageReply)
         # Send a message to a human so that they can QC the CSV.
-        send_reddit_message_to_self('New Map added to CSV',
-                                    'A new map has been submitted. Check the CSV for formatting    \n{}    \n\n'
-                                    '{}    \n    \n'
-                                    .format(message.body, error_message))
-    log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
-    message.mark_read()
+        send_reddit_message_to_self(title='New Map added to CSV',
+                                    message=message_to_me)
 
 
 def socmedia_message(message):
