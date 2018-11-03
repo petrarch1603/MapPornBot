@@ -3,6 +3,7 @@ import csv
 from functions import bot_disclaimer, get_time_zone, send_reddit_message_to_self, split_message, strip_punc
 import os
 import praw
+import time
 
 disclaimer = bot_disclaimer()
 MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting post for the contest soon.    ' + '\n' + \
@@ -67,9 +68,11 @@ def main():
                 send_reddit_message_to_self(title="Socmedia Message Error", message=error_message)
                 continue
 
-            # Get raw_id
+            # Get raw_id and set default values for fresh_status and date_posted
             raw_id = socmediamap[0][-6:]
             my_diag.raw_id = raw_id
+            fresh_status = 1
+            date_posted = 'NULL'
 
             # Get title and clean it up
             try:
@@ -77,6 +80,14 @@ def main():
                     title = socmediamap[1]
             except IndexError:
                 title = r.submission(id=raw_id).title
+
+            # Add option for making the map not fresh when added to database
+            try:
+                if str(socmediamap[2]) == '0':
+                    fresh_status = 0
+                    date_posted = int(time.time())
+            except IndexError:
+                pass
 
             # Remove double quotes, very important for inserting into database
             title = ShotgunBlast.remove_text_inside_brackets(title.replace("\"", "'"))
@@ -106,7 +117,11 @@ def main():
                                   "Check it and see if there are any "
                                   "locations to add to the CSV.    \n" + str(title))
                     send_reddit_message_to_self(title="No time zones found", message=my_message)
-                soc_db.add_row_to_db(raw_id=raw_id, text=title, time_zone=time_zone)
+                soc_db.add_row_to_db(raw_id=raw_id,
+                                     text=title,
+                                     time_zone=time_zone,
+                                     fresh=fresh_status,
+                                     date_posted=date_posted)
                 soc_db.close()
                 init()
                 new_count = soc_db.rows_count
