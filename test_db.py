@@ -43,14 +43,13 @@ def init():
     test_db_list = [test_hist_db, test_log_db, test_soc_db, test_jour_db]
 
 
-
 def test_close_all():
     for db in test_db_list:
         try:
             db.close()
         except sqlite3.ProgrammingError as e:
             if str(e) == "Cannot operate on a closed database.":
-                pass
+                print('Closed Database')
             else:
                 raise Exception
 
@@ -61,9 +60,7 @@ def test_check_integrity():
     report = ''
     for i in test_db_list:
         check = i.check_integrity()
-        if check.startswith('PASS'):
-            pass
-        else:
+        if not check.startswith('PASS'):
             report += check
     test_close_all()
     return report
@@ -142,7 +139,6 @@ def test_time_zone(count=5):
 def test_update_to_not_fresh():
     # Testing SocDB method for making not fresh
     init()
-    print("Testing update to not fresh")
     my_list = []
     for _ in range(5):
         random_index = random.randint(1, (len(test_soc_db.all_rows_list()) - 1))
@@ -256,6 +252,7 @@ def main_test_db(num_of_entries=5):
     test_row_count()
     test_days_in_history()
     test_time_zone()
+    print("Testing update to not fresh")
     test_update_to_not_fresh()
     test_make_fresh_again()
 
