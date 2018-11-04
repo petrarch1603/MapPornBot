@@ -46,6 +46,11 @@ class MapRow():
         self.diag = None
 
     def date(self):
+        """
+        The function to get a date in a human readable format
+
+        :return: date in human readable format
+        """
         try:
             self.dict['day_of_year']
         except KeyError:
