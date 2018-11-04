@@ -1,5 +1,5 @@
 from backup import upload_file
-from classes import *
+import classes
 import datetime
 from functions import *
 import praw
@@ -11,15 +11,15 @@ import time
 
 def init():
     global hist_db, journal_db, log_db, r, soc_db
-    hist_db = HistoryDB()
-    journal_db = JournalDB()
-    log_db = LoggingDB()
+    hist_db = classes.HistoryDB()
+    journal_db = classes.JournalDB()
+    log_db = classes.LoggingDB()
     r = praw.Reddit('bot1')
-    soc_db = SocMediaDB()
+    soc_db = classes.SocMediaDB()
 
 
 def main():
-    my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+    my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))
     message = "**Daily Status Check**   \n   \n"
 
     # Check Soc Media DB Fresh Count
@@ -57,7 +57,7 @@ def main():
             my_diag.traceback = error_message
             my_diag.severity = 2
             log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-            my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+            my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
             print(error_message)
 
     # Get failures from last 24 hours and report on them
@@ -102,7 +102,7 @@ def main():
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
 
     # Log success of script
@@ -121,7 +121,7 @@ def make_backup(source_db_path='data/mapporn.db'):
 def test_functions():
     init()
     error_message = ''
-    my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+    my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))
     my_diag.traceback = 'test_function script'
 
     # Test Functions in Checkinbox.py
@@ -134,7 +134,7 @@ def test_functions():
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
     random_string = create_random_string(10)
     try:
@@ -145,7 +145,7 @@ def test_functions():
         my_diag.traceback = error_message
         my_diag.severity = 1
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
     try:    # Test split_message()
         assert split_message("https://redd.it/9cmxi1\ntext goes here\n12") == \
                ['https://redd.it/9cmxi1', 'text goes here', '12']
@@ -156,7 +156,7 @@ def test_functions():
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
 
     # Test Functions in functions.py
@@ -170,7 +170,7 @@ def test_functions():
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
 
         # Leaving this here in case more tests are added below
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+        my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))
         print(error_message, my_diag)
 
     return error_message
@@ -180,7 +180,7 @@ def test_db_integrity():
     # Integrity Checks on databases
     init()
     error_message = ''
-    my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+    my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))
     my_diag.traceback = 'test_db_integrity script'
 
     # hist_db_integrity check
@@ -195,7 +195,7 @@ def test_db_integrity():
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
 
     # soc_db_integrity check
@@ -210,7 +210,7 @@ def test_db_integrity():
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
 
     # log_db_integrity check
@@ -221,11 +221,12 @@ def test_db_integrity():
         else:
             error_message += "* *{}*   \n".format(log_db_integrity)
     except Exception as e:
+        print(e)
         error_message += ("Could not do log_db Integrity Test    \n{}    \n{}    \n".format(str(e), str(type(e))))
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
 
     # jour_db_integrity check
@@ -240,7 +241,7 @@ def test_db_integrity():
         my_diag.traceback = error_message
         my_diag.severity = 2
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
+        my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message, my_diag)
 
     return error_message
