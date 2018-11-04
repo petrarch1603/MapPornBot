@@ -52,18 +52,6 @@ def main():
             message.mark_read()
 
 
-if __name__ == '__main__':
-    new_message = False
-    r = praw.Reddit('bot1')
-    init()
-    for _ in r.inbox.unread():
-        new_message = True
-    if new_message is False:
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
-        my_diag.traceback = "No New Mail"
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
-        exit()
-    main()
 
 
 def contest_message(message):
@@ -237,3 +225,16 @@ def other_message(message, path='data/mapporn.db'):
     log_db.close()
     init(path=path)
     message.mark_read()
+
+if __name__ == '__main__':
+    new_message = False
+    r = praw.Reddit('bot1')
+    init()
+    for _ in r.inbox.unread():
+        new_message = True
+    if new_message is False:
+        mydiag = Diagnostic(script=str(os.path.basename(__file__)))
+        mydiag.traceback = "No New Mail"
+        log_db.add_row_to_db(diagnostics=mydiag.make_dict(), passfail=1)
+        exit()
+    main()
