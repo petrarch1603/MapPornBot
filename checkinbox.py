@@ -22,6 +22,7 @@ def main():
         init()
 
         # # Map Contest Submissions
+        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
         if message.subject == "Map Contest Submission":
             submission = contest_message(message=message)
             my_diag.table = 'contest'

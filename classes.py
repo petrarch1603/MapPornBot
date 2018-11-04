@@ -840,6 +840,7 @@ class ShotgunBlast:
         except AssertionError as e:
             status += 'get_title test FAILED    \n{}    \n\n'.format(str(e))
             print(status)
+            return status
 
         if status == '':
             status = "PASS"
