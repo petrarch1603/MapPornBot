@@ -102,19 +102,12 @@ def socmedia_message(message, path='data/mapporn.db'):
     except Exception as e:
         error_message = ("Error detected: Message does not include a valid URL   \n{}   \n\n".format(e) +
                          str(message.body))
-        my_diag.traceback = error_message
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=error_message)
-        log_db.conn.commit()
-        log_db.close()
-        init()
         send_reddit_message_to_self(title="Socmedia Message Error", message=error_message)
         message.mark_read()
         return
 
     # Get raw_id and set default values for fresh_status and date_posted
     raw_id = socmediamap[0][-6:]
-    my_diag.raw_id = raw_id
     fresh_status = 1
     date_posted = 'NULL'
 
@@ -135,8 +128,6 @@ def socmedia_message(message, path='data/mapporn.db'):
 
     # Remove double quotes, very important for inserting into database
     title = ShotgunBlast.remove_text_inside_brackets(title.replace("\"", "'"))
-    my_diag.title = title
-    print(my_diag.title)
 
     # Check if raw_id is already in soc_db
     try:
@@ -179,7 +170,6 @@ def socmedia_message(message, path='data/mapporn.db'):
 def dayinhistory_message(message, path='data/mapporn.db'):
 
     # Split message into a list
-    my_diag.table = "historymaps"
     dih_message = split_message(message.body)
     day_of_year = ''
     raw_id = ''
@@ -195,8 +185,7 @@ def dayinhistory_message(message, path='data/mapporn.db'):
         if isinstance(item, int) and 0 < item < 366:
             day_of_year = item
         elif item.startswith("https://redd.it/"):
-            raw_id = item[-6:]
-            my_diag.raw_id = raw_id
+            raw_id = item.lstrip().rstrip()[-6:]
         else:
             title = item
 
@@ -210,7 +199,7 @@ def dayinhistory_message(message, path='data/mapporn.db'):
         message.mark_read()
         return
 
-        # Try to add to hist_db
+    # Try to add to hist_db
     try:
         title = ShotgunBlast.remove_text_inside_brackets(title.replace("\"", "'"))
         old_hist_row_count = hist_db.rows_count
