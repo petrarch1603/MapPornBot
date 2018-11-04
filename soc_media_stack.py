@@ -1,8 +1,6 @@
+import classes
 import datetime
-from classes import *
-from functions import send_reddit_message_to_self
 import os
-import praw
 
 
 # This script will only be scoped to post from the socmedia table to social media.
@@ -10,14 +8,19 @@ import praw
 print("Running social media stack script.")
 
 
-def init():
-    global soc_db, log_db, my_diag, popular_hour, r
-    soc_db = SocMediaDB()
-    log_db = LoggingDB()
-    my_diag = Diagnostic(script=str(os.path.basename(__file__)))
-    my_diag.table = "socmediamaps"
-    r = praw.Reddit('bot1')
+def main():
+    soc_db = classes.SocMediaDB()
+    log_db = classes.LoggingDB()
     popular_hour = 9
+    my_target_zone = get_target_hour(popular_hour)
+
+    map_row = soc_db.get_one_map_row(target_zone=my_target_zone)
+    map_row.post_to_social_media(table=soc_db.table, script=str(os.path.basename(__file__)))
+
+    soc_db.conn.commit()
+    soc_db.close()
+    log_db.conn.commit()
+    log_db.close()
 
 
 def get_target_hour(popular_hour_arg):
@@ -30,53 +33,43 @@ def get_target_hour(popular_hour_arg):
     return target
 
 
-def postsocmedia(map_row):
-    local_raw_id = map_row.dict['raw_id']
-    my_diag.zone = map_row.dict['time_zone']
-    my_diag.raw_id = local_raw_id
-    error_message = ''
-    praw_obj = r.submission(id=local_raw_id)
-
-    try:
-        my_diag.title = map_row.dict['text']
-        s_b = ShotgunBlast(praw_obj, title=map_row.dict['text'])
-        assert s_b.check_integrity() == "PASS"
-        soc_db.update_to_not_fresh(raw_id=local_raw_id)
-        s_b_dict = s_b.post_to_all_social()
-        my_diag.tweet = s_b_dict['tweet_url']
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
-
-    except tweepy.TweepError as e:
-        this_diag = my_diag
-        try:
-            soc_db.close()
-        except sqlite3.ProgrammingError:
-            pass
-        init()
-        fresh_status = soc_db.get_row_by_raw_id(local_raw_id)[3]
-        error_message = "Problem with tweepy    \n{}    \n{}    \nNew fresh status: {}    \n"\
-            .format(str(e), str(local_raw_id), str(fresh_status))
-        this_diag.traceback = error_message
-        this_diag.severity = 1
-        log_db.add_row_to_db(diagnostics=this_diag.make_dict(), passfail=0)
-
-    except Exception as e:
-        error_message = ("Error Encountered: \n"
-                         "Could not post to social media.\n" + str(e) + "\nMap with problem: \n" + map_row['text'])
-        my_diag.traceback = error_message
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-
-    return error_message
+if __name__ == '__main__':
+    main()
 
 
-init()
-status = postsocmedia(soc_db.get_one_map_row(target_zone=get_target_hour(popular_hour)))
-if status == '':
-    print('Successfully posted to social media')
-else:
-    send_reddit_message_to_self('socmedia posting problem', status)
-soc_db.conn.commit()
-soc_db.close()
-log_db.conn.commit()
-log_db.close()
+# def postsocmedia(map_row):
+#     """
+#     Takes a map_row object and posts it to social media.
+#
+#     :param map_row: (obj) returned by soc_db.get_one_map_row().
+#     :return: (str) error message or '' if successful.
+#     """
+#     my_diag = map_row.create_diagnostic(script=str(os.path.basename(__file__)))
+#     my_diag.table = "socmediamaps"
+#     error_message = ''
+#
+#     try:
+#         s_b_dict = map_row.blast()
+#         my_diag.tweet = s_b_dict['tweet_url']
+#         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
+#     except classes.tweepy.TweepError as e:
+#         this_diag = my_diag
+#         try:
+#             soc_db.close()
+#         except classes.sqlite3.ProgrammingError as e:
+#             functions.send_reddit_message_to_self(title='Error', message="sqlite error: {}".format(e))
+#         init()
+#         fresh_status = soc_db.get_row_by_raw_id(map_row.raw_id)[3]
+#         error_message = "Problem with tweepy    \n{}    \n{}    \nNew fresh status: {}    \n"\
+#             .format(str(e), str(map_row.raw_id), str(fresh_status))
+#         this_diag.traceback = error_message
+#         this_diag.severity = 1
+#         log_db.add_row_to_db(diagnostics=this_diag.make_dict(), passfail=0)
+#     except Exception as e:
+#         error_message = ("Error Encountered: \n"
+#                          "Could not post to social media.\n" + str(e) + "\nMap with problem: \n" + map_row['text'])
+#         my_diag.traceback = error_message
+#         my_diag.severity = 2
+#         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+#
+#     return error_message
