@@ -1,7 +1,7 @@
 import csv
+import classes
 from datetime import datetime, timedelta
-from functions import bot_disclaimer, my_reddit_ID
-from classes import Diagnostic, LoggingDB, GenericPost
+import functions
 import os
 import praw
 import re
@@ -9,12 +9,12 @@ import requests
 import shutil
 
 r = praw.Reddit('bot1')
-log_db = LoggingDB()
+log_db = classes.LoggingDB()
 
 
 def send_reddit_message_to_self(title, message):
-    r = praw.Reddit('bot1')
-    r.redditor(my_reddit_ID).message(title, message)
+    red = praw.Reddit('bot1')
+    red.redditor(functions.my_reddit_ID).message(title, message)
 
 
 def get_raw_id():  # # Get the raw ID of the voting post.
@@ -24,11 +24,11 @@ def get_raw_id():  # # Get the raw ID of the voting post.
 
 
 def main():
-    my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+    my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))
     voting_post = get_raw_id()
     my_diag.raw_id = voting_post.id
     my_diag.title = "Contest Congratulations"
-    bot_disclaimer_text = bot_disclaimer()
+    bot_disclaimer_text = functions.bot_disclaimer()
     voting_post.mod.sticky(state=False)
 
     # # Prepare a new CSV with the top four maps.
@@ -115,7 +115,7 @@ def main():
 
 # Put the contest post URL into the congratulations template.
     congrats_data = congrats_data.replace('%VOTINGPOSTURL%', voting_post.shortlink)
-    congrats_data = congrats_data.replace('%MYUSERID%', my_reddit_ID)
+    congrats_data = congrats_data.replace('%MYUSERID%', functions.my_reddit_ID)
     post_title = ('Congratulations to /u/{}: winner of {}\'s Monthly Map Contest!'.format(winner, contest_month_pretty))
     congrats_submission = r.subreddit('mapporn').submit(post_title, selftext=congrats_data)
     congrats_shortlink = congrats_submission.shortlink
@@ -127,7 +127,6 @@ def main():
         send_reddit_message_to_self('Error encountered',
                                     message=('Could not sticky this post: {}    \n{}    \n\n'
                                              .format(congrats_shortlink, str(e))))
-        pass
 
     # # Turn contest mode OFF on the original voting post
     # Need to do this in order to count the votes, otherwise all posts show 1 vote.
@@ -151,7 +150,7 @@ def main():
     # Post to social media.
     # Now that we have the image we can run the function to post it to the social media sites
     try:
-        generic_post = GenericPost(filename=winning_image, title=(post_title + ' ' + congrats_shortlink))
+        generic_post = classes.GenericPost(filename=winning_image, title=(post_title + ' ' + congrats_shortlink))
         social_media_dict = generic_post.post_to_all_social()
         send_reddit_message_to_self(title='The new Congratulations post has just posted.',
                                     message='The congrats post is here:    {}\n    \n{}    \n{}')\
