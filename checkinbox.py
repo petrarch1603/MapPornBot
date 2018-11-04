@@ -21,7 +21,7 @@ def main():
     for message in r.inbox.unread():
         init()
 
-        # Map Contest Submissions
+        # # Map Contest Submissions
         if message.subject == "Map Contest Submission":
             submission = contest_message(message=message)
             my_diag.table = 'contest'
@@ -29,15 +29,15 @@ def main():
             log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
             add_submission_to_csv(submission=submission)
 
-        # Social Media Maps
+        # # Social Media Maps
         elif message.subject == 'socmedia' and message.author == 'Petrarch1603':
             socmedia_message(message=message)
 
-        # Day in History Messages
+        # # Day in History Messages
         elif message.subject == 'dayinhistory' and message.author == 'Petrarch1603':
             dayinhistory_message(message=message)
 
-        # Catch any other message a random user might have sent to the bot
+        # # Catch any other message a random user might have sent to the bot
         else:
             other_message(message=message)
 
