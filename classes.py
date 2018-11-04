@@ -2,7 +2,7 @@ import ast
 from collections import OrderedDict
 import csv
 import facebook
-from functions import send_reddit_message_to_self, strip_punc
+import functions
 import os
 import random
 import requests
@@ -75,9 +75,9 @@ class Diagnostic:
             if self.raw_id is not None:
                 assert self.title is not None
         except AssertionError:
-                send_reddit_message_to_self(title="Missing title",
-                                            message="{} script is missing a title. When you pass in a raw_id there "
-                                                    "should be a title too.".format(self.script))
+                functions.send_reddit_message_to_self(title="Missing title",
+                                                      message="{} script is missing a title. When you pass in a raw_id "
+                                                              "there should be a title too.".format(self.script))
         return {
             "raw_id": self.raw_id,
             "script": self.script,
@@ -245,7 +245,7 @@ class SocMediaDB(MapDB):
             zonedict = {rows[0].upper(): rows[1] for rows in csv_reader}
         this_zone = 99
         for place in zonedict:
-            if place in strip_punc(title_str.upper()):
+            if place in functions.strip_punc(title_str.upper()):
                 this_zone = int(zonedict[place])
         return this_zone
 
