@@ -28,6 +28,7 @@ def main():
             my_diag.title = submission[0]
             log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
             add_submission_to_csv(submission=submission)
+            message.mark_read()
 
         # # Social Media Maps
         elif message.subject == 'socmedia' and message.author == 'Petrarch1603':
