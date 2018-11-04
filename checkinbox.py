@@ -31,15 +31,23 @@ def main():
 
         # # Social Media Maps
         elif message.subject == 'socmedia' and message.author == 'Petrarch1603':
+            my_diag.table = 'socmediamaps'
             socmedia_message(message=message)
+            log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
+            log_db.conn.commit()
+            log_db.close()
+            message.mark_read()
 
         # # Day in History Messages
         elif message.subject == 'dayinhistory' and message.author == 'Petrarch1603':
+            my_diag.table = "historymaps"
             dayinhistory_message(message=message)
+            message.mark_read()
 
         # # Catch any other message a random user might have sent to the bot
         else:
             other_message(message=message)
+            message.mark_read()
 
 
 if __name__ == '__main__':
