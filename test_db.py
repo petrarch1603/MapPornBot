@@ -1,6 +1,6 @@
 import checkinbox
 import classes
-from functions import coin_toss, create_random_string
+import functions
 import os
 import random
 from shutil import copyfile
@@ -20,7 +20,7 @@ class MockMessage:  # Mock message for testing checkinbox.py
         self.body = body
         self.author = author
         self.subject = subject
-        self.id = create_random_string(6)
+        self.id = functions.create_random_string(6)
 
     def __repr__(self):
         return self.id
@@ -182,20 +182,20 @@ def test_add_entries(num_of_entries):
         str(num_of_entries)
     ))
     for _ in range(num_of_entries):
-        rand_hist_id = create_random_string(6)
-        rand_soc_id = create_random_string(6)
-        rand_title = create_random_string(10)
-        rand_log_text = create_random_string(11)
+        rand_hist_id = functions.create_random_string(6)
+        rand_soc_id = functions.create_random_string(6)
+        rand_title = functions.create_random_string(10)
+        rand_log_text = functions.create_random_string(11)
         rand_boolean = random.randint(0, 1)
         test_hist_db.add_row_to_db(raw_id=rand_hist_id,
-                                   text=create_random_string(10),
+                                   text=functions.create_random_string(10),
                                    day_of_year=random.randint(1, 365))
-        my_diag_dic = classes.Diagnostic(script=(create_random_string(8)) + '.py')
-        my_diag_dic.raw_id = create_random_string(6)
+        my_diag_dic = classes.Diagnostic(script=(functions.create_random_string(8)) + '.py')
+        my_diag_dic.raw_id = functions.create_random_string(6)
         my_diag_dic.severity = random.randint(1, 9)
-        my_diag_dic.table = create_random_string(6)
-        my_diag_dic.traceback = create_random_string(15)
-        my_diag_dic.tweet = "http://" + str(create_random_string(8))
+        my_diag_dic.table = functions.create_random_string(6)
+        my_diag_dic.traceback = functions.create_random_string(15)
+        my_diag_dic.tweet = "http://" + str(functions.create_random_string(8))
         my_diag_dic.title = rand_title
         test_log_db.add_row_to_db(diagnostics=my_diag_dic.make_dict(),
                                   error_text=rand_log_text,
@@ -209,7 +209,7 @@ def test_add_entries(num_of_entries):
         else:
             date_posted = 'NULL'
         test_soc_db.add_row_to_db(raw_id=rand_soc_id,
-                                  text=create_random_string(11),
+                                  text=functions.create_random_string(11),
                                   time_zone=random.randint(-10, 12),
                                   fresh=rand_boolean,
                                   date_posted=date_posted)
@@ -236,10 +236,11 @@ def test_check_inbox(number_of_tests=5):
 
         # # Test the contest message
         checkinbox.init(path=test_db_path)
-        rand_map_name = create_random_string(10)
-        rand_website = 'http://www.' + create_random_string(8) + '.com/' + create_random_string(7) + '.jpg'
-        rand_description = create_random_string(15)
-        rand_author = 'Author' + create_random_string(11)
+        rand_map_name = functions.create_random_string(10)
+        rand_website = 'http://www.' + functions.create_random_string(8) + '.com/' + \
+                       functions.create_random_string(7) + '.jpg'
+        rand_description = functions.create_random_string(15)
+        rand_author = 'Author' + functions.create_random_string(11)
         test_contest_message = "Map Name: {}   \n" \
                                "Link: {}   \n" \
                                "Description: {}".format(rand_map_name,
@@ -260,13 +261,13 @@ def test_check_inbox(number_of_tests=5):
             error_message += "Error when testing contest message.    \n{}".format(e)
 
         # # Test the socmedia message
-        rand_raw_id = create_random_string(6)
+        rand_raw_id = functions.create_random_string(6)
         rand_url = 'https://redd.it/' + rand_raw_id
 
         test_socmedia_message = rand_url
-        rand_title = create_random_string(20)
+        rand_title = functions.create_random_string(20)
         test_socmedia_message += "   \n" + rand_title
-        fresh_status = coin_toss()
+        fresh_status = functions.coin_toss()
         if fresh_status == 0:
             test_socmedia_message += '   \n' + str(fresh_status)
         test_socmediamsg_obj = MockMessage(body=test_socmedia_message)
