@@ -141,7 +141,7 @@ def test_update_to_not_fresh():
     init()
     my_list = []
     for _ in range(5):
-        random_index = random.randint(1, (len(test_soc_db.all_rows_list()) - 1))
+        random_index = random.randint(1, (len(test_soc_db) - 1))
         my_list.append(test_soc_db.all_rows_list()[random_index][0])
     for i in my_list:
         test_soc_db.update_to_not_fresh(raw_id=i)
