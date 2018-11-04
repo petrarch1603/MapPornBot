@@ -404,7 +404,6 @@ class SocMediaDB(MapDB):
         time_past = max(int((len(self)/8)*24*59*60), default_time_past)
         cutoff_time = (current_time - int(time_past))
         count = 0
-        print("Length of not_fresh_list: " + str(len(self.not_fresh_list)))
         for i in self.not_fresh_list:
             if int(i[4]) <= cutoff_time:
                 if i[2] == 99:
