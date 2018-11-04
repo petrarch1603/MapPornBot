@@ -1,3 +1,4 @@
+import checkinbox
 from classes import *
 from functions import coin_toss, create_random_string
 import os
@@ -229,6 +230,82 @@ def test_add_entries(num_of_entries):
     test_row_count(delta=num_of_entries)
 
 
+def test_check_inbox(number_of_tests=5):
+    error_message = ''
+    for _ in range(number_of_tests):
+
+        # # Test the contest message
+        checkinbox.init(path=test_db_path)
+        rand_map_name = create_random_string(10)
+        rand_website = 'http://www.' + create_random_string(8) + '.com/' + create_random_string(7) + '.jpg'
+        rand_description = create_random_string(15)
+        rand_author = 'Author' + create_random_string(11)
+        test_contest_message = "Map Name: {}   \n" \
+                               "Link: {}   \n" \
+                               "Description: {}".format(rand_map_name,
+                                                        rand_website,
+                                                        rand_description)
+
+        test_message_obj = MockMessage(body=test_contest_message, author=rand_author)
+
+        try:
+            test_close_all()
+            test_list = checkinbox.contest_message(message=test_message_obj)
+            assert test_list[0] == rand_map_name
+            assert test_list[1] == rand_website
+            assert test_list[2] == ("Description: {}".format(rand_description))
+            assert test_list[3] == rand_author
+            assert test_list[4] == test_message_obj
+        except AssertionError as e:
+            error_message += "Error when testing contest message.    \n{}".format(e)
+
+        # # Test the socmedia message
+        rand_raw_id = create_random_string(6)
+        rand_url = 'https://redd.it/' + rand_raw_id
+
+        test_socmedia_message = rand_url
+        rand_title = create_random_string(20)
+        test_socmedia_message += "   \n" + rand_title
+        fresh_status = coin_toss()
+        if fresh_status == 0:
+            test_socmedia_message += '   \n' + str(fresh_status)
+        test_socmediamsg_obj = MockMessage(body=test_socmedia_message)
+        checkinbox.socmedia_message(message=test_socmediamsg_obj, path=test_db_path)
+
+        try:
+            init()
+            updated_row = test_soc_db.get_row_by_raw_id(rand_raw_id)
+            assert updated_row[0] == rand_raw_id
+            assert updated_row[1] == rand_title
+            assert updated_row[3] == fresh_status
+            test_soc_db.delete_by_raw_id(rand_raw_id)
+        except AssertionError as e:
+            error_message += "Error when testing socmedia message.   \n{}".format(e)
+
+        # # Test the dayinhistory message
+        rand_day_of_year = str(random.randint(1, 365))
+        # Function should work regardless of order, so when testing the order is shuffled.
+        test_list = [rand_day_of_year, rand_url, rand_title]
+        random.shuffle(test_list)
+        test_dayinhistory_message = '   \n'.join(test_list)
+        test_dayinhistory_obj = MockMessage(body=test_dayinhistory_message)
+        test_close_all()
+        checkinbox.dayinhistory_message(message=test_dayinhistory_obj, path=test_db_path)
+
+        try:
+            init()
+            updated_row = test_hist_db.get_row_by_raw_id(rand_raw_id)
+            assert updated_row[0] == rand_raw_id
+            assert updated_row[1] == rand_title
+            assert updated_row[2] == int(rand_day_of_year)
+            test_hist_db.delete_by_raw_id(rand_raw_id)
+        except AssertionError as e:
+            error_message += "Error when testing dayinhistory message   \n{}".format(e)
+
+
+    return error_message
+
+
 def test_delete_entry(count=5):
     init()
     error_message = ''
@@ -259,6 +336,8 @@ def main_test_db(num_of_entries=5):
     test_add_entries(num_of_entries=num_of_entries)
     print("Testing delete entry")
     report += test_delete_entry()
+    print("Testing Check Inbox functions")
+    report += test_check_inbox(number_of_tests=num_of_entries)
     print("Checking DB integrity again.")
     report += test_check_integrity()
     print("Tests Passed, deleting test database")
