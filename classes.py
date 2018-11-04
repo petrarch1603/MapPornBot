@@ -4,6 +4,7 @@ import csv
 import facebook
 import functions
 import os
+import praw
 import random
 import requests
 from secrets import *
@@ -14,13 +15,35 @@ import time
 import tweepy
 
 
-class MapRow:
-    def __init__(self, schema, row):
+class MapRow():
+    """
+    Class for turning a map row into an object.
+
+    Attributes:
+        schema (dict): The database schema
+        row (list): List of all the elements of a single database row instance
+    """
+
+    def __init__(self, schema, row, table):
+        """
+        The constructor for MapRow class.
+
+        :param schema: (dict) keys of schema are the names of the each schema element
+        :param row: (list) list of all elements of a single database row instance
+        """
         self.schema = schema.keys()
-        self.row = row
-        if len(self.row) != len(self.schema):
+        if len(row) != len(self.schema):
             raise ValueError("schema size and row size must be equal")
-        self.dict = dict(zip(self.schema, self.row))
+        self.dict = dict(zip(self.schema, row))
+        self.table = table
+        self.text = ''
+        self.announce_input = ''
+        # Set attributes from keys of row dictionary
+        for k, v in self.dict.items():
+            self.__dict__[str(k)] = v
+        r = praw.Reddit('bot1')
+        self.praw = r.submission(id=self.dict['raw_id'])
+        self.diag = None
 
     def date(self):
         try:
@@ -33,11 +56,62 @@ class MapRow:
         dtdelta = datetime.timedelta(days=self.dict['day_of_year'])
         return (dt + dtdelta).strftime('%Y/%m/%d')
 
+    def create_diagnostic(self, script):
+        map_row_diag = Diagnostic(script=script)
+        for k, v in self.dict.items():
+            if k == 'raw_id':
+                map_row_diag.raw_id = v
+            if k == 'text':
+                map_row_diag.title = v
+            if k == 'time_zone':
+                map_row_diag.zone = int(v)
+        self.diag = map_row_diag
+
+    def blast(self):
+        try:
+            my_blast = ShotgunBlast(praw_obj=self.praw, title=self.text, announce_input=self.announce_input)
+            assert my_blast.check_integrity() == 'PASS'
+            s_b_dict = my_blast.post_to_all_social()
+            self.diag.tweet = s_b_dict['tweet_url']
+            self.diag.add_to_logging(passfail=1)
+        except AssertionError as e:
+            functions.send_reddit_message_to_self(
+                title='error',
+                message="shotgun blast intergirty check failed!   \n"
+                        "{}".format(str(e)))
+            self.diag.severity = 2
+            self.diag.traceback = e
+            self.diag.add_to_logging(passfail=0)
+        except tweepy.TweepError as e:
+            functions.send_reddit_message_to_self(
+                title='tweepy error',
+                message='Error doing maprow blast:   \n{}'.format(e))
+            self.diag.severity = 1
+            self.diag.traceback = e
+            self.diag.add_to_logging(passfail=0)
+
+    def post_to_social_media(self, table, script):
+        self.create_diagnostic(script=script)
+        self.diag.table = table
+        self.blast()
+
 
 class Diagnostic:
-    def __init__(self, script, **kwargs):
-        # Object defaults to None on these attributes. If kwarg is passed in it will
-        # over-ride these defaults.
+    """This is a class for diagnosing failures and success of scripts."""
+
+    def __init__(self, script, path='data/mapporn.db', **kwargs):
+        """
+        The constructor for Diagnostic class.
+        :param script: (str) The name of the script. This param is mandatory.
+        :param kwargs: The other arguments are optional, default is None.
+        :param raw_id: (str) six character raw id of target Reddit source
+        :param severity: (int) arbitrary number to indicate severity of failure.
+        :param table: (str) Database table name.
+        :param traceback: (str) Traceback of error message.
+        :param title: (str) Title.
+        :param zone: (int) Time zone.
+        :param path: (str) Path to database, defaults to production database, can be changed for testing.
+        """
         self.raw_id = None
         self.severity = None
         self.table = None
@@ -47,9 +121,16 @@ class Diagnostic:
         self.zone = None
         self.script = script
         self.__dict__.update(kwargs)
+        self.path = path
 
     @classmethod
     def diag_dict_to_obj(cls, diag_dict):
+        """
+        Class Method for taking a dictionary and making it an object.
+
+        :param diag_dict: (dict)
+        :return: (obj) returns an instance of Diagnostic classs.
+        """
         if type(diag_dict) == str:
             diag_dict = ast.literal_eval(diag_dict)
         my_diag = Diagnostic(script=diag_dict['script'])
@@ -71,6 +152,11 @@ class Diagnostic:
         return my_diag
 
     def make_dict(self):
+        """
+        Makes a dictionary from a Diagnostic object.
+
+        :return: (dict) of all object attributes.
+        """
         try:
             if self.raw_id is not None:
                 assert self.title is not None
@@ -81,15 +167,20 @@ class Diagnostic:
         return {
             "raw_id": self.raw_id,
             "script": self.script,
-            "severity": self.severity,
+            "severity": int(self.severity),
             "table": self.table,
-            "traceback": self.traceback,
-            "tweet": self.tweet,
+            "traceback": str(self.traceback),
+            "tweet": str(self.tweet),
             "title": str(self.title),
             "zone": self.zone
         }
 
     def concise_diag(self):
+        """
+        Returns a pretty string of the contents of the Diagnostic object without any blank attributes.
+
+        :return: (str) Pretty string for seeing the contents of the Diagnostic object.
+        """
         # TODO need to add testing on this method
         # This method prunes out any blank/null/empty fields and returns string of contents
         if self.traceback == 'No New Mail':
@@ -102,6 +193,10 @@ class Diagnostic:
             my_string += "Traceback: {}    \n".format(str(self.traceback)) if self.traceback is not None else ''
             my_string += "***\n   \n"
             return my_string
+
+    def add_to_logging(self, passfail):
+        log_db = LoggingDB(path=self.path)
+        log_db.add_row_to_db(diagnostics=self.make_dict(), passfail=passfail)
 
 
 class MapDB:
@@ -298,7 +393,7 @@ class SocMediaDB(MapDB):
         if len(filtered_map_list) == 0:
             return print("No fresh maps in database!")
         my_row = random.choice(filtered_map_list)
-        return MapRow(schema=self.schema, row=my_row)
+        return MapRow(schema=self.schema, row=my_row, table=self.table)
 
     def add_row_to_db(self, raw_id, text, time_zone, fresh=1, date_posted='NULL', post_error=0):
         self.curs.execute('''INSERT INTO {table} values('{raw_id}', 
