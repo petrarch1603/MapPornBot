@@ -31,6 +31,10 @@ def init_soc_posting():
 my_reddit_ID = 'petrarch1603'  # This is the human reddit user name, NOT the bot's user name.
 
 
+def coin_toss():
+    return random.randint(0, 1)
+
+
 def create_random_string(char_count):
     allchar = string.ascii_letters + string.digits
     rand_str = "".join(random.choice(allchar) for _ in range(char_count))
