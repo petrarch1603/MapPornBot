@@ -204,6 +204,16 @@ class HistoryDB(MapDB):
         else:
             return status
 
+    def get_row_by_raw_id(self, raw_id):
+        my_row = self.curs.execute("""SELECT * FROM {} WHERE raw_id='{}'""".format(
+            self.table,
+            raw_id
+            )).fetchall()
+        if len(my_row) == 1:
+            return my_row[0]
+        else:
+            return my_row
+
 
 class SocMediaDB(MapDB):
     def __init__(self, table='socmediamaps', path='data/mapporn.db'):
