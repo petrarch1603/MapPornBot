@@ -1,4 +1,4 @@
-from classes import *
+import classes
 import csv
 from functions import bot_disclaimer, get_time_zone, send_reddit_message_to_self, split_message, strip_punc
 import os
@@ -12,9 +12,9 @@ MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting po
 
 def init(path='data/mapporn.db'):
     global hist_db, log_db, r, soc_db
-    hist_db = HistoryDB(path=path)
-    log_db = LoggingDB(path=path)
-    soc_db = SocMediaDB(path=path)
+    hist_db = classes.HistoryDB(path=path)
+    log_db = classes.LoggingDB(path=path)
+    soc_db = classes.SocMediaDB(path=path)
 
 
 def main():
@@ -22,7 +22,7 @@ def main():
         init()
 
         # # Map Contest Submissions
-        my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+        my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))
         if message.subject == "Map Contest Submission":
             submission = contest_message(message=message)
             my_diag.table = 'contest'
@@ -50,8 +50,6 @@ def main():
         else:
             other_message(message=message)
             message.mark_read()
-
-
 
 
 def contest_message(message):
@@ -116,7 +114,7 @@ def socmedia_message(message, path='data/mapporn.db'):
         pass
 
     # Remove double quotes, very important for inserting into database
-    title = ShotgunBlast.remove_text_inside_brackets(title.replace("\"", "'"))
+    title = classes.ShotgunBlast.remove_text_inside_brackets(title.replace("\"", "'"))
 
     # Check if raw_id is already in soc_db
     try:
@@ -192,7 +190,7 @@ def dayinhistory_message(message, path='data/mapporn.db'):
 
     # Try to add to hist_db
     try:
-        title = ShotgunBlast.remove_text_inside_brackets(title.replace("\"", "'"))
+        title = classes.ShotgunBlast.remove_text_inside_brackets(title.replace("\"", "'"))
         old_hist_row_count = hist_db.rows_count
         hist_db.add_row_to_db(raw_id=raw_id, text=title, day_of_year=day_of_year)
         hist_db.conn.commit()
@@ -220,11 +218,11 @@ def other_message(message, path='data/mapporn.db'):
                                         '{msg}'.format(author=author,
                                                        subj=subject,
                                                        msg=msg))
-    log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
     log_db.conn.commit()
     log_db.close()
     init(path=path)
     message.mark_read()
+
 
 if __name__ == '__main__':
     new_message = False
@@ -233,7 +231,7 @@ if __name__ == '__main__':
     for _ in r.inbox.unread():
         new_message = True
     if new_message is False:
-        mydiag = Diagnostic(script=str(os.path.basename(__file__)))
+        mydiag = classes.Diagnostic(script=str(os.path.basename(__file__)))
         mydiag.traceback = "No New Mail"
         log_db.add_row_to_db(diagnostics=mydiag.make_dict(), passfail=1)
         exit()
