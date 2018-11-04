@@ -1,6 +1,6 @@
 # These are useful Redditbot functions
 
-from classes import *
+import classes
 import csv
 from datetime import timedelta
 import logging
@@ -103,7 +103,7 @@ def fails_last_24_report(db_obj):
     errors = ''
     message = ''
     for i in db_obj.get_fails_previous_24(current_time=current_time):
-        my_error = Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
+        my_error = classes.Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
         errors += "**Failure** recorded at {}    \n" \
                   " {}   \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_error)
     if errors == '':
@@ -117,7 +117,7 @@ def fails_last_24_report(db_obj):
 def success_last_24_report(db_obj):
     successes = ''
     for i in db_obj.get_successes_previous_24(current_time=time.time()):
-        my_success = Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
+        my_success = classes.Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
         successes += "**Success** recorded at {}    \n" \
                      " {}    \n".format(time.strftime('%m-%d %H:%M:%S', time.localtime(i[0])), my_success)
     if successes == '':
