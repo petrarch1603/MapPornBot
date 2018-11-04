@@ -98,11 +98,8 @@ class Diagnostic:
             my_string = "Script: {}   \n".format(str(self.script))
             my_string += "Raw_id: {}   \n".format(str(self.raw_id)) if self.raw_id is not None else ''
             my_string += "Title: {}    \n".format(str(self.title)) if self.title is not None else ''
-            my_string += "Severity: {}    \n".format(str(self.severity)) if self.severity is not None else ''
             my_string += "Table: {}    \n".format(str(self.table)) if self.table is not None else ''
             my_string += "Traceback: {}    \n".format(str(self.traceback)) if self.traceback is not None else ''
-            my_string += "Tweet: {}    \n".format(str(self.tweet)) if self.tweet is not None else ''
-            my_string += "Time Zone: {}    \n".format(str(self.zone)) if self.zone is not None else ''
             my_string += "***\n   \n"
             return my_string
 
