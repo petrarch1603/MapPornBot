@@ -1,5 +1,5 @@
 from classes import *
-from functions import create_random_string
+from functions import coin_toss, create_random_string
 import os
 import random
 from shutil import copyfile
