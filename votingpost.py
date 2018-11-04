@@ -1,8 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+import classes
+import csv
 import fnmatch
-from functions import *
+import functions
 import os
 import praw
+import random
 
 r = praw.Reddit('bot1')
 
@@ -12,7 +15,7 @@ r = praw.Reddit('bot1')
 input('Are you ready?')
 
 # # 1) Prepare the self text of the voting post
-botDisclaimerText = bot_disclaimer()
+botDisclaimerText = functions.bot_disclaimer()
 
 # Include the number of submissions and the contest end date in the text of the post.
 # This code makes the end date next Sunday.
@@ -24,12 +27,12 @@ def prepare_voting_text():
     lastmonthfile = open('data/lastmonth.txt', 'r')
     last_month_url = (lastmonthfile.read())
     next_week = datetime.now() + timedelta(days=5)  # Need at least 5 days to vote.
-    next_sunday = next_weekday(next_week, 6)  # Pycharm doesn't like the .now(), but in testing seems it should work.
+    next_sunday = functions.next_weekday(next_week, 6)
     pretty_next_sunday = next_sunday.strftime('%A %B %d, %Y')
     numbersubmitted = sum(1 for _ in open('submissions.csv'))
     my_voting_text = my_voting_text.replace('%NUMBERSUBMITTED%', str(numbersubmitted))
     my_voting_text = my_voting_text.replace('%ENDDATE%', str(pretty_next_sunday))
-    my_voting_text = my_voting_text.replace('%MYREDDITID%', my_reddit_ID)
+    my_voting_text = my_voting_text.replace('%MYREDDITID%', functions.my_reddit_ID)
     my_voting_text = my_voting_text.replace('%LASTMONTH%', last_month_url)
     return my_voting_text
 
@@ -105,12 +108,13 @@ def main():
 
     # Run a function to post it to different social media accounts
     try:
-        social_media_post = GenericPost(filename=image_file_name, title=post_message_url)
+        social_media_post = classes.GenericPost(filename=image_file_name, title=post_message_url)
         socialmediadict = social_media_post.post_to_all_social()
-        send_reddit_message_to_self('New Voting Post Posted', 'A new votingpost.py has been run. Check the post to make'
-                                                              ' sure the bot did it right.   \nHere\'s the link to the '
-                                                              'post: ' + shortlink + '   \nHere\'s the social media '
-                                                              'links:    \n' + str(socialmediadict['tweet_url']))
+        functions.send_reddit_message_to_self('New Voting Post Posted',
+                                              'A new votingpost.py has been run. Check the post to make'
+                                              ' sure the bot did it right.   \nHere\'s the link to the '
+                                              'post: ' + shortlink + '   \nHere\'s the social media '
+                                              'links:    \n' + str(socialmediadict['tweet_url']))
     except Exception as e:
         error_message += "Could not post results to social media.   \n{}    \n\n".format(str(e))
 
