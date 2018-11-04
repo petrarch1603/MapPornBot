@@ -14,6 +14,26 @@ test_db_path = 'data/test.db'
 copyfile(source_db_path, test_db_path)
 
 
+class MockMessage:  # Mock message for testing checkinbox.py
+    def __init__(self, body='abc', author='abc', subject='abc'):
+        self.body = body
+        self.author = author
+        self.subject = subject
+        self.id = create_random_string(6)
+
+    def __repr__(self):
+        return self.id
+
+    def __str__(self):
+        return self.id
+
+    def mark_read(self):
+        pass
+
+    def reply(self, text):
+        pass
+
+
 def init():
     global test_hist_db, test_log_db, test_soc_db, test_jour_db, test_db_list
     test_hist_db = HistoryDB(path=test_db_path)
