@@ -1,5 +1,7 @@
 from functions import *
 
+# Todo: can this be done as part of the normal congratulations script, that way I don't have to maintain two scripts
+
 # Verify before running in case of accidental execution.
 # If this script is automated, this line will need to be deleted.
 input('Are you ready?')
