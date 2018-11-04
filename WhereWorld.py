@@ -3,10 +3,10 @@
 # the map. The idea is to post it every Wednesday, hence the name "Where in the world
 # Wednesday."
 
-from classes import *
+import classes
 import csv
 import datetime
-from functions import send_reddit_message_to_self
+import functions
 import os
 
 
@@ -15,8 +15,8 @@ post_message = "#WhereInTheWorld #MapPorn\n" \
           "If you know where it's at, reply in the comments!\n" \
           "More info at https://t.co/yCv6Ynqa4u"
 
-log_db = LoggingDB()
-my_diag = Diagnostic(script=str(os.path.basename(__file__)))
+log_db = classes.LoggingDB()
+my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))
 
 try:
     # Get the week and year as a format for indexing image
@@ -30,7 +30,7 @@ try:
     # Post to Social Media
     os.chdir('WW')
 
-    socmediadict = GenericPost(image_file_name, post_message).post_to_all_social()
+    socmediadict = classes.GenericPost(image_file_name, post_message).post_to_all_social()
     my_diag.tweet = socmediadict['tweet_url']
     os.chdir('..')
     with open('data/locations.csv') as current_csv:
@@ -38,28 +38,29 @@ try:
         for row in csvreader:
             if image_number == row[0]:
                 true_location = row[1]
-                send_reddit_message_to_self(title="Where in world answer", message='The correct location is: ' +
-                                                  str(true_location) + '    \nThe Twitter thread is here: ' +
-                                                  str(my_diag.tweet))
+                functions.send_reddit_message_to_self(title="Where in world answer",
+                                                      message='The correct location is: ' + str(true_location) + '    '
+                                                              '\nThe Twitter thread is here: ' +
+                                                              str(my_diag.tweet))
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
 
-except tweepy.TweepError as e:
+except functions.tweepy.TweepError as e:
     if str(e) == 'Unable to access file: No such file or directory':
         os.chdir('..')
         error_message = "No where in the world maps left. Add more!     \n{}    \n\n".format(e)
         my_diag.traceback = error_message
-        send_reddit_message_to_self(title="No where world maps left", message=error_message)
+        functions.send_reddit_message_to_self(title="No where world maps left", message=error_message)
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
     else:
         error_message = e
         my_diag.traceback = error_message
-        send_reddit_message_to_self(title='ERROR posting Where World', message=error_message)
+        functions.send_reddit_message_to_self(title='ERROR posting Where World', message=error_message)
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
         print(e)
 except Exception as e:
     os.chdir('..')
     my_diag.traceback = "error:    \n{}    \n\n".format(e)
     my_diag.severity = 2
-    send_reddit_message_to_self(title="Error with WhereWorld", message=my_diag.traceback)
+    functions.send_reddit_message_to_self(title="Error with WhereWorld", message=my_diag.traceback)
     log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
     print(e)
