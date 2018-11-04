@@ -1,11 +1,11 @@
 import classes
 import csv
-from functions import bot_disclaimer, get_time_zone, send_reddit_message_to_self, split_message, strip_punc
+import functions
 import os
 import praw
 import time
 
-disclaimer = bot_disclaimer()
+disclaimer = functions.bot_disclaimer()
 MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting post for the contest soon.    ' + '\n' + \
                '&nbsp;       ' + '\n' + disclaimer
 
@@ -53,7 +53,7 @@ def main():
 
 
 def contest_message(message):
-    submission = split_message(message.body)
+    submission = functions.split_message(message.body)
     submission = [w.replace('Link:', '') for w in submission]  # Replace the title 'Link: ' with blankspace.
     submission = [w.replace('Map Name:', '') for w in submission]
     for i, v in enumerate(submission):
@@ -72,13 +72,13 @@ def add_submission_to_csv(submission):
         wr = csv.writer(submitFile)
         wr.writerow(submission)
         # Send a message to a human so that they can QC the CSV.
-        send_reddit_message_to_self(title='New Map added to CSV',
-                                    message=message_to_me)
+        functions.send_reddit_message_to_self(title='New Map added to CSV',
+                                              message=message_to_me)
 
 
 def socmedia_message(message, path='data/mapporn.db'):
     init(path=path)
-    socmediamap = split_message(message.body)
+    socmediamap = functions.split_message(message.body)
     for i, v in enumerate(socmediamap):
         socmediamap[i] = socmediamap[i].lstrip().rstrip()
     title = None
@@ -89,7 +89,7 @@ def socmedia_message(message, path='data/mapporn.db'):
     except Exception as e:
         error_message = ("Error detected: Message does not include a valid URL   \n{}   \n\n".format(e) +
                          str(message.body))
-        send_reddit_message_to_self(title="Socmedia Message Error", message=error_message)
+        functions.send_reddit_message_to_self(title="Socmedia Message Error", message=error_message)
         message.mark_read()
         return
 
@@ -126,12 +126,12 @@ def socmedia_message(message, path='data/mapporn.db'):
     # Add to soc_db
     try:
         old_count = soc_db.rows_count
-        time_zone = get_time_zone((strip_punc(title)))
+        time_zone = functions.get_time_zone((functions.strip_punc(title)))
         if time_zone == 99 and path == 'data/mapporn.db':
             my_message = ("No time zone parsed from this title.    \n"
                           "Check it and see if there are any "
                           "locations to add to the CSV.    \n" + str(title))
-            send_reddit_message_to_self(title="No time zones found", message=my_message)
+            functions.send_reddit_message_to_self(title="No time zones found", message=my_message)
         init(path=path)
         soc_db.add_row_to_db(raw_id=raw_id,
                              text=title,
@@ -152,14 +152,14 @@ def socmedia_message(message, path='data/mapporn.db'):
         assert int(new_count) == (int(old_count) + 1)
     except AssertionError as e:
         error_message = "Error: new count did not go up by 1    \n{}    \n\n".format(e)
-        send_reddit_message_to_self(title="problem adding to DB", message=error_message)
+        functions.send_reddit_message_to_self(title="problem adding to DB", message=error_message)
         message.mark_read()
 
 
 def dayinhistory_message(message, path='data/mapporn.db'):
     init(path=path)
     # Split message into a list
-    dih_message = split_message(message.body)
+    dih_message = functions.split_message(message.body)
     day_of_year = ''
     raw_id = ''
     title = ''
@@ -183,8 +183,8 @@ def dayinhistory_message(message, path='data/mapporn.db'):
         error_message = 'Error: Missing parameters \n'
         for line in dih_message:
             error_message += (line + '\n')
-        send_reddit_message_to_self(title='Error processing day in history',
-                                    message=error_message)
+        functions.send_reddit_message_to_self(title='Error processing day in history',
+                                              message=error_message)
         message.mark_read()
         return
 
@@ -199,25 +199,25 @@ def dayinhistory_message(message, path='data/mapporn.db'):
         assert hist_db.rows_count == old_hist_row_count + 1
     except AssertionError as e:
         error_message = "Error: new count did not go up by 1    \n{}    \n\n".format(e)
-        send_reddit_message_to_self(title="problem adding to DB", message=error_message)
+        functions.send_reddit_message_to_self(title="problem adding to DB", message=error_message)
         message.mark_read()
     except Exception as e:
         error_message = "Could not add map to historymaps\n" \
                         "Error: " + str(e) + "\n" \
                                              "Post Title: " + str(title)
-        send_reddit_message_to_self(title="Could not add to day_of_year.db", message=error_message)
+        functions.send_reddit_message_to_self(title="Could not add to day_of_year.db", message=error_message)
 
 
 def other_message(message, path='data/mapporn.db'):
     msg = message.body
     author = str(message.author)
     subject = message.subject
-    send_reddit_message_to_self(title='Message sent to Bot, Please check on it',
-                                message='*/u/{author}* sent this message to the bot. '
-                                        'Please check on it.    \n**Subject:**{subj}     \n**Message:**   \n'
-                                        '{msg}'.format(author=author,
-                                                       subj=subject,
-                                                       msg=msg))
+    functions.send_reddit_message_to_self(title='Message sent to Bot, Please check on it',
+                                          message='*/u/{author}* sent this message to the bot. '
+                                                  'Please check on it.    \n**Subject:**{subj}     \n**Message:**   \n'
+                                                  '{msg}'.format(author=author,
+                                                                 subj=subject,
+                                                                 msg=msg))
     log_db.conn.commit()
     log_db.close()
     init(path=path)
