@@ -1,7 +1,7 @@
 from backup import upload_file
 import classes
 import datetime
-from functions import *
+import functions
 import praw
 import os
 from shutil import copyfile
@@ -46,7 +46,7 @@ def main():
     message += "    \n***   \n"
 
     # Create report of quantities for each time zone group
-    message += create_time_zone_table(soc_db.zone_dict)
+    message += functions.create_time_zone_table(soc_db.zone_dict)
 
     # Make posts older than a year fresh again
     if soc_db.fresh_count < 20:
@@ -61,7 +61,7 @@ def main():
             print(error_message)
 
     # Get failures from last 24 hours and report on them
-    message += fails_last_24_report(db_obj=log_db)
+    message += functions.fails_last_24_report(db_obj=log_db)
 
     # Can get successes from last 24 hours and report on them, but removed it because it is too much text
     # Use the function success_last_24_report(db_obj=log_db) if you'd like to bring it back
@@ -87,7 +87,7 @@ def main():
     # Send results to myself on Reddit
     print(message)
     try:
-        send_reddit_message_to_self(title="Status Report", message=message)
+        functions.send_reddit_message_to_self(title="Status Report", message=message)
     except Exception as e:
         message += "Could not send message on Reddit.    \n{}     \n{}".format(str(e), str(type(e)))
         with open('data/daily_status.txt', 'w') as text_file:
@@ -126,9 +126,9 @@ def test_functions():
 
     # Test Functions in Checkinbox.py
     try:    # Test get_time_zone()
-        assert get_time_zone('London') == 0
-        assert get_time_zone('909523[reteopipgfrtAfrica436i') == 1
-        assert get_time_zone('354tp4t[fds..dsfDenverre9sg') == -7
+        assert functions.get_time_zone('London') == 0
+        assert functions.get_time_zone('909523[reteopipgfrtAfrica436i') == 1
+        assert functions.get_time_zone('354tp4t[fds..dsfDenverre9sg') == -7
     except AssertionError as e:
         error_message += ("get_time_zone function not working    \n{}    \n".format(str(e)))
         my_diag.traceback = error_message
@@ -136,9 +136,9 @@ def test_functions():
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
         my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
         print(error_message)
-    random_string = create_random_string(10)
+    random_string = functions.create_random_string(10)
     try:
-        assert get_time_zone(random_string) == 99
+        assert functions.get_time_zone(random_string) == 99
     except AssertionError as e:
         error_message += ("get_time_zone function not working    \n{}    \n{}    \n".format(str(e), random_string))
         error_message += ("get_time_zone function not working    \n{}    \n".format(str(e)))
@@ -147,10 +147,10 @@ def test_functions():
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
         my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))  # Re-initialize the diagnostic
     try:    # Test split_message()
-        assert split_message("https://redd.it/9cmxi1\ntext goes here\n12") == \
+        assert functions.split_message("https://redd.it/9cmxi1\ntext goes here\n12") == \
                ['https://redd.it/9cmxi1', 'text goes here', '12']
-        assert split_message("1\n2\n3") == ['1', '2', '3']
-        assert split_message('https://redd.it/9e6vbg') == ['https://redd.it/9e6vbg']
+        assert functions.split_message("1\n2\n3") == ['1', '2', '3']
+        assert functions.split_message('https://redd.it/9e6vbg') == ['https://redd.it/9e6vbg']
     except AssertionError as e:
         error_message += ("Could not run split_message() function   \n{}   \n\n".format(e))
         my_diag.traceback = error_message
@@ -162,7 +162,7 @@ def test_functions():
     # Test Functions in functions.py
     try:    # Test create_random_string() function
         for x in range(6, 15, 2):
-            assert len(create_random_string(x)) == x
+            assert len(functions.create_random_string(x)) == x
     except AssertionError as e:
         error_message += ("create_random_string() test FAILED    \n{}    \n\n".format(e))
         my_diag.traceback = error_message
@@ -262,7 +262,7 @@ def check_where_in_world():
 def check_map_contest():
     message = ''
     try:
-        map_subms = count_lines_of_file('submissions.csv')
+        map_subms = functions.count_lines_of_file('submissions.csv')
         with open('data/votingpostdata.txt', 'r') as f:
             last_contest_raw = f.read()
         last_contest_time = r.submission(id=last_contest_raw).created
