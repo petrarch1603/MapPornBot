@@ -140,23 +140,25 @@ def socmedia_message(message, path='data/mapporn.db'):
     try:
         old_count = soc_db.rows_count
         time_zone = get_time_zone((strip_punc(title)))
-        if time_zone == 99:
+        if time_zone == 99 and path == 'data/mapporn.db':
             my_message = ("No time zone parsed from this title.    \n"
                           "Check it and see if there are any "
                           "locations to add to the CSV.    \n" + str(title))
             send_reddit_message_to_self(title="No time zones found", message=my_message)
+        init(path=path)
         soc_db.add_row_to_db(raw_id=raw_id,
                              text=title,
                              time_zone=time_zone,
                              fresh=int(fresh_status),
                              date_posted=date_posted)
+        soc_db.conn.commit()
         soc_db.close()
         init(path=path)
         new_count = soc_db.rows_count
     except Exception as e:
         error_message = "Error: could not add to soc_db    \n{}    \n\n".format(e)
         message.mark_read()
-        return
+        return error_message
 
     # Check that the soc_db row count increased
     try:
@@ -168,7 +170,7 @@ def socmedia_message(message, path='data/mapporn.db'):
 
 
 def dayinhistory_message(message, path='data/mapporn.db'):
-
+    init(path=path)
     # Split message into a list
     dih_message = split_message(message.body)
     day_of_year = ''
