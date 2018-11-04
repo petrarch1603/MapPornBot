@@ -73,7 +73,6 @@ def contest_message(message):
         submission[i] = submission[i].lstrip().rstrip()
     submission.append(message.author)  # Add author value
     submission.append(message)  # Add unique value for the message. This is important for indexing later on.
-    message.mark_read()
     message.reply(MessageReply)
     return submission
 
@@ -91,7 +90,7 @@ def add_submission_to_csv(submission):
 
 
 def socmedia_message(message, path='data/mapporn.db'):
-    my_diag.table = 'socmediamaps'
+    init(path=path)
     socmediamap = split_message(message.body)
     title = None
 
@@ -140,15 +139,7 @@ def socmedia_message(message, path='data/mapporn.db'):
     # Check if raw_id is already in soc_db
     try:
         assert soc_db.check_if_already_in_db(raw_id=raw_id) is False
-    except AssertionError as e:
-        error_message = "Map already in database    \n{}    \n\n".format(e)
-        my_diag.traceback = error_message
-        my_diag.severity = 1
-        print(my_diag.make_dict())
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
-        log_db.conn.commit()
-        log_db.close()
-        init()
+    except AssertionError:
         message.mark_read()
         return
 
@@ -171,32 +162,14 @@ def socmedia_message(message, path='data/mapporn.db'):
         new_count = soc_db.rows_count
     except Exception as e:
         error_message = "Error: could not add to soc_db    \n{}    \n\n".format(e)
-        my_diag.traceback = error_message
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-        log_db.conn.commit()
-        log_db.close()
-        init()
         message.mark_read()
         return
 
     # Check that the soc_db row count increased
     try:
         assert int(new_count) == (int(old_count) + 1)
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
-        log_db.conn.commit()
-        log_db.close()
-        init(path=path)
-        message.mark_read()
-        print('Successfully added to soc_db')
     except AssertionError as e:
         error_message = "Error: new count did not go up by 1    \n{}    \n\n".format(e)
-        my_diag.traceback = error_message
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=error_message)
-        log_db.conn.commit()
-        log_db.close()
-        init()
         send_reddit_message_to_self(title="problem adding to DB", message=error_message)
         message.mark_read()
 
@@ -226,17 +199,10 @@ def dayinhistory_message(message, path='data/mapporn.db'):
             title = item
 
     # Validate all parameters are included
-    my_diag.title = title
     if title == '' or raw_id == '' or day_of_year == '':
         error_message = 'Error: Missing parameters \n'
         for line in dih_message:
             error_message += (line + '\n')
-        my_diag.traceback = error_message
-        my_diag.severity = 1
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=error_message)
-        log_db.conn.commit()
-        log_db.close()
-        init()
         send_reddit_message_to_self(title='Error processing day in history',
                                     message=error_message)
         message.mark_read()
@@ -249,34 +215,17 @@ def dayinhistory_message(message, path='data/mapporn.db'):
         hist_db.add_row_to_db(raw_id=raw_id, text=title, day_of_year=day_of_year)
         hist_db.conn.commit()
         hist_db.close()
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
-        log_db.conn.commit()
-        log_db.close()
         init(path=path)
         assert hist_db.rows_count == old_hist_row_count + 1
     except AssertionError as e:
         error_message = "Error: new count did not go up by 1    \n{}    \n\n".format(e)
-        my_diag.traceback = error_message
-        my_diag.severity = 2
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=error_message)
-        log_db.conn.commit()
-        log_db.close()
-        init()
         send_reddit_message_to_self(title="problem adding to DB", message=error_message)
         message.mark_read()
     except Exception as e:
         error_message = "Could not add map to historymaps\n" \
                         "Error: " + str(e) + "\n" \
                                              "Post Title: " + str(title)
-        my_diag.severity = 2
-        my_diag.traceback = error_message
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0, error_text=error_message)
-        log_db.conn.commit()
-        log_db.close()
-        init()
         send_reddit_message_to_self(title="Could not add to day_of_year.db", message=error_message)
-
-    message.mark_read()
 
 
 def other_message(message, path='data/mapporn.db'):
