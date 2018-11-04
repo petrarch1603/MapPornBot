@@ -1,5 +1,5 @@
 import checkinbox
-from classes import *
+import classes
 from functions import coin_toss, create_random_string
 import os
 import random
@@ -37,10 +37,10 @@ class MockMessage:  # Mock message for testing checkinbox.py
 
 def init():
     global test_hist_db, test_log_db, test_soc_db, test_jour_db, test_db_list
-    test_hist_db = HistoryDB(path=test_db_path)
-    test_log_db = LoggingDB(path=test_db_path)
-    test_soc_db = SocMediaDB(path=test_db_path)
-    test_jour_db = JournalDB(path=test_db_path)
+    test_hist_db = classes.HistoryDB(path=test_db_path)
+    test_log_db = classes.LoggingDB(path=test_db_path)
+    test_soc_db = classes.SocMediaDB(path=test_db_path)
+    test_jour_db = classes.JournalDB(path=test_db_path)
     test_db_list = [test_hist_db, test_log_db, test_soc_db, test_jour_db]
 
 
@@ -48,7 +48,7 @@ def test_close_all():
     for db in test_db_list:
         try:
             db.close()
-        except sqlite3.ProgrammingError as e:
+        except classes.sqlite3.ProgrammingError as e:
             if str(e) == "Cannot operate on a closed database.":
                 print('Closed Database')
             else:
@@ -190,7 +190,7 @@ def test_add_entries(num_of_entries):
         test_hist_db.add_row_to_db(raw_id=rand_hist_id,
                                    text=create_random_string(10),
                                    day_of_year=random.randint(1, 365))
-        my_diag_dic = Diagnostic(script=(create_random_string(8)) + '.py')
+        my_diag_dic = classes.Diagnostic(script=(create_random_string(8)) + '.py')
         my_diag_dic.raw_id = create_random_string(6)
         my_diag_dic.severity = random.randint(1, 9)
         my_diag_dic.table = create_random_string(6)
@@ -301,8 +301,6 @@ def test_check_inbox(number_of_tests=5):
             test_hist_db.delete_by_raw_id(rand_raw_id)
         except AssertionError as e:
             error_message += "Error when testing dayinhistory message   \n{}".format(e)
-
-
     return error_message
 
 
