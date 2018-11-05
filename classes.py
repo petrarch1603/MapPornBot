@@ -15,7 +15,7 @@ import time
 import tweepy
 
 
-class MapRow():
+class MapRow:
     """
     Class for turning a map row into an object.
 
@@ -61,7 +61,7 @@ class MapRow():
         dtdelta = datetime.timedelta(days=self.dict['day_of_year'])
         return (dt + dtdelta).strftime('%Y/%m/%d')
 
-    def create_diagnostic(self, script): # Note do not run this from the script, use post_to_social_media() instead
+    def create_diagnostic(self, script):  # Note do not run this from the script, use post_to_social_media() instead
         map_row_diag = Diagnostic(script=script)
         for k, v in self.dict.items():
             if k == 'raw_id':
@@ -811,27 +811,21 @@ class ShotgunBlast:
                 url = self.praw_obj.preview['images'][0]['resolutions'][3][
                     'url']  # This is the smaller image. Using this because Twitter doesn't like huge files.
                 request = requests.get(url, stream=True)
-                try:
-                    assert request.status_code == 200
-                    with open(filename, 'wb') as image:
-                        for chunk in request:
-                            image.write(chunk)
-                    filesize = os.path.getsize('temp.jpg')
-                except AssertionError as e:
-                    raise Exception('Could not download image! Reddit might be down.    \n{}    \n\n'.format(str(e)))
+                assert request.status_code == 200
+                with open(filename, 'wb') as image:
+                    for chunk in request:
+                        image.write(chunk)
+                filesize = os.path.getsize('temp.jpg')
             if filesize > 3070000:
                 os.remove(filename)
                 filename = 'temp.jpg'
                 url = self.praw_obj.preview['images'][0]['resolutions'][3][
                     'url']  # This is the smaller image. Using this because Twitter doesn't like huge files.
                 request = requests.get(url, stream=True)
-                try:
-                    assert request.status_code == 200
-                    with open(filename, 'wb') as image:
-                        for chunk in request:
-                            image.write(chunk)
-                except AssertionError as e:
-                    raise Exception('Could not download image! Reddit might be down.    \n{}    \n\n'.format(str(e)))
+                assert request.status_code == 200
+                with open(filename, 'wb') as image:
+                    for chunk in request:
+                        image.write(chunk)
             return filename
         except AssertionError as e:
             raise Exception('Could not download image!    \n{}    \n\n'.format(str(e)))
@@ -921,28 +915,31 @@ class ShotgunBlast:
                        str(self.shortlink)
             # Test title length of 270
                 assert (self.get_title(raw_title='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec '
-                                                 'magna luctus, vestibulum diam sed, condimentum ante. Sed pharetra '
-                                                 'blandit tortor, non tempus ex suscipit vel. Nulla facilisi. Quisque orci '
-                                                 'est, aliquam in ornare ac, scelerisque quis dui. Nullam metus.')) \
-                    == 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec magna luctus, vestibulum ' \
+                                       'magna luctus, vestibulum diam sed, condimentum ante. Sed pharetra '
+                                       'blandit tortor, non tempus ex suscipit vel. Nulla facilisi. Quisque orci '
+                                       'est, aliquam in ornare ac, scelerisque quis dui. Nullam metus.')) \
+                    == 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec magna luctus, ' \
+                       'vestibulum ' \
                        'diam sed, condimentum ante. Sed pharetra blandit tortor, non tempus ex suscipit vel. Nulla ' \
                        'facilisi. Quisque orci est, aliquam in ornare ac, scelerisque quis du... ' + self.shortlink
             # Test title input of length 245 (280 - shortlink length). Should include #MapPorn
-                assert (self.get_title(raw_title='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis '
-                                                 'turpis ante, eget pellentesque Quebec sagittis sed. Nullam vel finibus '
-                                                 'metus. Aenean bibendum, nisl nec varius ultrices, augue arcu rutrum '
-                                                 'nunc, vel pharetra justo lorem vel yz')) \
+                assert (self.get_title(raw_title='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc '
+                                       'facilisis turpis ante, eget pellentesque Quebec sagittis sed. Nullam vel '
+                                                 'finibus metus. Aenean bibendum, nisl nec varius ultrices, augue '
+                                                 'arcu rutrum nunc, vel pharetra justo lorem vel yz')) \
                     == 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis turpis ante, eget ' \
                        'pellentesque Quebec sagittis sed. Nullam vel finibus metus. Aenean bibendum, nisl nec varius ' \
-                       'ultrices, augue arcu rutrum nunc, vel pharetra justo lorem vel yz ' + self.shortlink + ' #MapPorn'
+                       'ultrices, augue arcu rutrum nunc, vel pharetra justo lorem vel yz ' + \
+                       self.shortlink + ' #MapPorn'
             # Test title input with location hashtag
-                assert (self.get_title(raw_title='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis '
-                                                 'turpis ante, eget pellentesque tellus sagittis sed. Nullam vel finibus '
-                                                 'metus. Aenean bibendum, nisl nec varius ultrices, augue arcu rutrum '
-                                                 'nunc, vel pharetra justo lore London')) \
+                assert (self.get_title(raw_title='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc '
+                                                 'facilisis turpis ante, eget pellentesque tellus sagittis sed. '
+                                                 'Nullam vel finibus metus. Aenean bibendum, nisl nec varius '
+                                                 'ultrices, augue arcu rutrum nunc, vel pharetra justo lore London')) \
                     == 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis turpis ante, eget ' \
                        'pellentesque tellus sagittis sed. Nullam vel finibus metus. Aenean bibendum, nisl nec varius ' \
-                       'ultrices, augue arcu rutrum nunc, vel pharetra justo lore #London ' + self.shortlink + ' #MapPorn'
+                       'ultrices, augue arcu rutrum nunc, vel pharetra justo lore #London ' + \
+                       self.shortlink + ' #MapPorn'
         except AssertionError as e:
             status += 'get_title test FAILED    \n{}    \n\n'.format(str(e))
             print(status)
