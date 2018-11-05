@@ -995,3 +995,35 @@ class GenericPost:
             "title": self.title}
         print(socialmediadict)
         return socialmediadict
+
+
+hist_schema = OrderedDict([('raw_id', 'TEXT'),
+                           ('text', 'TEXT'),
+                           ('day_of_year', 'NUMERIC')])
+
+soc_schema = OrderedDict([('raw_id', 'TEXT'),
+                          ('text', 'TEXT'),
+             ('time_zone', 'NUMERIC'),
+             ('fresh', 'NUMERIC'),
+             ('date_posted', 'DATE'),
+             ('post_error', 'NUMERIC')])
+
+log_schema = OrderedDict([('date', 'NUMERIC'),
+                                                   ('error_text', 'TEXT'),
+                                                   ('diagnostics', 'TEXT'),
+                                                   ('passfail', 'NUMERIC')])
+
+jour_schema = OrderedDict([('date', 'NUMERIC'),
+                                              ('hist_rows', 'NUMERIC'),
+                                              ('log_rows', 'NUMERIC'),
+                                              ('soc_rows', 'NUMERIC'),
+                                              ('fresh_rows', 'NUMERIC'),
+                                              ('errors_24', 'NUMERIC'),
+                                              ('successes_24', 'NUMERIC'),
+                                              ('benchmark_time', 'REAL'),
+                                              ('dict', 'TEXT')])
+
+schema_dict = {'journal': jour_schema,
+               'logging': log_schema,
+               'socmediamaps': soc_schema,
+               'historymaps': hist_schema}
