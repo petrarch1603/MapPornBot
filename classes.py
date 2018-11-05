@@ -148,7 +148,7 @@ class Diagnostic:
         :param path: (str) Path to database, defaults to production database, can be changed for testing.
         """
         self.raw_id = None
-        self.severity = None
+        self.severity = 0
         self.table = None
         self.traceback = None
         self.tweet = None
