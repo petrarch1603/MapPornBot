@@ -99,14 +99,6 @@ def socmedia_message(message, path='data/mapporn.db'):
     except IndexError:
         title = r.submission(id=raw_id).title
 
-    # Add option for making the map not fresh when added to database
-    try:
-        if str(socmediamap[2]) == '0':
-            fresh_status = 0
-            date_posted = int(time.time())
-    except IndexError:
-        pass
-
     # Remove double quotes, very important for inserting into database
     title = classes.ShotgunBlast.remove_text_inside_brackets(title.replace("\"", "'"))
 
@@ -151,7 +143,6 @@ def socmedia_message(message, path='data/mapporn.db'):
 
 
 def dayinhistory_message(message, path='data/mapporn.db'):
-    init(path=path)
     # Split message into a list
     dih_message = functions.split_message(message.body)
     day_of_year = ''
