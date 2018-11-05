@@ -61,7 +61,7 @@ class MapRow():
         dtdelta = datetime.timedelta(days=self.dict['day_of_year'])
         return (dt + dtdelta).strftime('%Y/%m/%d')
 
-    def create_diagnostic(self, script):
+    def create_diagnostic(self, script): # Note do not run this from the script, use post_to_social_media() instead
         map_row_diag = Diagnostic(script=script)
         for k, v in self.dict.items():
             if k == 'raw_id':
@@ -72,7 +72,7 @@ class MapRow():
                 map_row_diag.zone = int(v)
         self.diag = map_row_diag
 
-    def blast(self):
+    def blast(self):  # Note do not run this from the script, use post_to_social_media() instead
         try:
             my_blast = ShotgunBlast(praw_obj=self.praw, title=self.text, announce_input=self.announce_input)
             assert my_blast.check_integrity() == 'PASS'
@@ -251,7 +251,13 @@ class HistoryDB(MapDB):
 
     def get_rows_by_date(self, date):
         assert isinstance(date, int)
-        return [x for x in (self.curs.execute("SELECT * FROM {} WHERE day_of_year = {}".format(self.table, date)))]
+        rows_list = [x for x in (self.curs.execute("SELECT * FROM {} WHERE day_of_year = {}".format(self.table, date)))]
+        obj_list = []
+        if len(rows_list) > 0:
+            for i in range(len(rows_list)):
+                my_row = MapRow(schema=self.schema, row=rows_list[i], table=self.table)
+                obj_list.append(my_row)
+        return obj_list
 
     def change_date(self, raw_id, new_date):
         self.curs.execute("UPDATE {} SET day_of_year={} WHERE raw_id='{}'".format(self.table, new_date, raw_id))
