@@ -24,7 +24,7 @@ class MapRow:
         row (list): List of all the elements of a single database row instance
     """
 
-    def __init__(self, schema, row, table):
+    def __init__(self, schema, row, table, path='data/mapporn.db'):
         """
         The constructor for MapRow class.
 
@@ -44,6 +44,7 @@ class MapRow:
         r = praw.Reddit('bot1')
         self.praw = r.submission(id=self.dict['raw_id'])
         self.diag = None
+        self.path = path
 
     def date(self):
         """
@@ -62,7 +63,7 @@ class MapRow:
         return (dt + dtdelta).strftime('%Y/%m/%d')
 
     def create_diagnostic(self, script):  # Note do not run this from the script, use post_to_social_media() instead
-        map_row_diag = Diagnostic(script=script)
+        map_row_diag = Diagnostic(script=script, path=self.path)
         for k, v in self.dict.items():
             if k == 'raw_id':
                 map_row_diag.raw_id = v
