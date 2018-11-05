@@ -28,8 +28,9 @@ class MapRow:
         """
         The constructor for MapRow class.
 
-        :param schema: (dict) keys of schema are the names of the each schema element
-        :param row: (list) list of all elements of a single database row instance
+        :param schema: (dict) keys of schema are the names of the each schema element.
+        :param row: (list) list of all elements of a single database row instance.
+        :param table: (str) name of the database table that this map row belongs to.
         """
         self.schema = schema.keys()
         self.table = table
@@ -52,9 +53,9 @@ class MapRow:
 
     def date(self):
         """
-        The function to get a date in a human readable format
+        Method to get a date in a human readable format
 
-        :return: date in human readable format
+        :return: (str) date in human readable format
         """
         try:
             self.dict['day_of_year']
@@ -244,6 +245,8 @@ class MapDB:
         for tup in self.curs.fetchall():
             schema_dic[tup[1]] = tup[2]
         self.schema = schema_dic
+        assert self.schema == schema_dict[self.table]
+        # TODO - Remove this assertion from integrity checks
 
     def __len__(self):
         return self.curs.execute('SELECT count(*) FROM {}'.format(self.table)).fetchall()[0][0]
@@ -252,6 +255,7 @@ class MapDB:
         return self.curs.execute("SELECT * FROM {}".format(self.table)).fetchall()
 
     def get_random_row(self, count=1):
+        # TODO: turn the return into an object
         return self.curs.execute("SELECT * FROM {} ORDER BY RANDOM() LIMIT {}".format(self.table, count)).fetchall()
 
     def delete_by_raw_id(self, raw_id_to_delete):
