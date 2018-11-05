@@ -276,6 +276,7 @@ def test_check_inbox(number_of_tests=5):
 
         try:
             init()
+            # TODO: updated_row should return a MapRow and not a list
             updated_row = test_soc_db.get_row_by_raw_id(rand_raw_id)
             assert updated_row[0] == rand_raw_id
             assert updated_row[1] == rand_title
