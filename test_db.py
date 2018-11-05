@@ -99,9 +99,10 @@ def test_days_in_history():
     init()
 
     # Check that the five raw_ids have the new random dates
-    # k is a raw_id, v is a date integer
-    for k, v in raw_ids_dict.items():
-        assert str(k) in str(test_hist_db.get_rows_by_date(v))
+    for my_raw_id, date in raw_ids_dict.items():
+        maprow_list = test_hist_db.get_rows_by_date(date=date)
+        # Check every object in list and make sure at least one has the raw_id
+        assert any(i.raw_id == my_raw_id for i in maprow_list)
     test_close_all()
 
 
