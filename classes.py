@@ -32,17 +32,21 @@ class MapRow:
         :param row: (list) list of all elements of a single database row instance
         """
         self.schema = schema.keys()
+        self.table = table
         if len(row) != len(self.schema):
             raise ValueError("schema size and row size must be equal")
         self.dict = dict(zip(self.schema, row))
-        self.table = table
-        self.text = ''
         self.announce_input = ''
+        self.date_posted = ''
+        self.day_of_year = ''
+        self.fresh = ''
+        self.raw_id = ''
+        self.text = ''
+        self.time_zone = ''
         # Set attributes from keys of row dictionary
         for k, v in self.dict.items():
             self.__dict__[str(k)] = v
-        r = praw.Reddit('bot1')
-        self.praw = r.submission(id=self.dict['raw_id'])
+        self.praw = praw.Reddit('bot1').submission(id=self.dict['raw_id'])
         self.diag = None
         self.path = path
 
