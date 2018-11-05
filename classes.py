@@ -35,7 +35,7 @@ class MapRow:
         self.schema = schema.keys()
         self.table = table
         if len(row) != len(self.schema):
-            raise ValueError("schema size and row size must be equal")
+            raise ValueError("length of elements of schema and length of elements in row must be equal")
         self.dict = dict(zip(self.schema, row))
         self.announce_input = ''
         self.date_posted = ''
@@ -77,6 +77,7 @@ class MapRow:
             if k == 'time_zone':
                 map_row_diag.zone = int(v)
         self.diag = map_row_diag
+        self.diag.table = self.table
 
     def blast(self):  # Note do not run this from the script, use post_to_social_media() instead
         try:
@@ -101,9 +102,8 @@ class MapRow:
             self.diag.traceback = e
             self.diag.add_to_logging(passfail=0)
 
-    def post_to_social_media(self, table, script):
+    def post_to_social_media(self, script):
         self.create_diagnostic(script=script)
-        self.diag.table = table
         self.blast()
 
     def add_row_to_db(self, script):
