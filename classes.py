@@ -128,6 +128,7 @@ class MapRow:
             soc_db.close()
             soc_db = SocMediaDB(path=self.path)
             assert old_row_count + 1 == soc_db.rows_count
+        self.diag.add_to_logging(passfail=1)
 
 
 class Diagnostic:
