@@ -91,55 +91,46 @@ def socmedia_message(message, path='data/mapporn.db'):
     raw_id = socmediamap[0][-6:]
     fresh_status = 1
     date_posted = 'NULL'
+    post_error = 0
+    table = 'socmediamaps'
 
-    # Get title and clean it up
-    try:
-        if socmediamap[1]:
-            title = socmediamap[1]
-    except IndexError:
+    # Get title and clean it up - adjust fresh status if third line is 0
+    if len(socmediamap) > 2 and str(socmediamap[2]) == '0':
+        fresh_status = 0
+        date_posted = int(time.time())
+        title = socmediamap[1]
+    elif len(socmediamap) > 1:
+        title = socmediamap[1]
+    else:
         title = r.submission(id=raw_id).title
 
     # Remove double quotes, very important for inserting into database
     title = classes.ShotgunBlast.remove_text_inside_brackets(title.replace("\"", "'"))
 
-    # Check if raw_id is already in soc_db
-    try:
-        assert soc_db.check_if_already_in_db(raw_id=raw_id) is False
-    except AssertionError:
-        message.mark_read()
-        return
+    # Get time_zone
+    time_zone = functions.get_time_zone((functions.strip_punc(title)))
+    if time_zone == 99 and path == 'data/mapporn.db':
+        my_message = ("No time zone parsed from this title.    \n"
+                      "Check it and see if there are any "
+                      "locations to add to the CSV.    \n" + str(title))
+        functions.send_reddit_message_to_self(title="No time zones found", message=my_message)
 
-    # Add to soc_db
+    # Put all the variables in the list to pass to MapRow
+    my_maprow_list = [raw_id,
+                      title,
+                      time_zone,
+                      fresh_status,
+                      date_posted,
+                      post_error]
+
+    # Create MapRow Object and add to database
+    my_maprow = classes.MapRow(schema=classes.schema_dict[table], row=my_maprow_list, table=table, path=path)
     try:
-        old_count = soc_db.rows_count
-        time_zone = functions.get_time_zone((functions.strip_punc(title)))
-        if time_zone == 99 and path == 'data/mapporn.db':
-            my_message = ("No time zone parsed from this title.    \n"
-                          "Check it and see if there are any "
-                          "locations to add to the CSV.    \n" + str(title))
-            functions.send_reddit_message_to_self(title="No time zones found", message=my_message)
-        init(path=path)
-        soc_db.add_row_to_db(raw_id=raw_id,
-                             text=title,
-                             time_zone=time_zone,
-                             fresh=int(fresh_status),
-                             date_posted=date_posted)
-        soc_db.conn.commit()
-        soc_db.close()
-        init(path=path)
-        new_count = soc_db.rows_count
+        my_maprow.add_row_to_db(script=script)
     except Exception as e:
-        error_message = "Error: could not add to soc_db    \n{}    \n\n".format(e)
-        message.mark_read()
-        return error_message
-
-    # Check that the soc_db row count increased
-    try:
-        assert int(new_count) == (int(old_count) + 1)
-    except AssertionError as e:
-        error_message = "Error: new count did not go up by 1    \n{}    \n\n".format(e)
-        functions.send_reddit_message_to_self(title="problem adding to DB", message=error_message)
-        message.mark_read()
+        functions.send_reddit_message_to_self(title='error adding to database',
+                                              message="Socmedia Script Problem: {}   \n{}".format(e, script))
+    message.mark_read()
 
 
 def dayinhistory_message(message, path='data/mapporn.db'):
@@ -148,7 +139,7 @@ def dayinhistory_message(message, path='data/mapporn.db'):
     day_of_year = ''
     raw_id = ''
     title = ''
-
+    table = 'historymaps'
     # Parse Message
     for item in dih_message:
 
@@ -172,25 +163,17 @@ def dayinhistory_message(message, path='data/mapporn.db'):
                                               message=error_message)
         message.mark_read()
         return
+    title = classes.ShotgunBlast.remove_text_inside_brackets(title.replace("\"", "'"))
 
-    # Try to add to hist_db
+    # Create MapRow and add to database
+    my_maprow_list = [raw_id, title, day_of_year]
+    my_maprow = classes.MapRow(schema=classes.schema_dict[table], row=my_maprow_list, table=table, path=path)
     try:
-        title = classes.ShotgunBlast.remove_text_inside_brackets(title.replace("\"", "'"))
-        old_hist_row_count = hist_db.rows_count
-        hist_db.add_row_to_db(raw_id=raw_id, text=title, day_of_year=day_of_year)
-        hist_db.conn.commit()
-        hist_db.close()
-        init(path=path)
-        assert hist_db.rows_count == old_hist_row_count + 1
-    except AssertionError as e:
-        error_message = "Error: new count did not go up by 1    \n{}    \n\n".format(e)
-        functions.send_reddit_message_to_self(title="problem adding to DB", message=error_message)
-        message.mark_read()
+        my_maprow.add_row_to_db(script=script)
     except Exception as e:
-        error_message = "Could not add map to historymaps\n" \
-                        "Error: " + str(e) + "\n" \
-                                             "Post Title: " + str(title)
-        functions.send_reddit_message_to_self(title="Could not add to day_of_year.db", message=error_message)
+        functions.send_reddit_message_to_self(title='error adding to database',
+                                              message="history Script Problem: {}   \n{}".format(e, script))
+    message.mark_read()
 
 
 def other_message(message, path='data/mapporn.db'):
