@@ -73,11 +73,9 @@ def add_submission_to_csv(submission):
 
 
 def socmedia_message(message, path='data/mapporn.db'):
-    init(path=path)
     socmediamap = functions.split_message(message.body)
     for i, v in enumerate(socmediamap):
         socmediamap[i] = socmediamap[i].lstrip().rstrip()
-    title = None
 
     # Verify that there is a Reddit shortlink in the message
     try:
