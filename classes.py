@@ -100,6 +100,29 @@ class MapRow:
         self.diag.table = table
         self.blast()
 
+    def add_row_to_db(self, script):
+        self.create_diagnostic(script=script)
+        if self.table == 'historymaps':
+            hist_db = HistoryDB(path=self.path)
+            old_row_count = hist_db.rows_count
+            hist_db.add_row_to_db(raw_id=self.raw_id, text=self.text, day_of_year=self.day_of_year)
+            hist_db.close()
+            hist_db = HistoryDB(path=self.path)
+            assert old_row_count + 1 == hist_db.rows_count
+            hist_db.close()
+        elif self.table == 'socmediamaps':
+            soc_db = SocMediaDB(path=self.path)
+            assert soc_db.check_if_already_in_db(raw_id=self.raw_id) is False
+            old_row_count = soc_db.rows_count
+            soc_db.add_row_to_db(raw_id=self.raw_id,
+                                 text=self.text,
+                                 time_zone=int(self.time_zone),
+                                 fresh=int(self.fresh),
+                                 date_posted=self.date_posted)
+            soc_db.close()
+            soc_db = SocMediaDB(path=self.path)
+            assert old_row_count + 1 == soc_db.rows_count
+
 
 class Diagnostic:
     """This is a class for diagnosing failures and success of scripts."""
