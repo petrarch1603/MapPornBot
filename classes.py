@@ -329,9 +329,8 @@ class HistoryDB(MapDB):
             except AssertionError as e:
                 status += "* Randoms days do not return a list   \n{}    \n{}   \n".format(str(e), str(type(e)))
         try:
-            assert self.schema == OrderedDict([('raw_id', 'TEXT'),
-                                               ('text', 'TEXT'),
-                                               ('day_of_year', 'NUMERIC')])
+            assert self.schema == schema_dict[self.table]
+
         except AssertionError as e:
             status += "* Schema check failed!   \n{}    \n{}   \n".format(str(e), str(type(e)))
         if status == '':
@@ -510,12 +509,7 @@ class SocMediaDB(MapDB):
                 status += "* Check if already in db method failed using a fake raw_id    \n" \
                           "{}    \n{}    \n".format(str(e), str(type(e)))
         try:
-            assert self.schema == OrderedDict([('raw_id', 'TEXT'),
-                                               ('text', 'TEXT'),
-                                               ('time_zone', 'NUMERIC'),
-                                               ('fresh', 'NUMERIC'),
-                                               ('date_posted', 'DATE'),
-                                               ('post_error', 'NUMERIC')])
+            assert self.schema == schema_dict[self.table]
         except AssertionError as e:
             status += "* Schema check failed!   \n{}    \n{}    \n".format(str(e), str(type(e)))
         try:
@@ -673,10 +667,7 @@ class LoggingDB(MapDB):
                     raise AssertionError
                 this_diag = Diagnostic.diag_dict_to_obj(i[2])
                 assert str(this_diag.script).endswith(".py")
-                assert self.schema == OrderedDict([('date', 'NUMERIC'),
-                                                   ('error_text', 'TEXT'),
-                                                   ('diagnostics', 'TEXT'),
-                                                   ('passfail', 'NUMERIC')])
+                assert self.schema == schema_dict[self.table]
         except AssertionError as e:
             status += 'Error encountered: {}\n'.format(str(e))
         try:
@@ -731,15 +722,7 @@ class JournalDB(MapDB):
         except AssertionError as e:
             status += "* column type check failed!\n     {}\n\n".format(str(e))
         try:
-            assert self.schema == OrderedDict([('date', 'NUMERIC'),
-                                              ('hist_rows', 'NUMERIC'),
-                                              ('log_rows', 'NUMERIC'),
-                                              ('soc_rows', 'NUMERIC'),
-                                              ('fresh_rows', 'NUMERIC'),
-                                              ('errors_24', 'NUMERIC'),
-                                              ('successes_24', 'NUMERIC'),
-                                              ('benchmark_time', 'REAL'),
-                                              ('dict', 'TEXT')])
+            assert self.schema == schema_dict[self.table]
         except AssertionError as e:
             status += "* Schema Check Failed!\n     {}\n\n".format(str(e))
         if status == '':
