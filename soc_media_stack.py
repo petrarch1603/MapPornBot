@@ -17,9 +17,7 @@ def main():
     map_row = soc_db.get_one_map_row(target_zone=my_target_zone)
     map_row.post_to_social_media(table=soc_db.table, script=str(os.path.basename(__file__)))
 
-    soc_db.conn.commit()
     soc_db.close()
-    log_db.conn.commit()
     log_db.close()
 
 
