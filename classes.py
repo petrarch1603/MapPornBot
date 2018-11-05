@@ -1019,15 +1019,15 @@ hist_schema = OrderedDict([('raw_id', 'TEXT'),
 
 soc_schema = OrderedDict([('raw_id', 'TEXT'),
                           ('text', 'TEXT'),
-             ('time_zone', 'NUMERIC'),
-             ('fresh', 'NUMERIC'),
-             ('date_posted', 'DATE'),
-             ('post_error', 'NUMERIC')])
+                          ('time_zone', 'NUMERIC'),
+                          ('fresh', 'NUMERIC'),
+                          ('date_posted', 'DATE'),
+                          ('post_error', 'NUMERIC')])
 
 log_schema = OrderedDict([('date', 'NUMERIC'),
-                                                   ('error_text', 'TEXT'),
-                                                   ('diagnostics', 'TEXT'),
-                                                   ('passfail', 'NUMERIC')])
+                          ('error_text', 'TEXT'),
+                          ('diagnostics', 'TEXT'),
+                          ('passfail', 'NUMERIC')])
 
 jour_schema = OrderedDict([('date', 'NUMERIC'),
                                               ('hist_rows', 'NUMERIC'),
@@ -1043,3 +1043,4 @@ schema_dict = {'journal': jour_schema,
                'logging': log_schema,
                'socmediamaps': soc_schema,
                'historymaps': hist_schema}
+
