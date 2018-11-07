@@ -1,3 +1,40 @@
+"""Module containing classes for use in MapPorn Reddit Bot
+
+These classes assist in creating several kinds of objects
+
+Classes:
+    MapRow - A class that contains the information equivalent to one row of a database. They differ slightly
+        depending on which table they are connect.
+    Diagnostic - A class that contains diagnostic information for tracking errors and successful execution of scripts.
+    MapDB - A super class that connects to a database. Objects are not instantiated with this class, instead they are
+        instantiated with subclasses
+    HistoryDB - Subclass of MapDB. This class creates an object that can interact with the History database. This
+        database contains rows indexed by days of year. The script history.py run every day and will publish a map from
+        this row for the corresponding day. This will be published to social media.
+    SocMediaDB - Subclass of MapDB. This is a database containing a multitude of maps. Every three hours a map will be
+        chosen from this database and published to social media. After the map is published it will be marked as "not
+        fresh". After a set amount of time (around 400 days) the map can be "re-freshed". At any given time this
+        database will contain a number of 'fresh' maps that are queued up.
+
+        The maps also have a time zone associated with them for publishing at a target time of the day. Every three
+        hours the script soc_media_stack.py is run and choses a fresh map to publish to social media.
+
+    LoggingDB - Subclass of MapDB. This is a database of logging data. This database is intended to provide insights
+        into script success and failures. Everytime a script is run, a log of data is added to this database.
+
+    JournalDB - Subclass of MapDB. Everyday status.py is ran to test and check functions and methods and to check the
+        integrity of the database. The results of this status check are stored in this database.
+
+    ShotgunBlast - This class will process data from Reddit and post it to social media.
+
+    GenericPost - This class will post to social media materials that do not come from Reddit.
+
+Attributes:
+    schema_dict (dict): Module level dictionary of ordered dictionaries that contain the schema for different databases.
+        They are abstracted here to have a common variable that can be accessed from many parts of scripts.
+
+"""
+
 import ast
 from collections import OrderedDict
 import csv
@@ -22,6 +59,7 @@ class MapRow:
     Attributes:
         schema (dict): The database schema
         row (list): List of all the elements of a single database row instance
+
     """
 
     def __init__(self, schema, row, table, path='data/mapporn.db'):
@@ -31,6 +69,8 @@ class MapRow:
         :param schema: (dict) keys of schema are the names of the each schema element.
         :param row: (list) list of all elements of a single database row instance.
         :param table: (str) name of the database table that this map row belongs to.
+        :param path: (str) path
+
         """
         self.schema = schema.keys()
         self.table = table
@@ -56,6 +96,7 @@ class MapRow:
         Method to get a date in a human readable format
 
         :return: (str) date in human readable format
+
         """
         try:
             self.dict['day_of_year']
@@ -135,8 +176,8 @@ class Diagnostic:
     """This is a class for diagnosing failures and success of scripts."""
 
     def __init__(self, script, path='data/mapporn.db', **kwargs):
-        """
-        The constructor for Diagnostic class.
+        """The constructor for Diagnostic class.
+
         :param script: (str) The name of the script. This param is mandatory.
         :param kwargs: The other arguments are optional, default is None.
         :param raw_id: (str) six character raw id of target Reddit source
@@ -146,6 +187,7 @@ class Diagnostic:
         :param title: (str) Title.
         :param zone: (int) Time zone.
         :param path: (str) Path to database, defaults to production database, can be changed for testing.
+
         """
         self.raw_id = None
         self.severity = 0
@@ -165,6 +207,7 @@ class Diagnostic:
 
         :param diag_dict: (dict)
         :return: (obj) returns an instance of Diagnostic classs.
+
         """
         if type(diag_dict) == str:
             diag_dict = ast.literal_eval(diag_dict)
@@ -191,6 +234,7 @@ class Diagnostic:
         Makes a dictionary from a Diagnostic object.
 
         :return: (dict) of all object attributes.
+
         """
         try:
             if self.raw_id is not None:
@@ -215,6 +259,7 @@ class Diagnostic:
         Returns a pretty string of the contents of the Diagnostic object without any blank attributes.
 
         :return: (str) Pretty string for seeing the contents of the Diagnostic object.
+
         """
         # TODO need to add testing on this method
         # This method prunes out any blank/null/empty fields and returns string of contents
