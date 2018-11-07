@@ -1,3 +1,14 @@
+"""Script for checking Reddit Bot's Inbox
+
+Checks for following message:
+
+    * Map Contest Submission
+    * Social Media Map
+        Adds this map to the SocMedia database. Every three hours a map from this database is posted to social media.
+    * Day in History map
+    * All other messages sent from users to the bot.
+
+"""
 import classes
 import csv
 import functions
@@ -12,6 +23,12 @@ MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting po
 
 
 def init(path='data/mapporn.db'):
+    """Initializes databases, Reddit bot
+
+    :param path: database path
+    :type path: str
+
+    """
     global hist_db, log_db, r, soc_db
     hist_db = classes.HistoryDB(path=path)
     log_db = classes.LoggingDB(path=path)
@@ -19,6 +36,7 @@ def init(path='data/mapporn.db'):
 
 
 def main():
+    """Main script to check inbox"""
     for message in r.inbox.unread():
         init()
 
@@ -49,6 +67,19 @@ def main():
 
 
 def contest_message(message):
+    """Parse the praw message object and create a list for each map contest submission
+
+    :param message: praw message object
+    :type message: obj
+    :return: List of strings:
+                * Url of map submission
+                * Name of map
+                * Description of map
+                * Author of map
+                * Unique identity of submission (derived from the six character praw message id)
+    :rtype: list
+
+    """
     submission = functions.split_message(message.body)
     submission = [w.replace('Link:', '') for w in submission]  # Replace the title 'Link: ' with blankspace.
     submission = [w.replace('Map Name:', '') for w in submission]
@@ -61,6 +92,17 @@ def contest_message(message):
 
 
 def add_submission_to_csv(submission):
+    """Processes the submission list and adds it to csv
+
+    :param submission: List of strings:
+                * Url of map submission
+                * Name of map
+                * Description of map
+                * Author of map
+                * Unique identity of submission (derived from the six character praw message id)
+    :type submission: list
+
+    """
     message_to_me = 'A new map has been submitted. Check the CSV for formatting    \n'
     if len(submission) > 3:
         message_to_me += "**NOTE: the entry is not formatted properly!!**"
@@ -73,6 +115,14 @@ def add_submission_to_csv(submission):
 
 
 def socmedia_message(message, path='data/mapporn.db'):
+    """Parses social media message and adds it to SocMediaDB
+
+    :param message: Praw message object
+    :type message: obj
+    :param path: path to database
+    :type path: str
+
+    """
     socmediamap = functions.split_message(message.body)
     for i, v in enumerate(socmediamap):
         socmediamap[i] = socmediamap[i].lstrip().rstrip()
@@ -134,6 +184,14 @@ def socmedia_message(message, path='data/mapporn.db'):
 
 
 def dayinhistory_message(message, path='data/mapporn.db'):
+    """Parses dayinhistory message and adds it to HistoryDB
+
+    :param message: Praw message object
+    :type message: obj
+    :param path: database path
+    :type path: str
+
+    """
     # Split message into a list
     dih_message = functions.split_message(message.body)
     day_of_year = ''
@@ -176,7 +234,13 @@ def dayinhistory_message(message, path='data/mapporn.db'):
     message.mark_read()
 
 
-def other_message(message, path='data/mapporn.db'):
+def other_message(message):
+    """Receives all other messages sent to bot, and passes it own to a human for further processing
+
+    :param message: praw message object
+    :type message: obj
+
+    """
     msg = message.body
     author = str(message.author)
     subject = message.subject
@@ -188,7 +252,6 @@ def other_message(message, path='data/mapporn.db'):
                                                                  msg=msg))
     log_db.conn.commit()
     log_db.close()
-    init(path=path)
     message.mark_read()
 
 
