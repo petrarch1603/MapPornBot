@@ -16,6 +16,8 @@ import os
 import praw
 import time
 
+# TODO: add type annotations to functions
+
 script = str(os.path.basename(__file__))
 disclaimer = functions.bot_disclaimer()
 MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting post for the contest soon.    ' + '\n' + \
