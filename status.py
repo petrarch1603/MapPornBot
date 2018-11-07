@@ -1,3 +1,6 @@
+"""Script for checking daily status of databases and codebases.
+
+"""
 from backup import upload_file
 import classes
 import datetime
@@ -10,6 +13,7 @@ import time
 
 
 def init():
+    """Initializes databases, Reddit bot"""
     global hist_db, journal_db, log_db, r, soc_db
     hist_db = classes.HistoryDB()
     journal_db = classes.JournalDB()
@@ -19,6 +23,7 @@ def init():
 
 
 def main():
+    """Main script to check status"""
     my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))
     message = "**Daily Status Check**   \n   \n"
 
@@ -112,6 +117,13 @@ def main():
 
 
 def make_backup(source_db_path='data/mapporn.db'):
+    """Make backup of the database
+
+    :param source_db_path: Path to database, defaults to production database, option to change
+                           it for using testing database
+    :type source_db_path: str
+
+    """
     backup_filename = 'backup' + str(time.strftime("%Y%m%d")) + '.db'
     backup_filepath = 'data/backup/' + backup_filename
     copyfile(source_db_path, backup_filepath)
@@ -119,6 +131,13 @@ def make_backup(source_db_path='data/mapporn.db'):
 
 
 def test_functions():
+    # TODO Add type annotation
+    """Tests functions
+
+    :return: Error Message
+    :rtype: str
+
+    """
     init()
     error_message = ''
     my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))
@@ -178,6 +197,13 @@ def test_functions():
 
 
 def test_db_integrity():
+    # TODO: add type annotation (waiting for rpi to upgrade to Python 3.6)
+    """Tests integrity of databases
+
+    :return: Error message
+    :rtype: str
+
+    """
     # Integrity Checks on databases
     init()
     error_message = ''
@@ -249,6 +275,12 @@ def test_db_integrity():
 
 
 def check_where_in_world():
+    """Check where in the world function. Make sure that file sizes are Twitter compliant
+
+    :return: Error Message
+    :rtype: str
+
+    """
     error_message = ''
     for file in os.listdir('WW'):
         fsize = os.stat('WW/' + file).st_size
@@ -261,6 +293,16 @@ def check_where_in_world():
 
 
 def check_map_contest():
+    """Checks status of map contest
+
+    Status message:
+        How long since last contest?
+        How many maps are submitted currently?
+
+    :return: status message
+    :rtype: str
+
+    """
     message = ''
     try:
         map_subms = functions.count_lines_of_file('submissions.csv')
@@ -280,6 +322,12 @@ def check_map_contest():
 
 
 def remaining_where_in_world():
+    """Return string with how many where in world maps are left
+
+    :return: Message with count of how many where in world maps are left
+    :rtype: str
+
+    """
     count = 0
     now = datetime.datetime.now()
     this_week = str(now.isocalendar()[1]).zfill(2)
