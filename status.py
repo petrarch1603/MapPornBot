@@ -56,7 +56,7 @@ def main():
     # Make posts older than a year fresh again
     if soc_db.fresh_count < 20:
         try:
-            soc_db.make_fresh_again(current_time=time.time(), limit=10)
+            soc_db.make_fresh_again(current_time=int(time.time()), limit=10)
         except Exception as e:
             error_message = ("Could not run soc_db.make_fresh_again   \n{}   \n{}    \n".format(str(e), str(type(e))))
             my_diag.traceback = error_message
