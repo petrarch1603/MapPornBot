@@ -246,7 +246,7 @@ class Diagnostic:
         return {
             "raw_id": self.raw_id,
             "script": self.script,
-            "severity": int(self.severity),
+            "severity": self.severity,
             "table": self.table,
             "traceback": str(self.traceback),
             "tweet": str(self.tweet),
