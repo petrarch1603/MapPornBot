@@ -24,7 +24,7 @@ MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting po
                '&nbsp;       ' + '\n' + disclaimer
 
 
-def init(path='data/mapporn.db'):
+def init(path: str = 'data/mapporn.db') -> None:
     """Initializes databases, Reddit bot
 
     :param path: database path
@@ -37,7 +37,7 @@ def init(path='data/mapporn.db'):
     soc_db = classes.SocMediaDB(path=path)
 
 
-def main():
+def main() -> None:
     """Main script to check inbox"""
     for message in r.inbox.unread():
         init()
