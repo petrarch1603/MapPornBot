@@ -160,7 +160,6 @@ class MapRow:
         self.make_not_fresh()
         self.__blast()
 
-
     def add_row_to_db(self, script: object) -> None:
         """Add this row to the database
 
