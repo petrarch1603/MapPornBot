@@ -1,6 +1,7 @@
 import classes
 import datetime
 import os
+import typing
 
 
 # This script will only be scoped to post from the socmedia table to social media.
