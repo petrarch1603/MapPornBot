@@ -1,4 +1,4 @@
-# These are useful Redditbot functions
+"""These are useful Redditbot functions"""
 
 import classes
 import csv
@@ -13,7 +13,11 @@ import time
 import tweepy
 
 
+# TODO: add type annotations
+
 def init_soc_posting():
+    """Initialize Twitter and PRAW"""
+    # TODO: is this function used anywhere in the codebase? can it be deleted?
     # Reddit Bot Login
 
     # Twitter Authentication
@@ -32,20 +36,51 @@ my_reddit_ID = 'petrarch1603'  # This is the human reddit user name, NOT the bot
 
 
 def coin_toss():
+    """Give a random number of 1 or 0
+
+    :return: 1 or 0
+    :rtype: int
+
+    """
     return random.randint(0, 1)
 
 
 def create_random_string(char_count):
+    """Creates a random string of n characters
+
+    :param char_count:
+    :type char_count: int
+    :return: random characters
+    :rtype: str
+
+    """
     allchar = string.ascii_letters + string.digits
     rand_str = "".join(random.choice(allchar) for _ in range(char_count))
     return rand_str
 
 
 def count_lines_of_file(fname):
+    """Count the number of lines of a file
+
+    :param fname: name of file to be counted
+    :type fname: str
+    :return: count
+    :rtype: int
+
+    """
     return sum(1 for _ in open(fname, 'r'))
 
 
 def get_time_zone(title_str):
+    """Check words in a string and match it to a list of place names with time zones in a CSV
+            If nothing is found, defaults to 99
+
+    :param title_str:
+    :type title_str: str
+    :return: time zone
+    :rtype: int
+
+    """
     with open('data/locationsZone.csv', 'r') as f:
         csv_reader = csv.reader(f)
         zonedict = {rows[0].upper(): rows[1] for rows in csv_reader}
@@ -57,12 +92,30 @@ def get_time_zone(title_str):
 
 
 def split_message(message_str):
+    """Splits a string with line breaks into a list separated by those line breaks
+
+    :param message_str:
+    :type message_str: str
+    :return:
+    :rtype: list
+
+    """
     message_str = os.linesep.join([s for s in str(message_str).splitlines() if s])
     message_list = message_str.splitlines()
     return message_list
 
 
 def next_weekday(d, weekday):
+    #TODO need to clear this up, it's confusing.
+    """From gets the next weekday from today's date
+
+    :param d: today's date as a datetime object
+    :type d: obj
+    :param weekday:
+    :type weekday:
+    :return:
+    :rtype:
+    """
     days_ahead = weekday - d.weekday()
     if days_ahead <= 0:  # Target day already happened this week
         days_ahead += 7
