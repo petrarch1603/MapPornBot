@@ -50,11 +50,12 @@ from shutil import copyfile
 import sqlite3
 import time
 import tweepy
+from typing import Optional
 
 
 class MapRow:
-    """
-    Class for turning a map row into an object.
+
+    """Class for turning a map row into an object.
 
     Attributes:
         schema (dict): The database schema
@@ -62,9 +63,8 @@ class MapRow:
 
     """
 
-    def __init__(self, schema, row, table, path='data/mapporn.db'):
-        """
-        The constructor for MapRow class.
+    def __init__(self, schema: dict, row: list, table: str, path: str = 'data/mapporn.db') -> None:
+        """The constructor for MapRow class.
 
         :param schema: (dict) keys of schema are the names of the each schema element.
         :param row: (list) list of all elements of a single database row instance.
@@ -79,7 +79,7 @@ class MapRow:
         self.dict = dict(zip(self.schema, row))
         self.announce_input = ''
         self.date_posted = ''
-        self.day_of_year = ''
+        self.day_of_year = 0
         self.fresh = ''
         self.raw_id = ''
         self.text = ''
@@ -91,9 +91,8 @@ class MapRow:
         self.diag = None
         self.path = path
 
-    def date(self):
-        """
-        Method to get a date in a human readable format
+    def date(self) -> Optional[str]:
+        """Method to get a date in a human readable format
 
         :return: (str) date in human readable format
 
@@ -108,7 +107,14 @@ class MapRow:
         dtdelta = datetime.timedelta(days=self.dict['day_of_year'])
         return (dt + dtdelta).strftime('%Y/%m/%d')
 
-    def create_diagnostic(self, script):  # Note do not run this from the script, use post_to_social_media() instead
+    def __create_diagnostic(self, script: object) -> None:
+        """Method for creating a diagnostic instance attribute as part of the MapRow object
+
+        Private method, meant to be run from other methods.
+
+        :rtype: None
+
+        """
         map_row_diag = Diagnostic(script=script, path=self.path)
         for k, v in self.dict.items():
             if k == 'raw_id':
@@ -120,7 +126,8 @@ class MapRow:
         self.diag = map_row_diag
         self.diag.table = self.table
 
-    def blast(self):  # Note do not run this from the script, use post_to_social_media() instead
+    def __blast(self) -> None:  # Note do not run this from the script, use post_to_social_media() instead
+        """Method (private) for posting to social media."""
         try:
             my_blast = ShotgunBlast(praw_obj=self.praw, title=self.text, announce_input=self.announce_input)
             assert my_blast.check_integrity() == 'PASS'
@@ -143,12 +150,22 @@ class MapRow:
             self.diag.traceback = e
             self.diag.add_to_logging(passfail=0)
 
-    def post_to_social_media(self, script):
-        self.create_diagnostic(script=script)
-        self.blast()
+    def post_to_social_media(self, script: object) -> None:
+        """Method posts the map row to social media
 
-    def add_row_to_db(self, script):
-        self.create_diagnostic(script=script)
+        :param script:
+        :type script:
+        """
+        self.__create_diagnostic(script=script)
+        self.__blast()
+
+    def add_row_to_db(self, script: object) -> None:
+        """Add this row to the database
+
+        :param script:
+        :type script:
+        """
+        self.__create_diagnostic(script=script)
         if self.table == 'historymaps':
             hist_db = HistoryDB(path=self.path)
             old_row_count = hist_db.rows_count
@@ -201,9 +218,8 @@ class Diagnostic:
         self.path = path
 
     @classmethod
-    def diag_dict_to_obj(cls, diag_dict):
-        """
-        Class Method for taking a dictionary and making it an object.
+    def diag_dict_to_obj(cls, diag_dict: dict) -> object:
+        """Class Method for taking a dictionary and making it an object.
 
         :param diag_dict: (dict)
         :return: (obj) returns an instance of Diagnostic classs.
@@ -229,9 +245,8 @@ class Diagnostic:
                 my_diag.zone = v
         return my_diag
 
-    def make_dict(self):
-        """
-        Makes a dictionary from a Diagnostic object.
+    def make_dict(self) -> dict:
+        """Makes a dictionary from a Diagnostic object.
 
         :return: (dict) of all object attributes.
 
@@ -254,9 +269,8 @@ class Diagnostic:
             "zone": self.zone
         }
 
-    def concise_diag(self):
-        """
-        Returns a pretty string of the contents of the Diagnostic object without any blank attributes.
+    def concise_diag(self) -> str:
+        """Returns a pretty string of the contents of the Diagnostic object without any blank attributes.
 
         :return: (str) Pretty string for seeing the contents of the Diagnostic object.
 
@@ -274,13 +288,29 @@ class Diagnostic:
             my_string += "***\n   \n"
             return my_string
 
-    def add_to_logging(self, passfail):
+    def add_to_logging(self, passfail: int) -> None:
+        """Add diagnostic object to the logging database.
+
+        :param passfail: 1 for passing, 0 for failure
+        :type passfail: int
+
+        """
         log_db = LoggingDB(path=self.path)
         log_db.add_row_to_db(diagnostics=self.make_dict(), passfail=passfail)
 
 
 class MapDB:
-    def __init__(self, table, path='data/mapporn.db'):
+    """This is a super class that makes database objects."""
+
+    def __init__(self, table: str, path: str = 'data/mapporn.db') -> None:
+        """ Constructor for the MapDB Class
+
+        :param table: Name of the database table.
+        :type table: str
+        :param path: Path to database on local disk. Can be changed from default when using a test database.
+        :type path: str
+
+        """
         self.path = path
         self.table = table
         self.conn = sqlite3.connect(path)
@@ -294,17 +324,40 @@ class MapDB:
         assert self.schema == schema_dict[self.table]
         # TODO - Remove this assertion from integrity checks
 
-    def __len__(self):
+    def __len__(self) -> int:
+        """Returns the number of records in the database."""
         return self.curs.execute('SELECT count(*) FROM {}'.format(self.table)).fetchall()[0][0]
 
-    def all_rows_list(self):
+    def all_rows_list(self) -> list:
+        """Returns list of all rows in database.
+
+        :return: List of all rows in database.
+        :rtype: list
+
+        """
         return self.curs.execute("SELECT * FROM {}".format(self.table)).fetchall()
 
-    def get_random_row(self, count=1):
+    def get_random_row(self, count: int = 1) -> list:
+        """Gets a random row from the database.
+
+        :param count: Number of rows to return
+        :type count: int
+        :return: List of rows
+        :rtype: list
+
+        """
         # TODO: turn the return into an object
         return self.curs.execute("SELECT * FROM {} ORDER BY RANDOM() LIMIT {}".format(self.table, count)).fetchall()
 
-    def delete_by_raw_id(self, raw_id_to_delete):
+    def delete_by_raw_id(self, raw_id_to_delete: str) -> Optional[str]:
+        """Delete a row by its raw_id
+
+        :param raw_id_to_delete: The raw_id of the map to delete from database.
+        :type raw_id_to_delete: str
+        :return: Error message
+        :rtype: str
+
+        """
         if len(self.curs.execute("SELECT * FROM {} WHERE raw_id = '{}'".format(
                 self.table,
                 raw_id_to_delete)).fetchall()) == 0:
@@ -318,16 +371,50 @@ class MapDB:
             except AssertionError as e:
                 return "Unable to delete raw_id, row still in database. {}".format(e)
 
-    def close(self):
+    def close(self) -> None:
+        """Closes Database"""
         self.conn.commit()
         self.conn.close()
 
+    def get_row_by_raw_id(self, raw_id: str) -> Optional[list, tuple]:
+        """Gets a map row by raw_id
+
+        :param raw_id:
+        :type raw_id: str
+        :return: Returns a row
+        :rtype: list
+        """
+        # TODO: return a maprow object instead of list
+        my_row = self.curs.execute("""SELECT * FROM {} WHERE raw_id='{}'""".format(
+            self.table,
+            raw_id
+            )).fetchall()
+        return my_row[0]
+
 
 class HistoryDB(MapDB):
-    def __init__(self, table='historymaps', path='data/mapporn.db'):
+    """Database of Day in History Maps"""
+
+    def __init__(self, table: str = 'historymaps', path: str = 'data/mapporn.db') -> None:
+        """Construction method for HistoryDB
+
+        :param table: historymaps table
+        :type table: str
+        :param path: path on local disk
+        :type path: str
+
+        """
         MapDB.__init__(self, table, path)
 
-    def get_rows_by_date(self, date):
+    def get_rows_by_date(self, date: int) -> list:
+        """Gets a list of row by date (1-365)
+
+        :param date: Date number between 1-365
+        :type date: int
+        :return: List of Maprow Objects
+        :rtype: list
+
+        """
         assert isinstance(date, int)
         rows_list = [x for x in (self.curs.execute("SELECT * FROM {} WHERE day_of_year = {}".format(self.table, date)))]
         obj_list = []
@@ -337,11 +424,29 @@ class HistoryDB(MapDB):
                 obj_list.append(my_row)
         return obj_list
 
-    def change_date(self, raw_id, new_date):
+    def change_date(self, raw_id: str, new_date: int) -> None:
+        """Changes date of row in database using raw_id
+
+        :param raw_id:
+        :type raw_id: str
+        :param new_date:
+        :type new_date: int
+
+        """
         self.curs.execute("UPDATE {} SET day_of_year={} WHERE raw_id='{}'".format(self.table, new_date, raw_id))
         self.conn.commit()
 
-    def add_row_to_db(self, raw_id, text, day_of_year):
+    def add_row_to_db(self, raw_id: str, text: str, day_of_year: int) -> None:
+        """Adds row to HistoryDB
+
+        :param raw_id:
+        :type raw_id: str
+        :param text: Title of map
+        :type text: str
+        :param day_of_year:
+        :type day_of_year: int
+
+        """
         self.curs.execute('''INSERT INTO {table} values("{raw_id}", "{text}", {day_of_year})'''
                           .format(table=self.table,
                                   raw_id=raw_id,
@@ -349,7 +454,8 @@ class HistoryDB(MapDB):
                                   day_of_year=day_of_year))
         self.conn.commit()
 
-    def check_integrity(self):
+    def check_integrity(self) -> str:
+        """A suite of tests to ensure integrity of HistoryDB"""
         status = ''
         for i in self.all_rows_list():
             try:
@@ -384,19 +490,29 @@ class HistoryDB(MapDB):
         else:
             return status
 
-    def get_row_by_raw_id(self, raw_id):
-        my_row = self.curs.execute("""SELECT * FROM {} WHERE raw_id='{}'""".format(
-            self.table,
-            raw_id
-            )).fetchall()
-        if len(my_row) == 1:
-            return my_row[0]
-        else:
-            return my_row
-
 
 class SocMediaDB(MapDB):
-    def __init__(self, table='socmediamaps', path='data/mapporn.db'):
+    """Database of general maps for posting to social media.
+
+    Subclass of MapDB. This is a database containing a multitude of maps. Every three hours a map will be
+        chosen from this database and published to social media. After the map is published it will be marked as "not
+        fresh". After a set amount of time (around 400 days) the map can be "re-freshed". At any given time this
+        database will contain a number of 'fresh' maps that are queued up.
+
+        The maps also have a time zone associated with them for publishing at a target time of the day. Every three
+        hours the script soc_media_stack.py is run and choses a fresh map to publish to social media.
+
+    """
+
+    def __init__(self, table: str = 'socmediamaps', path: str = 'data/mapporn.db') -> None:
+        """Constructor for the SocMediaDB
+
+        :param table:
+        :type table: str
+        :param path:
+        :type path: str
+
+        """
         MapDB.__init__(self, table, path)
         self.fresh_count = self.curs.execute("SELECT count(*) FROM {} WHERE fresh=1"
                                              .format(self.table)).fetchall()[0][0]
@@ -422,7 +538,18 @@ class SocMediaDB(MapDB):
         self.not_fresh_list = self.curs.execute("SELECT * FROM {} WHERE fresh=0".format(self.table)).fetchall()
 
     @classmethod
-    def get_time_zone(cls, title_str):
+    def get_time_zone(cls, title_str: str) -> int:
+        """Method takes a string and returns a time zone
+
+        The method tries to match substrings from the title string to entries in a CSV.
+            - For example if it finds the word "London" in the title string, it will return London's UTC time zone
+
+        :param title_str:
+        :type title_str:
+        :return: UTC time zone
+        :rtype: int
+
+        """
         with open('data/locationsZone.csv', 'r') as f:
             csv_reader = csv.reader(f)
             zonedict = {rows[0].upper(): rows[1] for rows in csv_reader}
@@ -432,7 +559,17 @@ class SocMediaDB(MapDB):
                 this_zone = int(zonedict[place])
         return this_zone
 
-    def get_rows_by_time_zone(self, time_zone, fresh=1):
+    def get_rows_by_time_zone(self, time_zone: int, fresh: int = 1) -> list:
+        """Return a list of all the rows in a time zone
+
+        :param time_zone:
+        :type time_zone: int
+        :param fresh:
+        :type fresh: int
+        :return:
+        :rtype: list
+
+        """
         if isinstance(time_zone, int):
             return [x for x in (self.curs.execute("SELECT * FROM {} WHERE time_zone = {} AND fresh = {}"
                                                   .format(self.table, time_zone, fresh)))]
@@ -446,20 +583,42 @@ class SocMediaDB(MapDB):
         else:
             print(str(time_zone) + " is not a valid time zone")
 
-    def change_time_zone(self, raw_id, new_zone):
+    def change_time_zone(self, raw_id: str, new_zone: int) -> None:
+        """Change the time zone by raw_id
+
+        :param raw_id:
+        :type raw_id:
+        :param new_zone:
+        :type new_zone: int
+
+        """
         self.curs.execute("UPDATE {} SET time_zone = {} WHERE raw_id = '{}'".format(
             self.table,
             new_zone,
             raw_id))
         self.conn.commit()
 
-    def update_to_not_fresh(self, raw_id):
+    def update_to_not_fresh(self, raw_id: str) -> None:
+        """Make a row not fresh anymore. Also uses the current time as date_posted
+
+        :param raw_id:
+        :type raw_id: str
+
+        """
         self.curs.execute("UPDATE {} SET fresh=0 WHERE raw_id='{}'".format(self.table, raw_id))
         self.curs.execute("UPDATE {} SET date_posted={} WHERE raw_id='{}'"
                           .format(self.table, (int(time.time())), raw_id))
         self.conn.commit()
 
-    def get_one_map_row(self, target_zone):
+    def get_one_map_row(self, target_zone: int) -> Optional[object, str]:
+        """Gets one fresh map row from the database
+
+        :param target_zone:
+        :type target_zone: int
+        :return: MapRow
+        :rtype: object
+
+        """
         min_target = (int(target_zone) - 3)
         max_target = (int(target_zone) + 3)
         filtered_map_list = list(row for row in self.curs.execute(
@@ -483,8 +642,30 @@ class SocMediaDB(MapDB):
         my_row = random.choice(filtered_map_list)
         return MapRow(schema=self.schema, row=my_row, table=self.table)
 
-    def add_row_to_db(self, raw_id, text, time_zone, fresh=1, date_posted='NULL', post_error=0):
-        self.curs.execute('''INSERT INTO {table} values('{raw_id}', 
+    def add_row_to_db(self,
+                      raw_id: str,
+                      text: str,
+                      time_zone: int,
+                      fresh: int = 1,
+                      date_posted: Optional[str, int] = 'NULL',
+                      post_error: int = 0) -> None:
+        """Adds row to database
+
+        :param raw_id:
+        :type raw_id: str
+        :param text:
+        :type text: str
+        :param time_zone:
+        :type time_zone: int
+        :param fresh:
+        :type fresh: int
+        :param date_posted:
+        :type date_posted: str or int
+        :param post_error:
+        :type post_error: int
+
+        """
+        self.curs.execute('''INSERT INTO {table} values('{raw_id}',
                           "{text}", {time_zone}, {fresh}, {date_posted}, {post_error})'''
                           .format(table=self.table,
                                   raw_id=raw_id,
@@ -495,13 +676,22 @@ class SocMediaDB(MapDB):
                                   post_error=int(post_error)))
         self.conn.commit()
 
-    def check_if_already_in_db(self, raw_id):
+    def check_if_already_in_db(self, raw_id: str) -> bool:
+        """Checks if map is already in database
+
+        :param raw_id:
+        :type raw_id: str
+        :return:
+        :rtype: bool
+
+        """
         if len(self.curs.execute("SELECT * FROM {} WHERE raw_id = '{}'".format(self.table, raw_id)).fetchall()) >= 1:
             return True
         else:
             return False
 
-    def check_integrity(self):
+    def check_integrity(self) -> str:
+        """Checks Integrity of Database"""
         status = ''
         for i in self.all_rows_list():
             try:
@@ -574,7 +764,17 @@ class SocMediaDB(MapDB):
         else:
             return status
 
-    def make_fresh_again(self, current_time, limit=10):
+    def make_fresh_again(self, current_time: int, limit: int = 10) -> None:
+        """Looks for rows older than a certain time and makes a number of them fresh again.
+
+            Time past is set as 500 days, can be changed as needed.
+
+        :param current_time:
+        :type current_time: int
+        :param limit:
+        :type limit: int
+
+        """
         assert len(str(int(current_time))) == 10
         default_time_past = 43200000
         # Code below here will increase the amount of time to make fresh when the number of maps in the database is over
@@ -599,21 +799,25 @@ class SocMediaDB(MapDB):
                     break
         self.conn.close()
 
-    def get_row_by_raw_id(self, raw_id):
-        my_row = self.curs.execute("""SELECT * FROM {} WHERE raw_id='{}'""".format(
-            self.table,
-            raw_id
-            )).fetchall()
-        if len(my_row) == 1:
-            return my_row[0]
-        else:
-            return my_row
+    def get_duplicates(self) -> list:
+        """Gets a list of duplicates
 
-    def get_duplicates(self):
+        This code is probably unnecessary, but can be useful if somehow a duplicate gets into the database.
+
+        :return:
+        :rtype: list
+        """
         return self.curs.execute("""SELECT raw_id, count(*) FROM {} GROUP BY raw_id HAVING count(*) > 1""".format(
             self.table)).fetchall()
 
-    def remove_duplicates(self):
+    def __remove_duplicates(self) -> None:
+        """Private Method: Removes duplicates from the database
+
+        This code is probably unnecessary, but can be useful if somehow a duplicate gets into the database.
+        It does some complex actions on the database and shouldn't accidentally be used, therefore it's
+        a private method.
+
+        """
         source_db_path = 'data/mapporn.db'
         test_db_path = 'data/test.db'
         copyfile(source_db_path, test_db_path)
@@ -655,27 +859,67 @@ class SocMediaDB(MapDB):
 
 
 class LoggingDB(MapDB):
-    def __init__(self, table='logging', path='data/mapporn.db'):
+    """Database of logs
+
+    Keeps records of successes and failures in of scripts in the form of diagnostics dictionaries
+    which are converted to and from Diagnostic objects.
+
+    """
+
+    def __init__(self, table: str = 'logging', path: str = 'data/mapporn.db') -> None:
+        """
+
+        :param table:
+        :type table: str
+        :param path:
+        :type path: str
+        """
         MapDB.__init__(self, table, path)
 
-    def add_row_to_db(self, diagnostics, passfail, error_text=None):
+    def add_row_to_db(self, diagnostics: dict, passfail: int, error_text: str = None) -> None:
+        """Adds a diagnostics row to logging database
+
+        :param diagnostics:
+        :type diagnostics: dictionary
+        :param passfail: 1 for pass, 0 for fail
+        :type passfail: int
+        :param error_text:
+        :type error_text: str
+
+        """
         my_sql = '''INSERT INTO logging (date, error_text, diagnostics, passfail) VALUES (?, ?, ?, ?)'''
         my_list = [int(time.time()), str(error_text), str(diagnostics), passfail]
         self.curs.execute(my_sql, my_list)
         self.conn.commit()
 
-    def get_fails_previous_24(self, current_time):
+    def get_fails_previous_24(self, current_time: int) -> list:
+        """Get all failed scripts from the last 24 hours
+
+        :param current_time: A little longer than 24 hours to ensure it doesn't miss any edge cases.
+        :type current_time: int
+        :return: List of failures
+        :rtype: list
+
+        """
         current_time = int(current_time)
         assert len(str(current_time)) == 10
-        # Note: capturing all fails from a little longer than 24 hours ago
-        # to ensure it doesn't miss any fails from previous day's script.
         twenty_four_ago = int(current_time) - 87500
         return list(row for row in self.curs.execute(
             "SELECT * FROM {} WHERE passfail = 0 AND date >= {}"
             .format(self.table, twenty_four_ago)
         ))
 
-    def get_fails_in_window(self, newer_time, older_time):
+    def get_fails_in_window(self, newer_time: int, older_time: int) -> list:
+        """Get log of failures over a window of time. Usually used for troubleshooting
+
+        :param newer_time:
+        :type newer_time: int
+        :param older_time:
+        :type older_time: int
+        :return: List of fails
+        :rtype: list
+
+        """
         newer_time = int(newer_time)
         older_time = int(older_time)
         return list(row for row in self.curs.execute(
@@ -685,7 +929,15 @@ class LoggingDB(MapDB):
                     newer_time)
         ))
 
-    def get_successes_previous_24(self, current_time):
+    def get_successes_previous_24(self, current_time: int) -> list:
+        """Get successful script executions from last 24 hours.
+
+        :param current_time:
+        :type current_time: int
+        :return:
+        :rtype: list
+
+        """
         current_time = int(current_time)
         assert len(str(current_time)) == 10
         # Note: capturing all fails from a little longer than 24 hours ago
@@ -696,14 +948,28 @@ class LoggingDB(MapDB):
             .format(self.table, twenty_four_ago)
         ))
 
-    def get_fails_by_script(self, script):
+    def get_fails_by_script(self, script: str) -> list:
+        """Get failures by script name
+
+        :param script:
+        :type script: str
+        :return:
+        :rtype: list
+
+        """
         print("Returning list of all fails from {}".format(script))
         return list(row for row in self.curs.execute(
             "SELECT * WHERE passfail = 0 AND diagnostics LIKE '{}'"
             .format(script)
         ))
 
-    def check_integrity(self):
+    def check_integrity(self) -> str:
+        """
+
+        :return: Status of integrity check.
+        :rtype: str
+
+        """
         status = ''
         try:
             for i in self.all_rows_list():
@@ -717,8 +983,8 @@ class LoggingDB(MapDB):
         except AssertionError as e:
             status += 'Error encountered: {}\n'.format(str(e))
         try:
-            assert isinstance(self.get_fails_previous_24(current_time=time.time()), list)
-            assert isinstance(self.get_successes_previous_24(current_time=time.time()), list)
+            assert isinstance(self.get_fails_previous_24(current_time=int(time.time())), list)
+            assert isinstance(self.get_successes_previous_24(current_time=int(time.time())), list)
         except AssertionError as e:
             status += '* previous 24 methods did not return lists.\n    {}\n\n'.format(str(e))
         if status == '':
@@ -729,10 +995,25 @@ class LoggingDB(MapDB):
 
 
 class JournalDB(MapDB):
-    def __init__(self, table='journal', path='data/mapporn.db'):
+    """Database keeping a daily journal of results of status.py script exection"""
+    def __init__(self, table: str = 'journal', path: str = 'data/mapporn.db') -> None:
+        """Constructor for JournalDB
+
+        :param table:
+        :type table: str
+        :param path:
+        :type path: str
+
+        """
         MapDB.__init__(self, table, path)
 
-    def update_todays_status(self, benchmark_time):
+    def update_todays_status(self, benchmark_time: int) -> None:
+        """Updates today's status in the database
+
+        :param benchmark_time: Time it takes the script to run.
+        :type benchmark_time: int
+
+        """
         # TODO: verify this is working after errors start getting added to my_dict
         # right now I don't know if the my_dict is working.
         date = time.time()
@@ -740,7 +1021,7 @@ class JournalDB(MapDB):
         log_db = LoggingDB()
         soc_db = SocMediaDB()
         # TODO: do i need these three lines for massaging my_dict??
-        my_dict = {i[0]: str(i[1:]).replace('"', "\\'") for i in log_db.get_fails_previous_24(date)}
+        my_dict = {i[0]: str(i[1:]).replace('"', "\\'") for i in log_db.get_fails_previous_24(int(date))}
         my_dict = str(my_dict)
         my_dict = my_dict.replace('"', '\'')
         query = """INSERT INTO {table} values(?, ?, ?, ?, ?, ?, ?, ?, ?)""".format(table=self.table)
@@ -749,13 +1030,19 @@ class JournalDB(MapDB):
                                   len(log_db),
                                   len(soc_db),
                                   soc_db.fresh_count,
-                                  len(log_db.get_fails_previous_24(date)),
-                                  len(log_db.get_successes_previous_24(date)),
+                                  len(log_db.get_fails_previous_24(int(date))),
+                                  len(log_db.get_successes_previous_24(int(date))),
                                   benchmark_time,
                                   str(my_dict)))
         self.conn.commit()
 
-    def check_integrity(self):
+    def check_integrity(self) -> str:
+        """Checks the integrity of logging database
+
+        :return: status of database integrity
+        :rtype: str
+
+        """
         status = ''
         try:
             for i in self.all_rows_list():
@@ -777,7 +1064,13 @@ class JournalDB(MapDB):
             print(status)
             return status
 
-    def average_benchmark_times(self):
+    def average_benchmark_times(self) -> int:
+        """Calculates the average time it takes to run status.py
+
+        :return: average time
+        :rtype: int
+
+        """
         my_sum = 0
         counter = 0
         for i in self.all_rows_list():
@@ -788,7 +1081,23 @@ class JournalDB(MapDB):
 
 
 class ShotgunBlast:
-    def __init__(self, praw_obj, title=None, announce_input=None):
+    """Class for blasting a post to multiple social media sites at once.
+
+    Currently this posts to Twitter, Facebook and Tumblr
+
+    """
+
+    def __init__(self, praw_obj: object, title: str = None, announce_input: str = None) -> None:
+        """Constructor for ShotgunBlast
+
+        :param praw_obj: PRAW object
+        :type praw_obj: obj
+        :param title: post title
+        :type title: str
+        :param announce_input: An optional announcement, usually defaults to None
+        :type announce_input: str
+
+        """
         self.announce_input = announce_input
         self.twitter_max = 280
         self.praw_obj = praw_obj
@@ -798,7 +1107,17 @@ class ShotgunBlast:
         self.raw_id = self.praw_obj.id
 
     @classmethod
-    def get_hashtag_locations(cls, string):
+    def get_hashtag_locations(cls, string: str) -> str:
+        """Adds a hashtag to locations in title that are also in an external csv
+
+        For example - London returns #London
+
+        :param string: title
+        :type string: str
+        :return: hashtagged location
+        :rtype: str
+
+        """
         my_hashes = ''
         string_list = string.split(' ')
         with open('data/locations.txt') as locationstext:
@@ -809,7 +1128,19 @@ class ShotgunBlast:
         return my_hashes.rstrip()
 
     @classmethod
-    def remove_text_inside_brackets(cls, text, brackets="[]"):
+    def remove_text_inside_brackets(cls, text: str, brackets: str = "[]") -> str:
+        """Removes text from inside brackets
+
+        For example "My Map [1024x496] by Anonymous" returns "My Map by Anonymous"
+
+        :param text: raw text to change
+        :type text: str
+        :param brackets:
+        :type brackets: str
+        :return: clean text
+        :rtype: str
+
+        """
         count = [0] * (len(brackets) // 2)  # count open/close brackets
         saved_chars = []
         for character in text:
@@ -830,14 +1161,23 @@ class ShotgunBlast:
             .lstrip()
 
     @classmethod
-    def init_shotgun_blast(cls):
+    def init_shotgun_blast(cls) -> None:
+        """Initializes Twitter for the shotgun blast"""
         global api
 
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_token, access_secret)
         api = tweepy.API(auth)
 
-    def get_title(self, raw_title):
+    def get_title(self, raw_title: str) -> str:
+        """Gets the raw title and makes it fit into Twitter's character limits
+
+        :param raw_title:
+        :type raw_title: str
+        :return: string that is twitter length compliant
+        :rtype: str
+
+        """
         shortlink = self.shortlink
         working_title = ''
         if self.announce_input is not None:
@@ -859,7 +1199,13 @@ class ShotgunBlast:
         assert len(working_title) <= self.twitter_max
         return working_title
 
-    def download_image(self):
+    def download_image(self) -> str:
+        """Downloads an image based on the object image_url attribute
+
+        :return: filename (string)
+        :rtype: str
+
+        """
         filename = 'temp.jpg'
         request = requests.get(self.image_url, stream=True)
         try:
@@ -891,7 +1237,13 @@ class ShotgunBlast:
         except AssertionError as e:
             raise Exception('Could not download image!    \n{}    \n\n'.format(str(e)))
 
-    def post_to_all_social(self):
+    def post_to_all_social(self) -> dict:
+        """Posts object to all social media.
+
+        :return: Dictionary with (str) urls to Twitter, Facebook, Tumblr
+        :rtype: dict
+
+        """
         self.init_shotgun_blast()
         filename = self.download_image()
 
@@ -933,7 +1285,13 @@ class ShotgunBlast:
         os.remove(filename)
         return socialmediadict
 
-    def check_integrity(self):
+    def check_integrity(self) -> str:
+        """Checks integrity of class
+
+        :return: status message
+        :rtype: str
+
+        """
         status = ''
         long_lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis turpis ante, eget " \
                      "pellentesque tellus sagittis sed. Nullam vel finibus metus. Aenean bibendum, nisl nec varius " \
@@ -1014,11 +1372,27 @@ class ShotgunBlast:
 
 
 class GenericPost:
-    def __init__(self, filename, title):
+    """Class for creating generic social media posts - not from Reddit"""
+
+    def __init__(self, filename: str, title: str) -> None:
+        """Constructor for GenericPost class
+
+        :param filename:
+        :type filename: str
+        :param title:
+        :type title: str
+
+        """
         self.filename = filename
         self.title = title
 
-    def post_to_all_social(self):
+    def post_to_all_social(self) -> dict:
+        """Posts to Twitter, Tumblr, Facebook
+
+        :return: dictionary of (str) social media URLS
+        :rtype: dict
+
+        """
         ShotgunBlast.init_shotgun_blast()
         # Post to Twitter
         tweeted = api.update_with_media(self.filename, status=self.title)  # Post to Twitter
@@ -1075,17 +1449,16 @@ log_schema = OrderedDict([('date', 'NUMERIC'),
                           ('passfail', 'NUMERIC')])
 
 jour_schema = OrderedDict([('date', 'NUMERIC'),
-                                              ('hist_rows', 'NUMERIC'),
-                                              ('log_rows', 'NUMERIC'),
-                                              ('soc_rows', 'NUMERIC'),
-                                              ('fresh_rows', 'NUMERIC'),
-                                              ('errors_24', 'NUMERIC'),
-                                              ('successes_24', 'NUMERIC'),
-                                              ('benchmark_time', 'REAL'),
-                                              ('dict', 'TEXT')])
+                           ('hist_rows', 'NUMERIC'),
+                           ('log_rows', 'NUMERIC'),
+                           ('soc_rows', 'NUMERIC'),
+                           ('fresh_rows', 'NUMERIC'),
+                           ('errors_24', 'NUMERIC'),
+                           ('successes_24', 'NUMERIC'),
+                           ('benchmark_time', 'REAL'),
+                           ('dict', 'TEXT')])
 
 schema_dict = {'journal': jour_schema,
                'logging': log_schema,
                'socmediamaps': soc_schema,
                'historymaps': hist_schema}
-
