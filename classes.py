@@ -50,7 +50,7 @@ from shutil import copyfile
 import sqlite3
 import time
 import tweepy
-from typing import Optional
+from typing import Optional, Union
 
 
 class MapRow:
@@ -376,7 +376,7 @@ class MapDB:
         self.conn.commit()
         self.conn.close()
 
-    def get_row_by_raw_id(self, raw_id: str) -> Optional[list, tuple]:
+    def get_row_by_raw_id(self, raw_id: str) -> Union[list, tuple]:
         """Gets a map row by raw_id
 
         :param raw_id:
@@ -610,7 +610,7 @@ class SocMediaDB(MapDB):
                           .format(self.table, (int(time.time())), raw_id))
         self.conn.commit()
 
-    def get_one_map_row(self, target_zone: int) -> Optional[object, str]:
+    def get_one_map_row(self, target_zone: int) -> Union[object, str]:
         """Gets one fresh map row from the database
 
         :param target_zone:
@@ -647,7 +647,7 @@ class SocMediaDB(MapDB):
                       text: str,
                       time_zone: int,
                       fresh: int = 1,
-                      date_posted: Optional[str, int] = 'NULL',
+                      date_posted: Union[str, int] = 'NULL',
                       post_error: int = 0) -> None:
         """Adds row to database
 
