@@ -389,7 +389,9 @@ class MapDB:
             self.table,
             raw_id
             )).fetchall()
-        return my_row[0]
+        if len(my_row) > 0:
+            return my_row[0]
+        return my_row
 
 
 class HistoryDB(MapDB):
