@@ -1,3 +1,11 @@
+"""Tests the database
+
+Script for checking the database class. This is more thorough than the check integriy methods in each
+database because it will interact and change data in each database. For that reason this script copies
+the live database and runs the methods on a copy. The original database remains unchanged.
+
+"""
+
 import checkinbox
 import classes
 import functions
@@ -15,8 +23,10 @@ test_db_path = 'data/test.db'
 copyfile(source_db_path, test_db_path)
 
 
-class MockMessage:  # Mock message for testing checkinbox.py
-    def __init__(self, body='abc', author='abc', subject='abc'):
+class MockMessage:
+    """Mock class for creating a message object for testing the checkinbox.py script"""
+
+    def __init__(self, body: str = 'abc', author: str = 'abc', subject: str = 'abc') -> None:
         self.body = body
         self.author = author
         self.subject = subject
@@ -35,7 +45,8 @@ class MockMessage:  # Mock message for testing checkinbox.py
         pass
 
 
-def init():
+def init() -> None:
+    """Initializes test databases for testing"""
     global test_hist_db, test_log_db, test_soc_db, test_jour_db, test_db_list
     test_hist_db = classes.HistoryDB(path=test_db_path)
     test_log_db = classes.LoggingDB(path=test_db_path)
@@ -45,6 +56,7 @@ def init():
 
 
 def test_close_all():
+    """Closes all databases"""
     for db in test_db_list:
         try:
             db.close()
@@ -55,7 +67,13 @@ def test_close_all():
                 raise Exception
 
 
-def test_check_integrity():
+def test_check_integrity() -> str:
+    """Checks the integrity of test databases
+
+    :return: Status report
+    :rtype: str
+
+    """
     init()
     print("Checking Database Integrity")
     report = ''
@@ -67,9 +85,16 @@ def test_check_integrity():
     return report
 
 
-def test_row_count(delta=0):
-    # Delta will be to test for changes in count. In some tests the database
-    # will be changed and this argument is to verify the new count.
+def test_row_count(delta: int = 0) -> None:
+    """ Checks the row count of all the row counts.
+
+    The script will add rows to the database, therefore there needs to be a delta so the script
+    can verify the new count is correct.
+
+    :param delta: Number of changed rows
+    :type delta: int
+
+    """
 
     init()
     # Check that row count of test_db's are equal to length of .all_rows_list() method
@@ -80,7 +105,8 @@ def test_row_count(delta=0):
     test_close_all()
 
 
-def test_days_in_history():
+def test_days_in_history() -> None:
+    """Tests the HistoryDB"""
     init()
     # Check the change_date() method works
     # Get five random raw_ids and five random dates
@@ -106,8 +132,12 @@ def test_days_in_history():
     test_close_all()
 
 
-def test_time_zone(count=5):
-    # Change the time zones on five random raw_ids
+def test_time_zone(count: int = 5) -> None:
+    """Change the time zones on five random raw_ids
+
+    :type count: int
+
+    """
     init()
     print("Testing SocMediaDB time zones.")
     # Get five random raw_ids
@@ -138,7 +168,8 @@ def test_time_zone(count=5):
     init()
 
 
-def test_update_to_not_fresh():
+def test_update_to_not_fresh() -> None:
+    """Tests the method for updating row to not fresh"""
     # Testing SocDB method for making not fresh
     init()
     my_list = []
@@ -161,7 +192,13 @@ def test_update_to_not_fresh():
     test_close_all()
 
 
-def test_make_fresh_again(limit=100):
+def test_make_fresh_again(limit: int = 100) -> None:
+    """Tests the method for changing row from un-fresh to fresh
+
+    :param limit: A limit to how many rows the function should make fresh again
+    :type limit: int
+
+    """
     print("Testing making fresh again")
     init()
     # for i in test_soc_db.all_rows_list():
@@ -175,8 +212,13 @@ def test_make_fresh_again(limit=100):
     test_close_all()
 
 
-def test_add_entries(num_of_entries):
+def test_add_entries(num_of_entries: int) -> None:
+    """Tests methods for adding entries to database
 
+    :param num_of_entries: How many entries to add
+    :type num_of_entries: int
+
+    """
     # Add random new entries to database
     init()
     print("Adding {} random entries to all databases for testing...".format(
