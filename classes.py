@@ -155,6 +155,7 @@ class MapRow:
 
         :param script:
         :type script:
+
         """
         self.__create_diagnostic(script=script)
         self.make_not_fresh()
