@@ -157,7 +157,9 @@ class MapRow:
         :type script:
         """
         self.__create_diagnostic(script=script)
+        self.make_not_fresh()
         self.__blast()
+
 
     def add_row_to_db(self, script: object) -> None:
         """Add this row to the database
@@ -187,6 +189,11 @@ class MapRow:
             soc_db = SocMediaDB(path=self.path)
             assert old_row_count + 1 == soc_db.rows_count
         self.diag.add_to_logging(passfail=1)
+
+    def make_not_fresh(self):
+        # TODO: add type annotations, doc strings
+        soc_db = SocMediaDB(path=self.path)
+        soc_db.update_to_not_fresh(raw_id=self.raw_id)
 
 
 class Diagnostic:
@@ -384,7 +391,7 @@ class MapDB:
         :return: Returns a row
         :rtype: list
         """
-        # TODO: return a maprow object instead of list
+        # TODO: return a maprow object instead of list!!
         my_row = self.curs.execute("""SELECT * FROM {} WHERE raw_id='{}'""".format(
             self.table,
             raw_id
