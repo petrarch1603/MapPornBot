@@ -10,12 +10,12 @@ from urllib.parse import urlparse
 foreground = Image.open("img/grid.png")
 
 
-def get_file_name(url):
+def get_file_name(url: str) -> str:
     path = urlparse(url).path
     return os.path.basename(path)
 
 
-def get_images(url_list):
+def get_images(url_list: list) -> list:
 
     cropped_images = []
     for i in url_list:
@@ -28,7 +28,7 @@ def get_images(url_list):
     return cropped_images
 
 
-def crop_image(image_obj):  # Images should be 366 X 366
+def crop_image(image_obj: Image) -> Image:  # Images should be 366 X 366
     ratio = image_obj.size[0] / image_obj.size[1]
     resize_tup = (int(500*ratio), 500)
     resized_img = image_obj.resize(resize_tup)
@@ -37,7 +37,7 @@ def crop_image(image_obj):  # Images should be 366 X 366
     return resized_img.crop(crop_box)
 
 
-def add_text(image_obj, contest_month):
+def add_text(image_obj: Image, contest_month: str) -> Image:
 
     # Each character is approximately 30 pixels
     # Therefore to adjust the text to the center, we add 30 pixels to each character
@@ -54,7 +54,7 @@ def add_text(image_obj, contest_month):
     return image_obj
 
 
-def main(url_list):
+def main(url_list: list) -> str:
     my_cropped_list = get_images(url_list)
     background = Image.new('RGB', (1150, 1150))
     i = 0
