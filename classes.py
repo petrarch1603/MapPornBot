@@ -41,7 +41,6 @@ import csv
 import facebook
 import functions
 import os
-import pillow
 import praw
 import random
 import requests
