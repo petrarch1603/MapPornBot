@@ -1,3 +1,5 @@
+"""Script for creating a voting post for a new /r/MapPorn Map Contest"""
+
 from datetime import datetime, timedelta
 import classes
 import csv
@@ -22,6 +24,13 @@ botDisclaimerText = functions.bot_disclaimer()
 
 
 def prepare_voting_text():
+    """Prepares the Voting Post Self Text with information populated.
+
+    :return: Voting Post text with information filled out.
+    :rtype: str
+
+    """
+
     with open('VotingText.txt', 'r') as my_file:
         my_voting_text = my_file.read()
     lastmonthfile = open('data/lastmonth.txt', 'r')
@@ -38,6 +47,7 @@ def prepare_voting_text():
 
 
 def main():
+    """Main script to prepare and post voting post for Map Contest"""
     error_message = ''
     voting_text = prepare_voting_text()
     date_7_days_ago = datetime.now() - timedelta(days=7)
@@ -81,7 +91,7 @@ def main():
     file.write(raw_id)
     file.close()
 
-    # # 6) Rename submissions to submissions_current (while there is voting going on).
+    # Rename submissions to submissions_current (while there is voting going on).
     # SubmissionsCurrent will be the index of what is being voted on during the voting period. That way after the vote
     # we know who is the winner.
     os.replace('submissions.csv', 'submissions_current.csv')
