@@ -90,7 +90,7 @@ def add_text(image_obj: object, contest_month: str) -> object:
     return image_obj
 
 
-def main(url_list: list) -> str:
+def create_grid(url_list: list) -> str:
     """ Main function to turn list of URL strings into a contest advertisement image
 
     :param url_list: list of URL's (strings)

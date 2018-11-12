@@ -41,6 +41,7 @@ import csv
 import facebook
 import functions
 import os
+import pillow
 import praw
 import random
 import requests
@@ -54,7 +55,6 @@ from typing import Optional, Union
 
 
 class MapRow:
-
     """Class for turning a map row into an object.
 
     Attributes:
@@ -126,7 +126,7 @@ class MapRow:
         self.diag = map_row_diag
         self.diag.table = self.table
 
-    def __blast(self) -> None:  # Note do not run this from the script, use post_to_social_media() instead
+    def __blast(self) -> None:
         """Method (private) for posting to social media."""
         try:
             my_blast = ShotgunBlast(praw_obj=self.praw, title=self.text, announce_input=self.announce_input)
@@ -166,6 +166,7 @@ class MapRow:
 
         :param script:
         :type script:
+
         """
         self.__create_diagnostic(script=script)
         if self.table == 'historymaps':
@@ -194,12 +195,13 @@ class MapRow:
         # TODO: add type annotations, doc strings
         soc_db = SocMediaDB(path=self.path)
         soc_db.update_to_not_fresh(raw_id=self.raw_id)
+        soc_db.close()
 
 
 class Diagnostic:
     """This is a class for diagnosing failures and success of scripts."""
 
-    def __init__(self, script, path='data/mapporn.db', **kwargs):
+    def __init__(self, script: object, path: str = 'data/mapporn.db', **kwargs: any) -> None:
         """The constructor for Diagnostic class.
 
         :param script: (str) The name of the script. This param is mandatory.
@@ -282,8 +284,9 @@ class Diagnostic:
         :return: (str) Pretty string for seeing the contents of the Diagnostic object.
 
         """
+
         # TODO need to add testing on this method
-        # This method prunes out any blank/null/empty fields and returns string of contents
+
         if self.traceback == 'No New Mail':
             return '***\n    \n'
         else:
@@ -390,6 +393,7 @@ class MapDB:
         :type raw_id: str
         :return: Returns a row
         :rtype: list
+
         """
         # TODO: return a maprow object instead of list!!
         my_row = self.curs.execute("""SELECT * FROM {} WHERE raw_id='{}'""".format(
@@ -568,7 +572,7 @@ class SocMediaDB(MapDB):
                 this_zone = int(zonedict[place])
         return this_zone
 
-    def get_rows_by_time_zone(self, time_zone: int, fresh: int = 1) -> list:
+    def get_rows_by_time_zone(self, time_zone: int, fresh: Union[int, str] = 1) -> list:
         """Return a list of all the rows in a time zone
 
         :param time_zone:
@@ -588,6 +592,7 @@ class SocMediaDB(MapDB):
                 for j in self.curs.execute("SELECT * FROM {} WHERE fresh={} and time_zone={}"
                                            .format(self.table, fresh, i)):
                     time_zone_list.append(j)
+            # TODO: return a list of MapRow objects
             return time_zone_list
         else:
             print(str(time_zone) + " is not a valid time zone")
@@ -619,7 +624,7 @@ class SocMediaDB(MapDB):
                           .format(self.table, (int(time.time())), raw_id))
         self.conn.commit()
 
-    def get_one_map_row(self, target_zone: int) -> Union[object, str]:
+    def get_one_map_row(self, target_zone: int) -> object:
         """Gets one fresh map row from the database
 
         :param target_zone:
@@ -827,8 +832,9 @@ class SocMediaDB(MapDB):
         a private method.
 
         """
-        source_db_path = 'data/mapporn.db'
-        test_db_path = 'data/test.db'
+        source_db_path: str = 'data/mapporn.db'
+        test_db_path: str = 'data/test.db'
+        # noinspection PyTypeChecker
         copyfile(source_db_path, test_db_path)
 
         soc_db = SocMediaDB(path=test_db_path)
