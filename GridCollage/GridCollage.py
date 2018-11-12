@@ -19,6 +19,7 @@ def get_file_name(url: str) -> str:
     :rtype: str
 
     """
+
     path = urlparse(url).path
     return os.path.basename(path)
 
@@ -32,6 +33,7 @@ def get_images(url_list: list) -> list:
     :rtype: list
 
     """
+
     cropped_images = []
     for i in url_list:
         url = i
@@ -52,6 +54,7 @@ def crop_image(image_obj: object) -> object:  # Images should be 366 X 366
     :rtype: object
 
     """
+
     ratio = image_obj.size[0] / image_obj.size[1]
     resize_tup = (int(500*ratio), 500)
     resized_img = image_obj.resize(resize_tup)
@@ -71,6 +74,7 @@ def add_text(image_obj: object, contest_month: str) -> object:
     :rtype: Image
 
     """
+
     # Each character is approximately 30 pixels
     # Therefore to adjust the text to the center, we add 30 pixels to each character
     word_length = len(contest_month)
@@ -92,9 +96,10 @@ def main(url_list: list) -> str:
     :param url_list: list of URL's (strings)
     :type url_list: list
     :return: filepath
-    :rtype:str
+    :rtype: str
 
     """
+
     my_cropped_list = get_images(url_list)
     background = Image.new('RGB', (1150, 1150))
     i = 0
