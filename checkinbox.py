@@ -45,8 +45,15 @@ def main() -> None:
         # # Map Contest Submissions
         my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))
         if message.subject == "Map Contest Submission":
-            submission = contest_message(message=message)
             my_diag.table = 'contest'
+            try:
+                submission = contest_message(message=message)
+            except Exception as e:
+                functions.send_reddit_message_to_self(title='Error with contest submission',
+                                                      message='Error: {}'.format(e))
+                my_diag.traceback = e
+                log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+                continue
             my_diag.title = submission[0]
             log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
             add_submission_to_csv(submission=submission)
@@ -82,13 +89,33 @@ def contest_message(message):
     :rtype: list
 
     """
+
+    message_to_me = 'A new map has been submitted. Check for formatting    \n'
     submission = functions.split_message(message.body)
     submission = [w.replace('Link:', '') for w in submission]  # Replace the title 'Link: ' with blankspace.
     submission = [w.replace('Map Name:', '') for w in submission]
     for i, v in enumerate(submission):
         submission[i] = submission[i].lstrip().rstrip()
-    submission.append(message.author)  # Add author value
-    submission.append(message)  # Add unique value for the message. This is important for indexing later on.
+    cont_db = classes.ContestDB()
+    map_name = submission[0]
+    url = submission[1]
+    if len(submission) > 3:
+        submission[2] = str(submission[2]) + '\n' + str(submission[3])
+    desc = submission[2]
+    author = message.author
+    raw_id = message
+    my_list = [map_name, url, desc, author, raw_id]
+    message_to_me += "Name|Submission\n-|-\n"
+    message_to_me += "Map Name:|{}\n" \
+                     "URL:|{}\n" \
+                     "Desc:|{}\n" \
+                     "Author:|{}\n" \
+                     "Raw ID:|{}\n    \n".format(map_name, url, desc, author, raw_id)
+    functions.send_reddit_message_to_self(title='New Map Submitted!',
+                                          message=message_to_me)
+
+    row_obj = classes.MapRow(schema=cont_db.schema, row=my_list, table=cont_db.table)
+    row_obj.add_row_to_db(script=script)
     message.reply(MessageReply)
     return submission
 
@@ -105,15 +132,9 @@ def add_submission_to_csv(submission):
     :type submission: list
 
     """
-    message_to_me = 'A new map has been submitted. Check the CSV for formatting    \n'
-    if len(submission) > 3:
-        message_to_me += "**NOTE: the entry is not formatted properly!!**"
     with open('submissions.csv', 'a') as submitFile:
         wr = csv.writer(submitFile)
         wr.writerow(submission)
-        # Send a message to a human so that they can QC the CSV.
-        functions.send_reddit_message_to_self(title='New Map added to CSV',
-                                              message=message_to_me)
 
 
 def socmedia_message(message, path='data/mapporn.db'):
