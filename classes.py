@@ -25,6 +25,8 @@ Classes:
     JournalDB - Subclass of MapDB. Everyday status.py is ran to test and check functions and methods and to check the
         integrity of the database. The results of this status check are stored in this database.
 
+    ContestDB - Subclass of MapDB. Database for storing map submissions for the monthly contest.
+
     ShotgunBlast - This class will process data from Reddit and post it to social media.
 
     GenericPost - This class will post to social media materials that do not come from Reddit.
