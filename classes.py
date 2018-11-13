@@ -73,16 +73,20 @@ class MapRow:
         """
         self.schema = schema.keys()
         self.table = table
-        if len(row) != len(self.schema):
+        if len(row) != len(self.schema) and table != 'contest':
             raise ValueError("length of elements of schema and length of elements in row must be equal")
         self.dict = dict(zip(self.schema, row))
         self.announce_input = ''
+        self.author = ''
         self.date_posted = ''
         self.day_of_year = 0
+        self.desc = ''
         self.fresh = ''
+        self.map_name = ''
         self.raw_id = ''
         self.text = ''
         self.time_zone = ''
+        self.url = ''
         # Set attributes from keys of row dictionary
         for k, v in self.dict.items():
             self.__dict__[str(k)] = v
@@ -188,6 +192,25 @@ class MapRow:
             soc_db.close()
             soc_db = SocMediaDB(path=self.path)
             assert old_row_count + 1 == soc_db.rows_count
+            soc_db.close()
+        elif self.table == 'contest':
+            cont_db = ContestDB(path=self.path)
+            assert cont_db.check_if_already_in_db(raw_id=self.raw_id) is False
+            old_row_count = cont_db.rows_count
+            cont_db.add_to_contest(map_name=self.map_name,
+                                   url=self.url,
+                                   desc=self.desc,
+                                   author=self.author,
+                                   raw_id=self.raw_id)
+            cont_db.close()
+            cont_db = ContestDB(path=self.path)
+            assert old_row_count + 1 == cont_db.rows_count
+            cont_db.close()
+        else:
+            self.diag.traceback = "Problem with adding this table: {} to logging database. ".format(self.table)
+            self.diag.table = self.table
+            self.diag.add_to_logging(passfail=0)
+            return
         self.diag.add_to_logging(passfail=1)
 
     def make_not_fresh(self):
@@ -1094,6 +1117,96 @@ class JournalDB(MapDB):
         return my_sum / counter
 
 
+class ContestDB(MapDB):
+    """Database Object for tracking submissions to the monthly map contest."""
+
+    def __init__(self, table: str = 'contest', path: str = 'data/mapporn.db') -> None:
+        MapDB.__init__(self, table, path)
+
+    def add_to_contest(self, map_name: str, url: str, desc: str, author: str, raw_id: str) -> None:
+        """Adds map row to contest database
+
+        :param map_name: Name of submitted map
+        :type map_name: str
+        :param url: URL to map
+        :type url: str
+        :param desc: User submitted description of map
+        :type desc: str
+        :param author: Author of map (username)
+        :type author: str
+        :param raw_id: Message ID
+        :type raw_id: str
+
+        """
+        sql = ''' INSERT INTO contest(map_name,url,desc,author,raw_id) 
+                  VALUES(?,?,?,?,?) '''
+        map_submission = (map_name, url, desc, author, raw_id)
+        self.curs.execute(sql, map_submission)
+        self.conn.commit()
+
+    def add_date_to_submission(self, raw_id: str, yearmonth: int) -> None:
+        """Adds the Month that the map was voted on
+
+        :param raw_id: message ID
+        :type raw_id: str
+        :param yearmonth: YYYYMM integer
+        :type yearmonth: int
+
+        """
+        assert len(str(yearmonth)) == 6 and type(yearmonth) == int
+        sql = ''' UPDATE contest
+                  SET cont_date = ?
+                  WHERE raw_id = ?'''
+        self.curs.execute(sql, (yearmonth, raw_id))
+        self.conn.commit()
+
+    def add_vote_count_to_submission(self, raw_id: str, votecount: int) -> None:
+        """Adds the vote total for the map after the contest finishes
+
+        :param raw_id: message ID
+        :type raw_id: str
+        :param votecount: Count of upvotes for the map
+        :type votecount: int
+
+        """
+        sql = ''' UPDATE contest
+                  SET votes = ?
+                  WHERE raw_id = ?'''
+        self.curs.execute(sql, (votecount, raw_id))
+        self.conn.commit()
+
+    def check_if_already_in_db(self, raw_id: str) -> bool:
+        """Checks if map is already in database
+
+        :param raw_id: message id
+        :type raw_id: str
+        :return: True if in database, false if not in database
+        :rtype: bool
+
+        """
+        if len(self.curs.execute("SELECT * FROM {} WHERE raw_id = '{}'".format(self.table, raw_id)).fetchall()) >= 1:
+            return True
+        else:
+            return False
+
+    def get_sorted_top_of_month(self, month: int) -> List[object]:
+        """Gets a list of MapRow objects sorted by most voted for a given mont
+
+        :param month: YYYYMM format
+        :type month: int
+        :return: List of MapRow objects
+        :rtype: list
+
+        """
+        assert len(str(month)) == 6
+        sql = '''SELECT * FROM contest WHERE cont_date = {}'''.format(month)
+        row_list = []
+        for i in self.curs.execute(sql).fetchall():
+            row_list.append(MapRow(schema=self.schema, row=i, table=self.table))
+        row_list.sort(key=lambda x: x.votes, reverse=True)
+        return row_list
+
+
 class ShotgunBlast:
     """Class for blasting a post to multiple social media sites at once.
 
@@ -1472,7 +1585,16 @@ jour_schema = OrderedDict([('date', 'NUMERIC'),
                            ('benchmark_time', 'REAL'),
                            ('dict', 'TEXT')])
 
+cont_schema = OrderedDict([('map_name', 'TEXT'),
+                           ('url', 'TEXT'),
+                           ('desc', 'TEXT'),
+                           ('author', 'TEXT'),
+                           ('raw_id', 'TEXT'),
+                           ('votes', 'NUMERIC'),
+                           ('cont_date', 'NUMERIC')])
+
 schema_dict = {'journal': jour_schema,
                'logging': log_schema,
                'socmediamaps': soc_schema,
-               'historymaps': hist_schema}
+               'historymaps': hist_schema,
+               'contest': cont_schema}
