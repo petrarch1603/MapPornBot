@@ -215,8 +215,9 @@ class MapRow:
             return
         self.diag.add_to_logging(passfail=1)
 
-    def make_not_fresh(self):
-        # TODO: add type annotations, doc strings
+    def make_not_fresh(self) -> None:
+        """Makes the map row not fresh"""
+        assert self.table == 'socmediamaps'
         soc_db = SocMediaDB(path=self.path)
         soc_db.update_to_not_fresh(raw_id=self.raw_id)
         soc_db.close()
@@ -356,7 +357,6 @@ class MapDB:
             schema_dic[tup[1]] = tup[2]
         self.schema = schema_dic
         assert self.schema == schema_dict[self.table]
-        # TODO - Remove this assertion from integrity checks
 
     def __len__(self) -> int:
         """Returns the number of records in the database."""
@@ -517,11 +517,7 @@ class HistoryDB(MapDB):
                 assert isinstance(self.get_rows_by_date(random.randint(1, 365)), list)
             except AssertionError as e:
                 status += "* Randoms days do not return a list   \n{}    \n{}   \n".format(str(e), str(type(e)))
-        try:
-            assert self.schema == schema_dict[self.table]
 
-        except AssertionError as e:
-            status += "* Schema check failed!   \n{}    \n{}   \n".format(str(e), str(type(e)))
         if status == '':
             return 'PASS: {} integrity test passed.'.format(self.table)
         else:
@@ -783,11 +779,7 @@ class SocMediaDB(MapDB):
                 status += "* Check if already in db method failed using a fake raw_id    \n" \
                           "{}    \n{}    \n".format(str(e), str(type(e)))
         try:
-            assert self.schema == schema_dict[self.table]
-        except AssertionError as e:
-            status += "* Schema check failed!   \n{}    \n{}    \n".format(str(e), str(type(e)))
-        try:
-            assert len(self.get_duplicates()) == 0
+            assert len(self._get_duplicates()) == 0
         except AssertionError as e:
             status += "* Duplicates detected!    \n{}    \n".format(str(e))
 
@@ -837,7 +829,7 @@ class SocMediaDB(MapDB):
                     break
         self.conn.close()
 
-    def get_duplicates(self) -> list:
+    def _get_duplicates(self) -> list:
         """Gets a list of duplicates
 
         This code is probably unnecessary, but can be useful if somehow a duplicate gets into the database.
@@ -862,7 +854,7 @@ class SocMediaDB(MapDB):
         copyfile(source_db_path, test_db_path)
 
         soc_db = SocMediaDB(path=test_db_path)
-        duplicates_count = len(soc_db.get_duplicates())
+        duplicates_count = len(soc_db._get_duplicates())
         old_row_count = len(soc_db)
 
         # Get random rows to check that they are not changed
@@ -885,7 +877,7 @@ class SocMediaDB(MapDB):
         soc_db.conn.commit()
 
         # Check that the remaining rows are still the same
-        assert len(soc_db.get_duplicates()) == 0
+        assert len(soc_db._get_duplicates()) == 0
         assert len(soc_db) == (old_row_count - duplicates_count)
         for i in random_rows:
             raw_id = i[0]
@@ -1018,7 +1010,6 @@ class LoggingDB(MapDB):
                     raise AssertionError
                 this_diag = Diagnostic.diag_dict_to_obj(i[2])
                 assert str(this_diag.script).endswith(".py")
-                assert self.schema == schema_dict[self.table]
         except AssertionError as e:
             status += 'Error encountered: {}\n'.format(str(e))
         try:
@@ -1093,10 +1084,6 @@ class JournalDB(MapDB):
                 assert isinstance(i[7], (int, float))
         except AssertionError as e:
             status += "* column type check failed!\n     {}\n\n".format(str(e))
-        try:
-            assert self.schema == schema_dict[self.table]
-        except AssertionError as e:
-            status += "* Schema Check Failed!\n     {}\n\n".format(str(e))
         if status == '':
             return "PASS: JournalDB integrity test passed."
         else:
@@ -1454,7 +1441,6 @@ class ShotgunBlast:
         # Test Edge cases
         try:
             # Test title input of 320 chars
-            # TODO: add tests for variable announce_input lengths
             if self.announce_input is None:
                 assert (self.get_title(raw_title=long_lorem)) == \
                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc facilisis turpis ante, ' \
