@@ -52,7 +52,7 @@ from shutil import copyfile
 import sqlite3
 import time
 import tweepy
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 
 class MapRow:
@@ -64,7 +64,7 @@ class MapRow:
 
     """
 
-    def __init__(self, schema: dict, row: list, table: str, path: str = 'data/mapporn.db') -> None:
+    def __init__(self, schema: dict, row: Union[list, tuple], table: str, path: str = 'data/mapporn.db') -> None:
         """The constructor for MapRow class.
 
         :param schema: (dict) keys of schema are the names of the each schema element.
@@ -155,7 +155,7 @@ class MapRow:
             self.diag.traceback = e
             self.diag.add_to_logging(passfail=0)
 
-    def post_to_social_media(self, script: object) -> None:
+    def post_to_social_media(self, script: str) -> None:
         """Method posts the map row to social media
 
         :param script:
@@ -166,14 +166,15 @@ class MapRow:
         self.make_not_fresh()
         self.__blast()
 
-    def add_row_to_db(self, script: object) -> None:
+    def add_row_to_db(self, script: str) -> None:
         """Add this row to the database
 
-        :param script:
-        :type script:
+        :param script: script as a string, passed in for use in the diagnostic object
+        :type script: str
 
         """
         self.__create_diagnostic(script=script)
+
         if self.table == 'historymaps':
             hist_db = HistoryDB(path=self.path)
             old_row_count = hist_db.rows_count
