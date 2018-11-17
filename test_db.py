@@ -273,6 +273,8 @@ def test_add_entries(num_of_entries: int) -> None:
     test_row_count(delta=num_of_entries)
 
 
+# TODO add tests on contest database
+
 def test_check_inbox(number_of_tests=5):
     error_message = ''
     for _ in range(number_of_tests):
