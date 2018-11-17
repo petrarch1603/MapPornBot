@@ -131,11 +131,8 @@ class TestCheckInbox(TestCase):
             mock_reddit_message.reset_mock()
 
 
-if __name__ == '__main__':
-    unittest.main()
-
-
 """These are the mock messages that are tested."""
+
 mock_cont_msg1 = mock.Mock()
 mock_cont_msg1.body = "Map Name: TESTYour Map's Name\n\nLink: https://TEST.it/829bsssx6xv11.jpg\n\n" \
                "TESTDescription: San Francisco Cable Car System, 1892"
@@ -194,3 +191,6 @@ mock_oth_msg1.subject = "Suggestion"
 mock_oth_msg1.expected_reddit_message = "Message sent to Bot, Please check on it"
 
 mock_oth_msgs = [mock_oth_msg1]
+
+if __name__ == '__main__':
+    unittest.main()
