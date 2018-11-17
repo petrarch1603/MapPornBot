@@ -37,6 +37,10 @@ def main():
     bot_disclaimer_text = functions.bot_disclaimer()
     voting_post.mod.sticky(state=False)
 
+    # # Turn contest mode OFF on the original voting post
+    # Need to do this in order to count the votes, otherwise all posts show 1 vote.
+    voting_post.mod.contest_mode(state=False)
+
     # Prepare the loop for parsing contestant maps
     # Prepare the text of the post.
     # Congratulations_text is a boilerplate template for each month's congratulations post.
@@ -93,10 +97,6 @@ def main():
         functions.send_reddit_message_to_self(title='Error encountered',
                                               message=('Could not sticky this post: {}    \n{}    \n\n'
                                                        .format(congrats_shortlink, str(e))))
-
-    # # Turn contest mode OFF on the original voting post
-    # Need to do this in order to count the votes, otherwise all posts show 1 vote.
-    voting_post.mod.contest_mode(state=False)
 
     # # Post congratulations post to social media
     # Download the image locally
