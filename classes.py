@@ -1112,6 +1112,14 @@ class ContestDB(MapDB):
 
     def __init__(self, table: str = 'contest', path: str = 'data/mapporn.db') -> None:
         MapDB.__init__(self, table, path)
+        my_live_list = [x for x in (self.curs.execute("SELECT * from {} WHERE cont_date IS NULL;".format(self.table))
+                                    .fetchall())]
+        self.live_count = len(my_live_list)
+        self.live_list = []
+        if self.live_count > 0:
+            for i in my_live_list:
+                my_row = MapRow(schema=self.schema, row=i, table=self.table)
+                self.live_list.append(my_row)
 
     def add_to_contest(self, map_name: str, url: str, desc: str, author: str, raw_id: str) -> None:
         """Adds map row to contest database
