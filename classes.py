@@ -1206,7 +1206,7 @@ class ContestDB(MapDB):
 
     def delete_by_raw_id(self, raw_id):
         assert len(raw_id) == 6
-        sql = '''DELETE FROM contest WHERE raw_id = {}'''.format(raw_id)
+        sql = '''DELETE FROM contest WHERE raw_id = {}'''.format(str(raw_id))
         self.curs.execute(sql)
         self.conn.commit()
 
