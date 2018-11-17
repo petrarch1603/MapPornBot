@@ -92,7 +92,7 @@ class MapRow:
         # Set attributes from keys of row dictionary
         for k, v in self.dict.items():
             self.__dict__[str(k)] = v
-        if self.table != 'contest':
+        if self.table == 'socmedia' or self.table == 'historymaps':
             self.praw = praw.Reddit('bot1').submission(id=self.dict['raw_id'])
         self.diag = None
         self.path = path
@@ -364,16 +364,22 @@ class MapDB:
         """Returns the number of records in the database."""
         return self.curs.execute('SELECT count(*) FROM {}'.format(self.table)).fetchall()[0][0]
 
-    def all_rows_list(self) -> list:
+    def all_rows_list(self) -> List[object]:
         """Returns list of all rows in database.
 
-        :return: List of all rows in database.
+        :return: List MapRow objects of all rows in database.
         :rtype: list
 
         """
-        return self.curs.execute("SELECT * FROM {}".format(self.table)).fetchall()
+        rows_list = [x for x in (self.curs.execute("SELECT * FROM {}".format(self.table)))]
+        obj_list = []
+        if len(rows_list) > 0:
+            for i, v in enumerate(rows_list):
+                my_row = MapRow(schema=self.schema, row=rows_list[i], table=self.table)
+                obj_list.append(my_row)
+        return obj_list
 
-    def get_random_row(self, count: int = 1) -> list:
+    def get_random_row(self, count: int = 1) -> List[object]:
         """Gets a random row from the database.
 
         :param count: Number of rows to return
@@ -382,8 +388,15 @@ class MapDB:
         :rtype: list
 
         """
-        # TODO: turn the return into an object
-        return self.curs.execute("SELECT * FROM {} ORDER BY RANDOM() LIMIT {}".format(self.table, count)).fetchall()
+        rows_list = [x for x in (self.curs.execute("SELECT * FROM {} ORDER BY RANDOM() LIMIT {}"
+                                                   .format(self.table, count)))]
+        obj_list = []
+        if len(rows_list) > 0:
+            for i, v in enumerate(rows_list):
+                my_row = MapRow(schema=self.schema, row=rows_list[i], table=self.table)
+                obj_list.append(my_row)
+        return obj_list
+
 
     def delete_by_raw_id(self, raw_id_to_delete: str) -> Optional[str]:
         """Delete a row by its raw_id
@@ -421,7 +434,6 @@ class MapDB:
         :rtype: object
 
         """
-        # TODO: return a maprow object instead of list!!
         my_row = self.curs.execute("""SELECT * FROM {} WHERE raw_id='{}'""".format(
             self.table,
             raw_id
@@ -499,22 +511,10 @@ class HistoryDB(MapDB):
         status = ''
         for i in self.all_rows_list():
             try:
-                assert isinstance(i[2], int) and (0 < i[2] < 366), "Dates must be between 1 and 365"
-            except AssertionError as e:
-                status += "* Not all day_of_year in {} are valid days\n  {}\n  {}\n\n"\
-                    .format(self.table, str(i), e)
-            try:
-                assert i[1] != ''
-            except AssertionError as e:
-                status += "* Title of {} is blank in {}\n  {}\n\n".format(
-                    i[0], self.table, e
-                )
-            try:
-                assert len(i[0]) == 6
+                assert len(i.raw_id) == 6
             except AssertionError as e:
                 status += "* raw_id of {} in {} is not acceptable\n  {}\n\n".format(
-                    i[0], self.table, e
-                )
+                    i[0], self.table, e)
         for _ in range(5):
             try:
                 assert isinstance(self.get_rows_by_date(random.randint(1, 365)), list)
@@ -732,47 +732,47 @@ class SocMediaDB(MapDB):
         status = ''
         for i in self.all_rows_list():
             try:
-                assert i[1] != ''
+                assert i.text != ''
             except AssertionError as e:
                 status += "* Title of {} is blank in {}     \n{}    \n{}    \n".format(
-                    str(i[0]), str(self.table), str(e), str(type(e))
+                    str(i.text), str(self.table), str(e), str(type(e))
                 )
             try:
-                assert 4 < len(i[0]) < 7
+                assert 4 < len(i.raw_id) < 7
             except AssertionError as e:
                 status += "* raw_id of {} in {} is not acceptable    \n{}     \n{}    \n".format(
-                    str(i[0]), str(self.table), str(e), str(type(e))
+                    str(i.raw_id), str(self.table), str(e), str(type(e))
                 )
             try:
-                assert (-10 <= int(i[2]) <= 12) or int(i[2]) == 99
+                assert (-10 <= int(i.time_zone) <= 12) or int(i.time_zone) == 99
             except AssertionError as e:
                 status += "* time_zone of {} in {} is not acceptable    \n{}    \n{}   \n".format(
-                    str(i[0]), str(self.table), str(e), str(type(e))
+                    str(i.raw_id), str(self.table), str(e), str(type(e))
                 )
             try:
-                assert (int(i[3]) == 0) or (int(i[3]) == 1)
+                assert (int(i.fresh) == 0) or (int(i.fresh) == 1)
             except AssertionError as e:
                 status += "* fresh of {} is not a boolean in {}   \n{}    \n{}    \n".format(
-                    str(i[0]), str(self.table), str(e), str(type(e))
+                    str(i.raw_id), str(self.table), str(e), str(type(e))
                 )
             try:
-                if int(i[3]) == 0:
-                    assert len(str(i[4])) >= 10
+                if int(i.fresh) == 0:
+                    assert len(str(i.date_posted)) >= 10
             except AssertionError as e:
                 status += "* Item {} is not fresh and does not have a date_posted date    \n{}    \n{}    \n".format(
-                    str(i[0]), str(e), str(type(e))
+                    str(i.raw_id), str(e), str(type(e))
                 )
 
             # Is the following code necessary? Sometimes older posts will stay not-fresh until they are refreshed.
             try:
-                if i[3] == 0:
-                    assert int(i[4]) >= (time.time() - 37500000)
+                if i.fresh == 0:
+                    assert int(i.date_posted) >= (time.time() - 37500000)
             except AssertionError as e:
                 status += "* Item {} has a date_posted older than a year.   \n{}    \n{}   \n".format(
                     str(i), str(e), str(type(e))
                 )
             try:
-                assert self.check_if_already_in_db(raw_id=i[0]) is True
+                assert self.check_if_already_in_db(raw_id=i.raw_id) is True
             except AssertionError as e:
                 status += "* Check if already in db method failed.    \n" \
                           "Raw_id{}    \n{}   \n{}    \n".format(str(i), str(e), str(type(e)))
@@ -786,12 +786,12 @@ class SocMediaDB(MapDB):
         except AssertionError as e:
             status += "* Duplicates detected!    \n{}    \n".format(str(e))
 
-        try:
-            my_random_raw_ids = self.get_random_row(count=5)
-            for i in my_random_raw_ids:
-                assert self.check_if_already_in_db(raw_id=i[0]) is True
-        except AssertionError as e:
-            status += "Failure detecting duplicates in database!\n   \n{}".format(str(e))
+        # try:
+        #     my_random_raw_ids = self.get_random_row(count=5)
+        #     for i in my_random_raw_ids:
+        #         assert self.check_if_already_in_db(raw_id=i.raw_id) is True
+        # except AssertionError as e:
+        #     status += "Failure detecting duplicates in database!\n   \n{}".format(str(e))
         if status == '':
             return 'PASS: {} integrity test passed.'.format(self.table)
         else:
@@ -1007,11 +1007,11 @@ class LoggingDB(MapDB):
         status = ''
         try:
             for i in self.all_rows_list():
-                assert isinstance(i[0], int)
-                assert i[3] == 1 or i[3] == 0
-                if i[2] is None:
+                assert isinstance(i.date, int)
+                assert i.passfail == 1 or i.passfail == 0
+                if i.diagnostics is None:
                     raise AssertionError
-                this_diag = Diagnostic.diag_dict_to_obj(i[2])
+                this_diag = Diagnostic.diag_dict_to_obj(i.diagnostics)
                 assert str(this_diag.script).endswith(".py")
         except AssertionError as e:
             status += 'Error encountered: {}\n'.format(str(e))
@@ -1079,12 +1079,12 @@ class JournalDB(MapDB):
         status = ''
         try:
             for i in self.all_rows_list():
-                assert isinstance(i[0], (int, float))
-                assert isinstance(i[1], int)
-                assert isinstance(i[2], int)
-                assert isinstance(i[3], int)
-                assert isinstance(i[4], int)
-                assert isinstance(i[7], (int, float))
+                assert isinstance(i.date, (int, float))
+                assert isinstance(i.hist_rows, int)
+                assert isinstance(i.log_rows, int)
+                assert isinstance(i.soc_rows, int)
+                assert isinstance(i.fresh_rows, int)
+                assert isinstance(i.benchmark_time, (int, float))
         except AssertionError as e:
             status += "* column type check failed!\n     {}\n\n".format(str(e))
         if status == '':
@@ -1103,7 +1103,7 @@ class JournalDB(MapDB):
         my_sum = 0
         counter = 0
         for i in self.all_rows_list():
-            if i[4] > 0:
+            if i.benchmark_time > 0:
                 counter += 1
                 my_sum += int(i[4])
         return my_sum / counter
@@ -1218,10 +1218,19 @@ class ContestDB(MapDB):
     # TODO: write a function to get sorted top of year
 
     # TODO: write integrity checks
-    def check_integrity(self):
-        return("PASS")
 
-        # TODO: should make sure all rows with a vote count also have a cont_date
+    def check_integrity(self):
+        status = ''
+        try:
+            sql = '''SELECT * FROM contest WHERE votes NOT NULL and cont_date IS NULL'''
+            assert self.curs.execute(sql).fetchall() == []
+        except AssertionError as e:
+            status += "Error: data in cont_db has votes and no contest date"
+
+        if status == '':
+            return "PASS"
+        else:
+            return status
 
 
 class ShotgunBlast:

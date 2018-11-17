@@ -113,7 +113,7 @@ def test_days_in_history() -> None:
     # Get five random raw_ids and five random dates
     raw_ids_dict = {}
     for _ in range(5):
-        raw_ids_dict[(test_hist_db.all_rows_list()[random.randint(1, (len(test_hist_db.all_rows_list())) - 1)][0])] = \
+        raw_ids_dict[test_hist_db.get_random_row()[0].raw_id] = \
             (random.randint(1, 365))
 
     # Change dates on the five raw_ids to the new random dates
@@ -176,7 +176,7 @@ def test_update_to_not_fresh() -> None:
     my_list = []
     for _ in range(5):
         random_index = random.randint(1, (len(test_soc_db) - 1))
-        my_list.append(test_soc_db.all_rows_list()[random_index][0])
+        my_list.append(test_soc_db.all_rows_list()[random_index].raw_id)
     for i in my_list:
         test_soc_db.update_to_not_fresh(raw_id=i)
     # Re-initialize database
@@ -188,8 +188,8 @@ def test_update_to_not_fresh() -> None:
     all_rows = test_soc_db.all_rows_list()
     for i in my_list:
         for j in all_rows:
-            if j[0] == i:
-                assert j[3] == 0
+            if j.raw_id == i:
+                assert j.fresh == 0
     test_close_all()
 
 
@@ -376,7 +376,7 @@ def test_delete_entry(count=5):
     error_message = ''
     for i in range(count):
         try:
-            my_raw_id = test_soc_db.get_random_row()[0][0]
+            my_raw_id = test_soc_db.get_random_row()[0].raw_id
             assert len(test_soc_db.get_row_by_raw_id(my_raw_id).raw_id) == 6
             test_soc_db.delete_by_raw_id(my_raw_id)
             assert test_soc_db.get_row_by_raw_id(my_raw_id) == []
