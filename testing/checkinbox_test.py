@@ -7,7 +7,7 @@ These functions add data to the database
 
 These tests make sure that the messages are parsed properly and make calls to the database objects.
 
-Mock patching is used to intercept some of the classes and functions from other scripts.
+Mock patching is used to intercept some of the classes and functions.
 This stops the tests from touching the databases.
 
 """
