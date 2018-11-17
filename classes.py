@@ -786,12 +786,12 @@ class SocMediaDB(MapDB):
         except AssertionError as e:
             status += "* Duplicates detected!    \n{}    \n".format(str(e))
 
-        # try:
-        #     my_random_raw_ids = self.get_random_row(count=5)
-        #     for i in my_random_raw_ids:
-        #         assert self.check_if_already_in_db(raw_id=i.raw_id) is True
-        # except AssertionError as e:
-        #     status += "Failure detecting duplicates in database!\n   \n{}".format(str(e))
+        try:
+            my_random_raw_ids = self.get_random_row(count=5)
+            for i in my_random_raw_ids:
+                assert self.check_if_already_in_db(raw_id=i.raw_id) is True
+        except AssertionError as e:
+            status += "Failure detecting duplicates in database!\n   \n{}".format(str(e))
         if status == '':
             return 'PASS: {} integrity test passed.'.format(self.table)
         else:
