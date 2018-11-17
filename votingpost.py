@@ -2,7 +2,6 @@
 
 from datetime import datetime, timedelta
 import classes
-import csv
 import fnmatch
 import functions
 import os
@@ -10,7 +9,8 @@ import praw
 import random
 
 r = praw.Reddit('bot1')
-
+cont_db = classes.ContestDB()
+numbersubmitted = cont_db.live_count
 
 # Verify before running in case of accidental execution.
 # If this script is automated, this line will need to be deleted.
@@ -38,7 +38,6 @@ def prepare_voting_text():
     next_week = datetime.now() + timedelta(days=5)  # Need at least 5 days to vote.
     next_sunday = functions.next_weekday(next_week, 6)
     pretty_next_sunday = next_sunday.strftime('%A %B %d, %Y')
-    numbersubmitted = sum(1 for _ in open('submissions.csv'))
     my_voting_text = my_voting_text.replace('%NUMBERSUBMITTED%', str(numbersubmitted))
     my_voting_text = my_voting_text.replace('%ENDDATE%', str(pretty_next_sunday))
     my_voting_text = my_voting_text.replace('%MYREDDITID%', functions.my_reddit_ID)
@@ -48,34 +47,41 @@ def prepare_voting_text():
 
 def main():
     """Main script to prepare and post voting post for Map Contest"""
+    cont_db = classes.ContestDB()
     error_message = ''
     voting_text = prepare_voting_text()
     date_7_days_ago = datetime.now() - timedelta(days=7)
     contest_month = date_7_days_ago.strftime("%B")
     contest_year = date_7_days_ago.date().year
 
+    yyyymm = int(str(contest_year) + str(date_7_days_ago.strftime("%m")))
     post_message = 'Vote Now for the ' + str(contest_month) + ' ' + str(contest_year) + ' Map Contest!'
     submission = r.subreddit('mapporn').submit(post_message, selftext=voting_text)  # Submits the post to Reddit
     submission.mod.contest_mode()
     submission.mod.distinguish()
     shortlink = submission.shortlink
 
-    with open('submissions.csv', 'r') as f:
-        reader = csv.reader(f)
-        for row in reader:
-            submission.reply('[' + row[0] + '](' + row[1] + ')   \n' + row[2] + '\n\n----\n\n^^^^' + row[4])
-            # the brackets and parentheses are for hyperlinking the name, row[4] is the unique ID of the submission
-            # message, in the congratulations.py program the bot will parse these comments looking for this code and
-            # use it to determine the winners.
+    for obj in cont_db.live_list:
+        submission.reply('[' + str(obj.map_name) + '](' + str(obj.url) + ')   \n'
+                         '' + str(obj.desc) + '\n\n----\n\n^^^^' + str(obj.raw_id))
+        # the brackets and parentheses are for hyperlinking the name, obj.raw_id is the unique ID of the submission
+        # message, in the congratulations.py program the bot will parse these comments looking for this code and
+        # use it to determine the winners.
 
-            # Now send a message to each contestant letting them know it's live.
-            try:
-                r.redditor(row[3]).message('The monthly map contest is live!',
+        # Now send a message to each contestant letting them know it's live.
+        try:
+            r.redditor(obj.author).message('The monthly map contest is live!',
                                            'Thank you for contributing a map. '
                                            '[The voting on the monthly contest is '
                                            'open now at this link.](' + shortlink + ')    \n' + botDisclaimerText)
-            except Exception as e:
-                print('Could not send message to ' + row[3] + '   \n' + str(e))
+        except Exception as e:
+            print('Could not send message to ' + obj.author + '   \n' + str(e))
+        try:
+            cont_db.add_date_to_submission(raw_id=obj.raw_id, yearmonth=yyyymm)
+        except Exception as e:
+            functions.send_reddit_message_to_self(title='Voting post error',
+                                                  message="could not add contest date "
+                                                          "to {}\n    {}".format(obj.raw_id, e))
 
     # General Comment Thread so people don't post top level comments
     generalcomment = submission.reply('General Comment Thread')
@@ -91,14 +97,7 @@ def main():
     file.write(raw_id)
     file.close()
 
-    # Rename submissions to submissions_current (while there is voting going on).
-    # SubmissionsCurrent will be the index of what is being voted on during the voting period. That way after the vote
-    # we know who is the winner.
-    os.replace('submissions.csv', 'submissions_current.csv')
-    # Create a new submissions.csv, so that if we get submissions during the contest, they will be acquired without
-    # creating conflicts. This code creates an empty file.
-    open('submissions.csv', 'w').close()
-
+    # TODO add the grid image
     imagecount = len([name for name in os.listdir('voteimages/')])  # counts how many images are in the directory
     randraw = random.randint(1, imagecount)  # Creates a random number between 1 and the image count.
     # Return a random number with a leading zero if necessary. (i.e. 02 instead of 2)
@@ -137,6 +136,14 @@ def main():
     except Exception as e:
         print('Could not sticky post. Exception: ' + str(e))
     print(error_message)
+
+    try:
+        cont_db = classes.ContestDB()
+        assert cont_db.current_count == numbersubmitted
+    except AssertionError:
+        functions.send_reddit_message_to_self(title="Error with current count",
+                                              message="The current count in the ContestDB does not equal the number of"
+                                                      "maps being voted on.")
 
 
 if __name__ == "__main__":
