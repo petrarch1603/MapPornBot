@@ -1,4 +1,17 @@
-"""Script for testing the checkinbox.py script"""
+"""Script for testing the checkinbox.py script
+
+All the tests use mock PRAW message objects.
+
+Functions in the checkinbox script parse the message objects and process them.
+These functions add data to the database
+
+These tests make sure that the messages are parsed properly and make calls to the database objects.
+
+Mock patching is used to intercept some of the classes and functions from other scripts.
+This stops the tests from touching the databases.
+
+"""
+
 import os
 import sys
 import unittest
@@ -17,12 +30,14 @@ expected_call = "call().add_row_to_db(script='checkinbox.py')"
 
 
 class TestCheckInbox(TestCase):
-    """Tests for checking inbox"""
+    """Tests for checking inbox messages"""
 
     @mock.patch('classes.MapRow', autospec=True)
     @mock.patch('classes.ContestDB')
     @mock.patch('functions.send_reddit_message_to_self', autospec=True)
     def test_contest_submission(self, mock_reddit_message, mock_contest_db, mock_maprow):
+        """Tests contest submission messages"""
+
         for obj in mock_cont_msgs:
 
             c_m(message=obj)
@@ -44,6 +59,10 @@ class TestCheckInbox(TestCase):
 
             # Make sure the function marks message read
             obj.mark_read.assert_called_once()
+
+            # Reset mock objects
+            mock_maprow.reset_mock()
+            mock_reddit_message.reset_mock()
 
     @mock.patch('praw.Reddit.submission', autospec=True)
     @mock.patch('classes.MapRow', autospec=True)
