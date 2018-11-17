@@ -64,19 +64,12 @@ def main() -> None:
             message.mark_read()
 
 
-def contest_message(message, path='data/mapporn.db'):
+def contest_message(message: object, path: str = 'data/mapporn.db'):
     """Parse the praw message object and create a list for each map contest submission
 
     :param message: praw message object
     :type message: obj
     :param path: path to database (available for using a test database)
-    :return: List of strings:
-                * Url of map submission
-                * Name of map
-                * Description of map
-                * Author of map
-                * Unique identity of submission (derived from the six character praw message id)
-    :rtype: list
 
     """
 
@@ -111,27 +104,9 @@ def contest_message(message, path='data/mapporn.db'):
     row_obj.add_row_to_db(script=script)
     message.reply(MessageReply)
     message.mark_read()
-    return my_list
 
 
-def add_submission_to_csv(submission):
-    """Processes the submission list and adds it to csv
-
-    :param submission: List of strings:
-                * Url of map submission
-                * Name of map
-                * Description of map
-                * Author of map
-                * Unique identity of submission (derived from the six character praw message id)
-    :type submission: list
-
-    """
-    with open('submissions.csv', 'a') as submitFile:
-        wr = csv.writer(submitFile)
-        wr.writerow(submission)
-
-
-def socmedia_message(message, path='data/mapporn.db'):
+def socmedia_message(message: object, path: str = 'data/mapporn.db'):
     """Parses social media message and adds it to SocMediaDB
 
     :param message: Praw message object
@@ -201,7 +176,7 @@ def socmedia_message(message, path='data/mapporn.db'):
     message.mark_read()
 
 
-def dayinhistory_message(message, path='data/mapporn.db'):
+def dayinhistory_message(message: object, path: str = 'data/mapporn.db') -> None:
     """Parses dayinhistory message and adds it to HistoryDB
 
     :param message: Praw message object
@@ -252,7 +227,7 @@ def dayinhistory_message(message, path='data/mapporn.db'):
     message.mark_read()
 
 
-def other_message(message):
+def other_message(message: object) -> None:
     """Receives all other messages sent to bot, and passes it own to a human for further processing
 
     :param message: praw message object

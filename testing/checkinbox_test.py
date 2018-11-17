@@ -43,7 +43,8 @@ class TestCheckInbox(TestCase):
             c_m(message=obj)
 
             # Make sure the function creates a maprow object
-            mock_maprow.assert_called_with(schema=mock_contest_db().schema,
+            mock_maprow.assert_called_with(path='data/mapporn.db',
+                                           schema=mock_contest_db().schema,
                                            table=mock_contest_db().table,
                                            row=obj.expected)
 
