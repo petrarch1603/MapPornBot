@@ -92,7 +92,8 @@ class MapRow:
         # Set attributes from keys of row dictionary
         for k, v in self.dict.items():
             self.__dict__[str(k)] = v
-        self.praw = praw.Reddit('bot1').submission(id=self.dict['raw_id'])
+        if self.table != 'contest':
+            self.praw = praw.Reddit('bot1').submission(id=self.dict['raw_id'])
         self.diag = None
         self.path = path
 
@@ -411,13 +412,13 @@ class MapDB:
         self.conn.commit()
         self.conn.close()
 
-    def get_row_by_raw_id(self, raw_id: str) -> Union[list, tuple]:
+    def get_row_by_raw_id(self, raw_id: str) -> object:
         """Gets a map row by raw_id
 
         :param raw_id:
         :type raw_id: str
-        :return: Returns a row
-        :rtype: list
+        :return: Returns a MapRow object
+        :rtype: object
 
         """
         # TODO: return a maprow object instead of list!!
@@ -425,10 +426,10 @@ class MapDB:
             self.table,
             raw_id
             )).fetchall()
-        if len(my_row) > 0:
-            return my_row[0]
-        return my_row
-
+        if len(my_row) != 0:
+            return MapRow(schema=self.schema, row=my_row[0], table=self.table)
+        else:
+            return []
 
 class HistoryDB(MapDB):
     """Database of Day in History Maps"""
@@ -924,7 +925,7 @@ class LoggingDB(MapDB):
         self.curs.execute(my_sql, my_list)
         self.conn.commit()
 
-    def get_fails_previous_24(self, current_time: int) -> list:
+    def get_fails_previous_24(self, current_time: float) -> list:
         """Get all failed scripts from the last 24 hours
 
         :param current_time: A little longer than 24 hours to ensure it doesn't miss any edge cases.
@@ -961,7 +962,7 @@ class LoggingDB(MapDB):
                     newer_time)
         ))
 
-    def get_successes_previous_24(self, current_time: int) -> list:
+    def get_successes_previous_24(self, current_time: float) -> list:
         """Get successful script executions from last 24 hours.
 
         :param current_time:
@@ -1038,7 +1039,7 @@ class JournalDB(MapDB):
         """
         MapDB.__init__(self, table, path)
 
-    def update_todays_status(self, benchmark_time: int) -> None:
+    def update_todays_status(self, benchmark_time: float) -> None:
         """Updates today's status in the database
 
         :param benchmark_time: Time it takes the script to run.
@@ -1204,15 +1205,11 @@ class ContestDB(MapDB):
         row_list.sort(key=lambda x: x.votes, reverse=True)
         return row_list
 
-    def delete_by_raw_id(self, raw_id):
-        assert len(raw_id) == 6
-        sql = '''DELETE FROM contest WHERE raw_id = ?'''
-        self.curs.execute(sql, (raw_id,))
-        self.conn.commit()
-
     # TODO: write a function to get sorted top of year
 
     # TODO: write integrity checks
+    def check_integrity(self):
+        return("PASS")
 
         # TODO: should make sure all rows with a vote count also have a cont_date
 
