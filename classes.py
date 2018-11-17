@@ -1208,6 +1208,8 @@ class ContestDB(MapDB):
 
     # TODO: write integrity checks
 
+        # TODO: should make sure all rows with a vote count also have a cont_date
+
 
 class ShotgunBlast:
     """Class for blasting a post to multiple social media sites at once.
