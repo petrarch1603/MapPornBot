@@ -26,11 +26,11 @@ copyfile(source_db_path, test_db_path)
 class MockMessage:
     """Mock class for creating a message object for testing the checkinbox.py script"""
 
-    def __init__(self, body: str = 'abc', author: str = 'abc', subject: str = 'abc') -> None:
+    def __init__(self, body: str = 'abc', author: str = 'abc', subject: str = 'abc', raw_id: str = 'abcdef') -> None:
         self.body = body
         self.author = author
         self.subject = subject
-        self.id = functions.create_random_string(6)
+        self.id = raw_id
 
     def __repr__(self):
         return self.id
@@ -47,12 +47,13 @@ class MockMessage:
 
 def init() -> None:
     """Initializes test databases for testing"""
-    global test_hist_db, test_log_db, test_soc_db, test_jour_db, test_db_list
+    global test_hist_db, test_log_db, test_soc_db, test_jour_db, test_db_list, test_cont_db
     test_hist_db = classes.HistoryDB(path=test_db_path)
     test_log_db = classes.LoggingDB(path=test_db_path)
     test_soc_db = classes.SocMediaDB(path=test_db_path)
     test_jour_db = classes.JournalDB(path=test_db_path)
-    test_db_list = [test_hist_db, test_log_db, test_soc_db, test_jour_db]
+    test_cont_db = classes.ContestDB(path=test_db_path)
+    test_db_list = [test_hist_db, test_log_db, test_soc_db, test_jour_db, test_cont_db]
 
 
 def test_close_all():
@@ -222,8 +223,7 @@ def test_add_entries(num_of_entries: int) -> None:
     # Add random new entries to database
     init()
     print("Adding {} random entries to all databases for testing...".format(
-        str(num_of_entries)
-    ))
+        str(num_of_entries)))
     for _ in range(num_of_entries):
         rand_hist_id = functions.create_random_string(6)
         rand_soc_id = functions.create_random_string(6)
@@ -273,9 +273,13 @@ def test_add_entries(num_of_entries: int) -> None:
     test_row_count(delta=num_of_entries)
 
 
-# TODO add tests on contest database
-
 def test_check_inbox(number_of_tests=5):
+    """Tests that check inbox integrates with the database
+
+    :param number_of_tests: How many tests to do
+    :type number_of_tests: int
+
+    """
     error_message = ''
     for _ in range(number_of_tests):
 
@@ -286,26 +290,33 @@ def test_check_inbox(number_of_tests=5):
                        functions.create_random_string(7) + '.jpg'
         rand_description = functions.create_random_string(15)
         rand_author = 'Author' + functions.create_random_string(11)
+        rand_raw_id = functions.create_random_string(6)
         test_contest_message = "Map Name: {}   \n" \
                                "Link: {}   \n" \
                                "Description: {}".format(rand_map_name,
                                                         rand_website,
                                                         rand_description)
 
-        test_message_obj = MockMessage(body=test_contest_message, author=rand_author)
+        test_message_obj = MockMessage(body=test_contest_message, author=rand_author, raw_id=rand_raw_id)
 
         try:
             test_close_all()
-            test_list = checkinbox.contest_message(message=test_message_obj)
-            assert test_list[0] == rand_map_name
-            assert test_list[1] == rand_website
-            assert test_list[2] == ("Description: {}".format(rand_description))
-            assert test_list[3] == rand_author
-            assert test_list[4] == test_message_obj
+            checkinbox.contest_message(message=test_message_obj, path=test_db_path)
+            init()
+            updated_row = test_cont_db.get_row_by_raw_id(rand_raw_id)
+            assert updated_row.map_name == rand_map_name
+            assert updated_row.raw_id == rand_raw_id
+            assert updated_row.desc == rand_description
+            assert updated_row.url == rand_website
+            assert updated_row.author == rand_author
+            test_cont_db.delete_by_raw_id(rand_raw_id)
+            test_close_all()
+
         except AssertionError as e:
             error_message += "Error when testing contest message.    \n{}".format(e)
 
         # # Test the socmedia message
+        init()
         rand_raw_id = functions.create_random_string(6)
         rand_url = 'https://redd.it/' + rand_raw_id
 
@@ -316,15 +327,17 @@ def test_check_inbox(number_of_tests=5):
         if fresh_status == 0:
             test_socmedia_message += '   \n' + str(fresh_status)
         test_socmediamsg_obj = MockMessage(body=test_socmedia_message)
+        init()
         checkinbox.socmedia_message(message=test_socmediamsg_obj, path=test_db_path)
 
         try:
+            test_close_all()
             init()
-            # TODO: updated_row should return a MapRow and not a list
+
             updated_row = test_soc_db.get_row_by_raw_id(rand_raw_id)
-            assert updated_row[0] == rand_raw_id
-            assert updated_row[1] == rand_title
-            assert updated_row[3] == fresh_status
+            assert updated_row.raw_id == rand_raw_id
+            assert updated_row.text == rand_title
+            assert updated_row.fresh == fresh_status
             test_soc_db.delete_by_raw_id(rand_raw_id)
         except AssertionError as e:
             error_message += "Error when testing socmedia message.   \n{}".format(e)
@@ -337,14 +350,15 @@ def test_check_inbox(number_of_tests=5):
         test_dayinhistory_message = '   \n'.join(test_list)
         test_dayinhistory_obj = MockMessage(body=test_dayinhistory_message)
         test_close_all()
+        init()
         checkinbox.dayinhistory_message(message=test_dayinhistory_obj, path=test_db_path)
 
         try:
             init()
             updated_row = test_hist_db.get_row_by_raw_id(rand_raw_id)
-            assert updated_row[0] == rand_raw_id
-            assert updated_row[1] == rand_title
-            assert updated_row[2] == int(rand_day_of_year)
+            assert updated_row.raw_id == rand_raw_id
+            assert updated_row.text == rand_title
+            assert updated_row.day_of_year == int(rand_day_of_year)
             test_hist_db.delete_by_raw_id(rand_raw_id)
         except AssertionError as e:
             error_message += "Error when testing dayinhistory message   \n{}".format(e)
@@ -352,20 +366,32 @@ def test_check_inbox(number_of_tests=5):
 
 
 def test_delete_entry(count=5):
+    """Tests that the entry is deleted from database
+
+    :param count: number of entries to delete
+    :type count: int
+
+    """
     init()
     error_message = ''
     for i in range(count):
         try:
             my_raw_id = test_soc_db.get_random_row()[0][0]
-            assert len(test_soc_db.get_row_by_raw_id(my_raw_id)) == 6
+            assert len(test_soc_db.get_row_by_raw_id(my_raw_id).raw_id) == 6
             test_soc_db.delete_by_raw_id(my_raw_id)
-            assert len(test_soc_db.get_row_by_raw_id(my_raw_id)) == 0
+            assert test_soc_db.get_row_by_raw_id(my_raw_id) == []
         except AssertionError as e:
             error_message += 'Error testing delete method   \n{}'.format(e)
     return error_message
 
 
 def main_test_db(num_of_entries=5):
+    """Main test of databases
+
+    :param num_of_entries: number of entries to create
+    :type num_of_entries:
+
+    """
     t_start = time.perf_counter()
     init()
 
