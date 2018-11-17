@@ -152,7 +152,7 @@ def test_time_zone(count: int = 5) -> None:
             random_zone = 99
             random_index = random.randint(1, len(test_soc_db.get_rows_by_time_zone(time_zone=random_zone)) - 1)
         assert isinstance(test_soc_db.get_rows_by_time_zone(time_zone=random_zone), list)
-        raw_ids_dict[(random_zone_list[random_index][0])] = random_zone
+        raw_ids_dict[random_zone_list[random_index].raw_id] = random_zone
 
     # Change time zones for five random raw_ids
     for k, v in raw_ids_dict.items():
@@ -164,7 +164,13 @@ def test_time_zone(count: int = 5) -> None:
     # Check that the five raw_ids have the new random dates
     init()
     for k, v in raw_ids_dict.items():  # k is a raw_id, v is a time_zone
-        assert str(k) in str(test_soc_db.get_rows_by_time_zone(time_zone=v, fresh='0 OR 1'))
+        found = False
+        my_list = test_soc_db.get_rows_by_time_zone(time_zone=v, fresh='0 OR 1')
+        while found is not True:
+            for i in my_list:
+                if i.raw_id == k:
+                    found = True
+            assert found is True
     test_close_all()
     init()
 
