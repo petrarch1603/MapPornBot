@@ -64,11 +64,12 @@ def main() -> None:
             message.mark_read()
 
 
-def contest_message(message):
+def contest_message(message, path='data/mapporn.db'):
     """Parse the praw message object and create a list for each map contest submission
 
     :param message: praw message object
     :type message: obj
+    :param path: path to database (available for using a test database)
     :return: List of strings:
                 * Url of map submission
                 * Name of map
@@ -79,31 +80,34 @@ def contest_message(message):
 
     """
 
-    message_to_me = 'A new map has been submitted. Check for formatting    \n'
     submission = functions.split_message(message.body)
     submission = [w.replace('Link:', '') for w in submission]  # Replace the title 'Link: ' with blankspace.
     submission = [w.replace('Map Name:', '') for w in submission]
     for i, v in enumerate(submission):
         submission[i] = submission[i].lstrip().rstrip()
-    cont_db = classes.ContestDB()
+    cont_db = classes.ContestDB(path=path)
     map_name = submission[0]
     url = submission[1]
     if len(submission) > 3:
         submission[2] = str(submission[2]) + '\n' + str(submission[3])
     desc = submission[2]
+    if desc.startswith("Description: "):
+        desc = desc[13:]
     author = message.author
     raw_id = str(message.id)
     my_list = [map_name, url, desc, author, raw_id]
-    message_to_me += "Name|Submission\n-|-\n"
-    message_to_me += "Map Name:|{}\n" \
-                     "URL:|{}\n" \
-                     "Desc:|{}\n" \
-                     "Author:|{}\n" \
-                     "Raw ID:|{}\n    \n".format(map_name, url, desc, author, raw_id)
-    functions.send_reddit_message_to_self(title='New Map Submitted!',
-                                          message=message_to_me)
 
-    row_obj = classes.MapRow(schema=cont_db.schema, row=my_list, table=cont_db.table)
+    my_table = "Time Zone|Map Count\n-|-\n"
+    my_table += "Map Name:|{}\n".format(str(map_name))
+    my_table += "URL:|{}\n".format(str(url))
+    my_table += "Desc:|{}\n".format(str(desc))
+    my_table += "Author:|{}\n".format(str(author))
+    my_table += "Raw ID:|{}\n".format(str(raw_id))
+    if path == 'data/mapporn.db':
+        functions.send_reddit_message_to_self(title='New Map Submitted!',
+                                              message=my_table)
+
+    row_obj = classes.MapRow(schema=cont_db.schema, row=my_list, table=cont_db.table, path=path)
     row_obj.add_row_to_db(script=script)
     message.reply(MessageReply)
     message.mark_read()
