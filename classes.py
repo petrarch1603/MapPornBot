@@ -431,6 +431,7 @@ class MapDB:
         else:
             return []
 
+
 class HistoryDB(MapDB):
     """Database of Day in History Maps"""
 
@@ -1121,6 +1122,15 @@ class ContestDB(MapDB):
             for i in my_live_list:
                 my_row = MapRow(schema=self.schema, row=i, table=self.table)
                 self.live_list.append(my_row)
+
+        self.current_list = []
+        my_current_list = [x for x in (self.curs.execute("SELECT * from {} WHERE cont_date IS NOT NULL AND votes is "
+                                                         "NULL;".format(self.table)).fetchall())]
+        self.current_count = len(my_current_list)
+        if self.current_count > 0:
+            for i in my_current_list:
+                my_row = MapRow(schema=self.schema, row=i, table=self.table)
+                self.current_list.append(my_row)
 
     def add_to_contest(self, map_name: str, url: str, desc: str, author: str, raw_id: str) -> None:
         """Adds map row to contest database
