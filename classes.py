@@ -397,7 +397,6 @@ class MapDB:
                 obj_list.append(my_row)
         return obj_list
 
-
     def delete_by_raw_id(self, raw_id_to_delete: str) -> Optional[str]:
         """Delete a row by its raw_id
 
@@ -595,7 +594,7 @@ class SocMediaDB(MapDB):
                 this_zone = int(zonedict[place])
         return this_zone
 
-    def get_rows_by_time_zone(self, time_zone: int, fresh: Union[int, str] = 1) -> list:
+    def get_rows_by_time_zone(self, time_zone: Union[int, list], fresh: Union[int, str] = 1) -> list:
         """Return a list of all the rows in a time zone
 
         :param time_zone:
@@ -606,19 +605,31 @@ class SocMediaDB(MapDB):
         :rtype: list
 
         """
+        obj_list = []
         if isinstance(time_zone, int):
-            return [x for x in (self.curs.execute("SELECT * FROM {} WHERE time_zone = {} AND fresh = {}"
-                                                  .format(self.table, time_zone, fresh)))]
+            rows_list = [x for x in (self.curs.execute("SELECT * FROM {} WHERE time_zone = {} AND fresh = {}"
+                                                       .format(self.table, time_zone, fresh)))]
+            if len(rows_list) > 0:
+                for i, v in enumerate(rows_list):
+                    my_row = MapRow(schema=self.schema, row=rows_list[i], table=self.table)
+                    obj_list.append(my_row)
+            return obj_list
+
         elif isinstance(time_zone, list):
             time_zone_list = []
             for i in time_zone:
                 for j in self.curs.execute("SELECT * FROM {} WHERE fresh={} and time_zone={}"
                                            .format(self.table, fresh, i)):
                     time_zone_list.append(j)
-            # TODO: return a list of MapRow objects
-            return time_zone_list
+            if len(time_zone_list) > 0:
+                for i, v in enumerate(time_zone_list):
+                    my_row = MapRow(schema=self.schema, row=time_zone_list[i], table=self.table)
+                    obj_list.append(my_row)
+            return obj_list
+
         else:
-            print(str(time_zone) + " is not a valid time zone")
+            functions.send_reddit_message_to_self(title="Bad time zone",
+                                                  message=str(time_zone) + " is not a valid time zone")
 
     def change_time_zone(self, raw_id: str, new_zone: int) -> None:
         """Change the time zone by raw_id
