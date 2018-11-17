@@ -14,12 +14,13 @@ import time
 
 def init():
     """Initializes databases, Reddit bot"""
-    global hist_db, journal_db, log_db, r, soc_db
+    global hist_db, journal_db, log_db, r, soc_db, cont_db
     hist_db = classes.HistoryDB()
     journal_db = classes.JournalDB()
     log_db = classes.LoggingDB()
     r = praw.Reddit('bot1')
     soc_db = classes.SocMediaDB()
+    cont_db = classes.ContestDB()
 
 
 def main():
@@ -305,17 +306,17 @@ def check_map_contest():
     """
     message = ''
     try:
-        map_subms = functions.count_lines_of_file('submissions.csv')
+        map_subms = cont_db.live_count
         with open('data/votingpostdata.txt', 'r') as f:
             last_contest_raw = f.read()
-        last_contest_time = r.submission(id=last_contest_raw).created
+            last_contest_time = r.submission(id=last_contest_raw).created
         days_since_contest = int((datetime.datetime.now().timestamp() - last_contest_time)/60/60/24)
-        message = "**{}** maps submitted for this month's map contest.   \n    \n".format(map_subms)
+        message = "**{}** maps submitted for this month's map contest.   \n    \n".format(str(map_subms))
         if days_since_contest > 45:
             message += "It's been **{}** days since a map contest, " \
-                       "perhaps it's time to run the voting post script.    \n    \n"
+                       "perhaps it's time to run the voting post script.    \n    \n".format(days_since_contest)
         else:
-            message += "**{}** days since the last map contest.    \n    \n"
+            message += "**{}** days since the last map contest.    \n    \n".format(str(days_since_contest))
     except Exception as e:
         message += 'Could not check map contest, problem with script   \n{}    \n    \n'.format(e)
     return message
