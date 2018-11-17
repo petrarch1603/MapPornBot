@@ -1226,6 +1226,21 @@ class ContestDB(MapDB):
         row_list.sort(key=lambda x: x.votes, reverse=True)
         return row_list
 
+    def change_url(self, raw_id: str, url: str) -> None:
+        """Change the time zone by raw_id
+
+        :param raw_id:
+        :type raw_id:
+        :param url: new url
+        :type url: str
+
+        """
+        self.curs.execute("UPDATE {} SET url = {} WHERE raw_id = '{}'".format(
+            self.table,
+            url,
+            raw_id))
+        self.conn.commit()
+
     # TODO: write a function to get sorted top of year
 
     # TODO: write integrity checks
