@@ -287,7 +287,7 @@ class Diagnostic:
 
         """
         try:
-            if self.raw_id is not None:
+            if self.raw_id is not None and self.table is not 'contest':
                 assert self.title is not None
         except AssertionError:
                 functions.send_reddit_message_to_self(title="Missing title",
