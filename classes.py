@@ -1204,6 +1204,12 @@ class ContestDB(MapDB):
         row_list.sort(key=lambda x: x.votes, reverse=True)
         return row_list
 
+    def __delete_by_raw_id(self, raw_id):
+        assert len(raw_id) == 6
+        sql = '''DELETE FROM contest WHERE raw_id = {}'''.format(raw_id)
+        self.curs.execute(sql)
+        self.conn.commit()
+
     # TODO: write a function to get sorted top of year
 
     # TODO: write integrity checks
