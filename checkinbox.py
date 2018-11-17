@@ -39,24 +39,13 @@ def init(path: str = 'data/mapporn.db') -> None:
 
 def main() -> None:
     """Main script to check inbox"""
+
     for message in r.inbox.unread():
         init()
 
         # # Map Contest Submissions
-        my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))
         if message.subject == "Map Contest Submission":
-            my_diag.table = 'contest'
-            try:
-                submission = contest_message(message=message)
-            except Exception as e:
-                functions.send_reddit_message_to_self(title='Error with contest submission',
-                                                      message='Error: {}'.format(e))
-                my_diag.traceback = e
-                log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
-                continue
-            my_diag.title = submission[0]
-            log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
-            add_submission_to_csv(submission=submission)
+            contest_message(message=message)
             message.mark_read()
 
         # # Social Media Maps
@@ -103,7 +92,7 @@ def contest_message(message):
         submission[2] = str(submission[2]) + '\n' + str(submission[3])
     desc = submission[2]
     author = message.author
-    raw_id = message
+    raw_id = str(message.id)
     my_list = [map_name, url, desc, author, raw_id]
     message_to_me += "Name|Submission\n-|-\n"
     message_to_me += "Map Name:|{}\n" \
@@ -117,7 +106,8 @@ def contest_message(message):
     row_obj = classes.MapRow(schema=cont_db.schema, row=my_list, table=cont_db.table)
     row_obj.add_row_to_db(script=script)
     message.reply(MessageReply)
-    return submission
+    message.mark_read()
+    return my_list
 
 
 def add_submission_to_csv(submission):
@@ -175,6 +165,7 @@ def socmedia_message(message, path='data/mapporn.db'):
     elif len(socmediamap) > 1:
         title = socmediamap[1]
     else:
+        r = praw.Reddit('bot1')  # Leave this line for testing (need to patch this call in unittests)
         title = r.submission(id=raw_id).title
 
     # Remove double quotes, very important for inserting into database
@@ -230,7 +221,7 @@ def dayinhistory_message(message, path='data/mapporn.db'):
             pass
         if isinstance(item, int) and 0 < item < 366:
             day_of_year = item
-        elif item.startswith("https://redd.it/"):
+        elif str(item).startswith("https://redd.it/"):
             raw_id = item.lstrip().rstrip()[-6:]
         else:
             title = item
@@ -273,8 +264,6 @@ def other_message(message):
                                                   '{msg}'.format(author=author,
                                                                  subj=subject,
                                                                  msg=msg))
-    log_db.conn.commit()
-    log_db.close()
     message.mark_read()
 
 
