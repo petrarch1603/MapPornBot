@@ -1196,6 +1196,10 @@ class ContestDB(MapDB):
         row_list.sort(key=lambda x: x.votes, reverse=True)
         return row_list
 
+    # TODO: write a function to get sorted top of year
+
+    # TODO: write integrity checks
+
 
 class ShotgunBlast:
     """Class for blasting a post to multiple social media sites at once.
