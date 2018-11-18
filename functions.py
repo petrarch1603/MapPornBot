@@ -106,7 +106,7 @@ def split_message(message_str):
 
 
 def next_weekday(d, weekday):
-    #TODO need to clear this up, it's confusing.
+    # TODO need to clear this up, it's confusing.
     """From gets the next weekday from today's date
 
     :param d: today's date as a datetime object
