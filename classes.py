@@ -92,7 +92,7 @@ class MapRow:
         # Set attributes from keys of row dictionary
         for k, v in self.dict.items():
             self.__dict__[str(k)] = v
-        if self.table == 'socmedia' or self.table == 'historymaps':
+        if self.table == 'socmediamaps' or self.table == 'historymaps':
             self.praw = praw.Reddit('bot1').submission(id=self.dict['raw_id'])
         self.diag = None
         self.path = path
