@@ -85,10 +85,10 @@ def contest_message(message: object, path: str = 'data/mapporn.db'):
         submission[2] = str(submission[2]) + '\n' + str(submission[3])
     desc = submission[2]
     if desc.startswith("Description: "):
-        desc = desc[13:]
+        desc = str(desc)[13:]
     author = message.author
     raw_id = str(message.id)
-    my_list = [map_name, url, desc, author, raw_id]
+    my_list = [str(map_name), str(url), str(desc), str(author), str(raw_id)]
 
     my_table = "Time Zone|Map Count\n-|-\n"
     my_table += "Map Name:|{}\n".format(str(map_name))
