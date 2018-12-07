@@ -25,7 +25,7 @@ def main():
         exit()
 
     maprow = random.choice(today_list)
-    maprow.post_to_social_media(table=hist_db.table, script=os.path.basename(__file__))
+    maprow.post_to_social_media(script=os.path.basename(__file__))
 
 
 if __name__ == '__main__':
