@@ -15,22 +15,22 @@ import tweepy
 
 # TODO: add type annotations
 
-def init_soc_posting():
-    """Initialize Twitter and PRAW"""
-    # TODO: is this function used anywhere in the codebase? can it be deleted?
-    # Reddit Bot Login
-
-    # Twitter Authentication
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_secret)
-
-    # PRAW logging stuff
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.DEBUG)
-    logger = logging.getLogger('prawcore')
-    logger.setLevel(logging.DEBUG)
-    logger.addHandler(handler)
-
+# def init_soc_posting():
+#     """Initialize Twitter and PRAW"""
+#     # TODO: is this function used anywhere in the codebase? can it be deleted?
+#     # Reddit Bot Login
+#
+#     # Twitter Authentication
+#     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+#     auth.set_access_token(access_token, access_secret)
+#
+#     # PRAW logging stuff
+#     handler = logging.StreamHandler()
+#     handler.setLevel(logging.DEBUG)
+#     logger = logging.getLogger('prawcore')
+#     logger.setLevel(logging.DEBUG)
+#     logger.addHandler(handler)
+#
 
 my_reddit_ID = 'petrarch1603'  # This is the human reddit user name, NOT the bot's user name.
 
