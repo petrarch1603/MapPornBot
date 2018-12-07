@@ -1,3 +1,5 @@
+'''Script for posting a map from This Day in History'''
+
 import calendar
 import classes
 import datetime
@@ -5,7 +7,13 @@ import os
 import random
 
 
-def get_todays_date():
+def get_todays_date() -> int:
+    """Returns today's date in Epoch Time
+
+    :return: Today's date in Epoch Time
+    :rtype: int
+
+    """
     today_int = datetime.datetime.now().timetuple().tm_yday
     if today_int > 60 and calendar.isleap(datetime.datetime.now().year):
         today_int -= 1
@@ -13,6 +21,7 @@ def get_todays_date():
 
 
 def main():
+    '''Main Script'''
     hist_db = classes.HistoryDB()
     today_list = hist_db.get_rows_by_date(get_todays_date())
 
