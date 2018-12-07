@@ -164,7 +164,8 @@ class MapRow:
 
         """
         self.__create_diagnostic(script=script)
-        self.make_not_fresh()
+        if self.table == 'socmediamaps':
+            self.make_not_fresh()
         self.__blast()
 
     def add_row_to_db(self, script: str) -> None:
@@ -228,7 +229,7 @@ class MapRow:
 class Diagnostic:
     """This is a class for diagnosing failures and success of scripts."""
 
-    def __init__(self, script: object, path: str = 'data/mapporn.db', **kwargs: any) -> None:
+    def __init__(self, script: str, path: str = 'data/mapporn.db', **kwargs: any) -> None:
         """The constructor for Diagnostic class.
 
         :param script: (str) The name of the script. This param is mandatory.
