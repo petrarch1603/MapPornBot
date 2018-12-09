@@ -1127,7 +1127,7 @@ class JournalDB(MapDB):
             print(status)
             return status
 
-    def average_benchmark_times(self) -> int:
+    def average_benchmark_times(self) -> float:
         """Calculates the average time it takes to run status.py
 
         :return: average time
@@ -1137,9 +1137,9 @@ class JournalDB(MapDB):
         my_sum = 0
         counter = 0
         for i in self.all_rows_list():
-            if i.benchmark_time > 0:
+            if float(i.benchmark_time) > 0:
                 counter += 1
-                my_sum += int(i[4])
+                my_sum += float(i.benchmark_time)
         return my_sum / counter
 
 
