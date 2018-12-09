@@ -40,6 +40,7 @@ Attributes:
 import ast
 from collections import OrderedDict
 import csv
+import datetime
 import facebook
 import functions
 import os
@@ -1240,9 +1241,20 @@ class ContestDB(MapDB):
         self.curs.execute(sql, (url, raw_id))
         self.conn.commit()
 
-    # TODO: write a function to get sorted top of year
+    def get_top_posts_of_year(self):
+        """Get a list of the two top voted maps from each month's contest
 
-    # TODO: write integrity checks
+        :return: List of map objects
+        :rtype: list
+
+        """
+        now = datetime.datetime.now()
+        finalists_list = []
+        for i in range(0, 12):
+            my_date_int = int(str(now.year) + str(i).zfill(2))
+            finalists_list.append(self.get_sorted_top_of_month(my_date_int)[:2])
+        finalists_list = [item for sublist in finalists_list for item in sublist]
+        return finalists_list
 
     def check_integrity(self):
         status = ''
@@ -1250,8 +1262,7 @@ class ContestDB(MapDB):
             sql = '''SELECT * FROM contest WHERE votes NOT NULL and cont_date IS NULL'''
             assert self.curs.execute(sql).fetchall() == []
         except AssertionError as e:
-            status += "Error: data in cont_db has votes and no contest date"
-
+            status += "Error: data in cont_db has votes and no contest date" + str(e)
         if status == '':
             return "PASS"
         else:
