@@ -11,10 +11,10 @@ Classes:
     HistoryDB - Subclass of MapDB. This class creates an object that can interact with the History database. This
         database contains rows indexed by days of year. The script history.py run every day and will publish a map from
         this row for the corresponding day. This will be published to social media.
-    SocMediaDB - Subclass of MapDB. This is a database containing a multitude of maps. Every three hours a map will be
-        chosen from this database and published to social media. After the map is published it will be marked as "not
-        fresh". After a set amount of time (around 400 days) the map can be "re-freshed". At any given time this
-        database will contain a number of 'fresh' maps that are queued up.
+    SocMediaDB - Subclass of MapDB. This is a database containing a multitude of maps. Every set amount of hours
+        a map will be chosen from this database and published to social media. After the map is published it will be
+        marked as "not fresh". After a set amount of time (around 400 days) the map can be "re-freshed". At any given
+        time this database will contain a number of 'fresh' maps that are queued up.
 
         The maps also have a time zone associated with them for publishing at a target time of the day. Every three
         hours the script soc_media_stack.py is run and choses a fresh map to publish to social media.
@@ -114,7 +114,7 @@ class MapRow:
         dtdelta = datetime.timedelta(days=self.dict['day_of_year'])
         return (dt + dtdelta).strftime('%Y/%m/%d')
 
-    def __create_diagnostic(self, script: object) -> None:
+    def __create_diagnostic(self, script: str) -> None:
         """Method for creating a diagnostic instance attribute as part of the MapRow object
 
         Private method, meant to be run from other methods.
@@ -230,6 +230,7 @@ class MapRow:
         if self.table == 'socmediamaps':
             soc_db = SocMediaDB(path=self.path)
             soc_db.change_raw_id(old_raw_id=old_raw_id, new_raw_id=new_raw_id)
+
 
 class Diagnostic:
     """This is a class for diagnosing failures and success of scripts."""
@@ -535,12 +536,12 @@ class HistoryDB(MapDB):
 class SocMediaDB(MapDB):
     """Database of general maps for posting to social media.
 
-    Subclass of MapDB. This is a database containing a multitude of maps. Every three hours a map will be
+    Subclass of MapDB. This is a database containing a multitude of maps. Every set number of hours a map will be
         chosen from this database and published to social media. After the map is published it will be marked as "not
         fresh". After a set amount of time (around 400 days) the map can be "re-freshed". At any given time this
         database will contain a number of 'fresh' maps that are queued up.
 
-        The maps also have a time zone associated with them for publishing at a target time of the day. Every three
+        The maps also have a time zone associated with them for publishing at a target time of the day. Every set
         hours the script soc_media_stack.py is run and choses a fresh map to publish to social media.
 
     """
