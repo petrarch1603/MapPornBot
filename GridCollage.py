@@ -49,6 +49,8 @@ def get_images(url_list: list) -> list:
 def crop_image(image_obj: object) -> object:  # Images should be 366 X 366
     """Crop images to 366 x 366 pixels
 
+        This is the proper size for filling each grid
+
     :param image_obj: Image object
     :type image_obj: object
     :return: cropped Image object
@@ -67,27 +69,22 @@ def crop_image(image_obj: object) -> object:  # Images should be 366 X 366
 def add_text(image_obj: object, contest_month: str) -> object:
     """Add text on top of image
 
-    :param image_obj: Image object
+    Centers text at Height 700. Text is a dynamic: different for each month or can be "Best of..." for
+    end of year voting posts.
+
+    :param image_obj: Image object that is being changed
     :type image_obj: object
-    :param contest_month: Contest Month
+    :param contest_month: Custom text usually the format: "November 2018" etc.
     :type contest_month: str
     :return: Image Object with text on top
-    :rtype: Image
+    :rtype: object
 
     """
 
-    # Each character is approximately 30 pixels
-    # Therefore to adjust the text to the center, we add 30 pixels to each character
-    word_length = len(contest_month)
-    adjustment = int((17-word_length) * 30)
-
     font = ImageFont.truetype("fonts/Caudex-Bold.ttf", 145)
     draw = ImageDraw.Draw(image_obj)
-    draw.multiline_text((35 + adjustment, 700),
-                        text=str(contest_month),
-                        font=font,
-                        align="center",
-                        fill=(0, 0, 0, 255))
+    w, h = draw.textsize(contest_month, font=font)
+    draw.text(((1150-w)/2, 700), contest_month, fill="black", font=font)
     return image_obj
 
 
@@ -121,6 +118,6 @@ def create_grid(url_list: List[str], text_content: str = '') -> str:
     if text_content == '':
         text_content = (datetime.now() - timedelta(days=7)).strftime("%B") + " " + datetime.now().strftime("%Y")
     final_image = add_text(background, text_content)
-    filepath = "img/" + str(datetime.now().year) + str(datetime.now().month) + "votenow.png"
+    filepath = "voteimages/" + str(datetime.now().year) + str(datetime.now().month) + "votenow.png"
     final_image.save(filepath, "PNG")
     return filepath
