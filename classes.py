@@ -226,6 +226,10 @@ class MapRow:
         soc_db.update_to_not_fresh(raw_id=self.raw_id)
         soc_db.close()
 
+    def change_raw_id(self, old_raw_id, new_raw_id):
+        if self.table == 'socmediamaps':
+            soc_db = SocMediaDB(path=self.path)
+            soc_db.change_raw_id(old_raw_id=old_raw_id, new_raw_id=new_raw_id)
 
 class Diagnostic:
     """This is a class for diagnosing failures and success of scripts."""
@@ -648,6 +652,13 @@ class SocMediaDB(MapDB):
             raw_id))
         self.conn.commit()
 
+    def change_raw_id(self, old_raw_id, new_raw_id):
+        self.curs.execute("UPDATE {} SET raw_id = '{}' WHERE raw_id = '{}'".format(
+            self.table,
+            new_raw_id,
+            old_raw_id))
+        self.conn.commit()
+
     def update_to_not_fresh(self, raw_id: str) -> None:
         """Make a row not fresh anymore. Also uses the current time as date_posted
 
@@ -773,6 +784,16 @@ class SocMediaDB(MapDB):
                     assert len(str(i.date_posted)) >= 10
             except AssertionError as e:
                 status += "* Item {} is not fresh and does not have a date_posted date    \n{}    \n{}    \n".format(
+                    str(i.raw_id), str(e), str(type(e))
+                )
+            # Check for malformed raw_ids
+            try:
+                if i.raw_id[0] == '/':
+                    old_raw_id = i.raw_id
+                    new_raw_id = i.raw_id[1:]
+                    i.change_raw_id(old_raw_id=old_raw_id, new_raw_id=new_raw_id)
+            except AssertionError as e:
+                status += "* Cannot fix a malformed raw_id (has a / at beginning)    \n{}    \n{}    \n".format(
                     str(i.raw_id), str(e), str(type(e))
                 )
 
