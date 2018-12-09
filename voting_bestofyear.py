@@ -9,15 +9,6 @@ import fnmatch
 from datetime import datetime, timedelta
 
 
-input('Are you ready?')
-
-bot_disclaimer_text = functions.bot_disclaimer()
-contest_year = (datetime.now() - timedelta(days=10)).year
-cont_db = classes.ContestDB()
-finalists_list = cont_db.get_top_posts_of_year()
-r = praw.Reddit('bot1')
-
-
 def prepare_voting_text():
     """Prepares the self text for the voting post
 
@@ -36,17 +27,21 @@ def prepare_voting_text():
     return year_voting_text
 
 
-def main():
-    """Main script to run voting post"""
+def main() -> str:
+    """Main script to run voting post
+
+    :returns: shortlink to voint post
+    :rtype: str
+
+    """
     error_message = ''
     year_voting_text = prepare_voting_text()
-    post_message = 'Vote Now for the best map of ' + str(contest_year) + '!'
     submission = r.subreddit('mapporn').submit(post_message, selftext=year_voting_text)  # Submits the post to Reddit
     submission.mod.contest_mode()
     submission.mod.distinguish()
     shortlink = submission.shortlink
     functions.send_reddit_message_to_self(title='Reminder', message='[Remember to request Reddit Gold]'
-                                                                    '(https://redd.it/7gqgak)    +\n/r/MapPorn '
+                                                                    '(https://redd.it/a335e1)    +\n/r/MapPorn '
                                                                     '/u/Petrarch1603 ' + shortlink)
     title_to_finalist = 'The Annual Best Map of the Year contest is now live!'
     message_to_finalist = ('**The Annual Best Map of the Year contest is now live!**    \nThank you for contributing a '
@@ -65,7 +60,21 @@ def main():
     generalcomment.reply('**What is with the ^^^small characters?**    \nThis contest is automated with a bot. The bot '
                          'uses these random characters to index the maps and to calculate the winner at the end of the '
                          'contest.\n\n----\n\n ^^^[Github](https://github.com/petrarch1603/MapPornBot)')
+    if error_message != '':
+        functions.send_reddit_message_to_self(title="error", message=error_message)
+    submission.mod.approve()  # Unsure if these two work
+    submission.mod.sticky()
+    return shortlink
 
+
+def post_advertisement_to_soc_media(shortlink: str) -> None:
+    """Advertises the voting contest on social media
+
+    :param shortlink: shortlink to Reddit contest
+    :type shortlink: str
+
+    """
+    error_message = ''
     # Get random image_file_name
     imagecount = len([name for name in os.listdir('voteimages/')])  # counts how many images are in the directory
     randraw = random.randint(1, imagecount)  # Creates a random number between 1 and the image count.
@@ -93,8 +102,17 @@ def main():
                                               'links:    \n' + str(socialmediadict['tweet_url']))
     except Exception as e:
         error_message += "Could not post results to social media.   \n{}    \n\n".format(str(e))
-
     if error_message != '':
         functions.send_reddit_message_to_self(title="error", message=error_message)
-    submission.mod.approve()  # Unsure if these two work
-    submission.mod.sticky()
+
+
+if __name__ == "__main__":
+    bot_disclaimer_text = functions.bot_disclaimer()
+    contest_year = (datetime.now() - timedelta(days=10)).year
+    cont_db = classes.ContestDB()
+    finalists_list = cont_db.get_top_posts_of_year()
+    post_message = 'Vote Now for the best map of ' + str(contest_year) + '!'
+    r = praw.Reddit('bot1')
+    shortlink = main()
+    print(shortlink)
+    post_advertisement_to_soc_media(shortlink)
