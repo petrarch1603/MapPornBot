@@ -3,10 +3,12 @@
 import classes
 import csv
 from datetime import timedelta
+import GridCollage
 import logging
 import os
 import praw
 import random
+import requests
 from secrets import *
 import string
 import time
@@ -176,3 +178,61 @@ def success_last_24_report(db_obj):
     if successes == '':
         successes = 'No successes logged in last 24 hours    \n'
     return successes + '   \n'
+
+
+def diagnostics_wrapper(func):
+    # TODO Get this diagnostics wrapper function working!!
+
+    def func_wrapper(script):
+        """
+
+        :param script:
+        :type script:
+        """
+        my_diag = classes.Diagnostic(script=script)
+        try:
+            func()
+            classes.LoggingDB().add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
+        except Exception as e:
+            my_diag.traceback = e
+            classes.LoggingDB().add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+    return func_wrapper
+
+
+def advertise_on_socmedia(list_of_urls: list, month_year: str, voting_url: str) -> None:
+    """Advertise the contest on social media
+
+    :param list_of_urls: List of urls (strings)
+    :type list_of_urls: list
+    :param month_year: Month year in the format "November 2018" or "Best of 2018"
+    :type month_year: str
+    :param voting_url: URL of the contest page on Reddit
+    :type voting_url: str
+
+    """
+    final_urls = []
+    for url in list_of_urls:
+        if requests.get(url).status_code == 200:
+            final_urls.append(url)
+    if len(final_urls) >= 9:
+        filepath = GridCollage.create_grid(final_urls[:9], text_content=month_year)
+    else:
+        imagecount = len([name for name in os.listdir('voteimages/')])
+        randraw = random.randint(1, imagecount)
+        image_file_name = str(randraw).zfill(2)
+        filepath = 'voteimages/' + image_file_name + '.png'
+
+    post_message = ('Vote Now for the ' + month_year + ' Map Contest!' + '\n' + voting_url +
+                    '\n#MapPorn #Cartography #Contest')
+    try:
+        social_media_post = classes.GenericPost(filename=filepath, title=post_message)
+        socialmediadict = social_media_post.post_to_all_social()
+        send_reddit_message_to_self(title="New Voting Post Posted",
+                                    message='A new votingpost.py has been run. Check the post to make'
+                                            ' sure the bot did it right.   \nHere\'s the link to the '
+                                            'post: ' + voting_url + '   \nHere\'s the social media '
+                                            'links:    \n' + str(socialmediadict['tweet_url']))
+    except Exception as e:
+        send_reddit_message_to_self(title="Could not run advertise_on_socmedia()",
+                                    message="Problem encountered: " + str(e))
+
