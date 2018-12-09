@@ -5,6 +5,7 @@ import io
 import os
 from PIL import Image, ImageDraw, ImageFont
 import requests
+from typing import List
 from urllib.parse import urlparse
 
 foreground = Image.open("img/grid.png")
@@ -78,28 +79,32 @@ def add_text(image_obj: object, contest_month: str) -> object:
     # Each character is approximately 30 pixels
     # Therefore to adjust the text to the center, we add 30 pixels to each character
     word_length = len(contest_month)
-    adjustment = int((9-word_length) * 30)
+    adjustment = int((17-word_length) * 30)
 
     font = ImageFont.truetype("fonts/Caudex-Bold.ttf", 145)
     draw = ImageDraw.Draw(image_obj)
     draw.multiline_text((35 + adjustment, 700),
-                        text=str(contest_month + " " + datetime.now().strftime("%Y")),
+                        text=str(contest_month),
                         font=font,
                         align="center",
                         fill=(0, 0, 0, 255))
     return image_obj
 
 
-def create_grid(url_list: list) -> str:
+def create_grid(url_list: List[str], text_content: str = '') -> str:
     """ Main function to turn list of URL strings into a contest advertisement image
 
     :param url_list: list of URL's (strings)
     :type url_list: list
+    :param text_content: optional text content
+    :type text_content: str
     :return: filepath
     :rtype: str
 
     """
 
+    if len(url_list) != 9:
+        raise Exception
     my_cropped_list = get_images(url_list)
     background = Image.new('RGB', (1150, 1150))
     i = 0
@@ -113,8 +118,9 @@ def create_grid(url_list: list) -> str:
         x += 366+25
         y = 0
     background.paste(foreground, (0, 0), foreground)
-    contest_month = (datetime.now() - timedelta(days=7)).strftime("%B")
-    final_image = add_text(background, contest_month)
+    if text_content == '':
+        text_content = (datetime.now() - timedelta(days=7)).strftime("%B") + " " + datetime.now().strftime("%Y")
+    final_image = add_text(background, text_content)
     filepath = "img/" + str(datetime.now().year) + str(datetime.now().month) + "votenow.png"
     final_image.save(filepath, "PNG")
     return filepath
