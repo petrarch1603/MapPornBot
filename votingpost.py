@@ -2,25 +2,13 @@
 
 from datetime import datetime, timedelta
 import classes
-import fnmatch
 import functions
-import os
 import praw
-import random
 
 r = praw.Reddit('bot1')
 cont_db = classes.ContestDB()
 numbersubmitted = cont_db.live_count
-
-# Verify before running in case of accidental execution.
-# If this script is automated, this line will need to be deleted.
-input('Are you ready?')
-
-# # 1) Prepare the self text of the voting post
 botDisclaimerText = functions.bot_disclaimer()
-
-# Include the number of submissions and the contest end date in the text of the post.
-# This code makes the end date next Sunday.
 
 
 def prepare_voting_text():
@@ -47,34 +35,34 @@ def prepare_voting_text():
 
 def main():
     """Main script to prepare and post voting post for Map Contest"""
-    cont_db = classes.ContestDB()
     error_message = ''
     voting_text = prepare_voting_text()
     date_7_days_ago = datetime.now() - timedelta(days=7)
     contest_month = date_7_days_ago.strftime("%B")
     contest_year = date_7_days_ago.date().year
-
+    month_year = (str(contest_month) + ' ' + str(contest_year))
+    post_message = ('Vote Now for the ' + month_year + ' Map Contest!')
     yyyymm = int(str(contest_year) + str(date_7_days_ago.strftime("%m")))
-    post_message = 'Vote Now for the ' + str(contest_month) + ' ' + str(contest_year) + ' Map Contest!'
+
     submission = r.subreddit('mapporn').submit(post_message, selftext=voting_text)  # Submits the post to Reddit
     submission.mod.contest_mode()
     submission.mod.distinguish()
     shortlink = submission.shortlink
 
+    my_urls_list = []  # List of urls of all maps being submitted, used to make grid collage
+
+    # Post each map as a comment
     for obj in cont_db.live_list:
         submission.reply('[' + str(obj.map_name) + '](' + str(obj.url) + ')   \n'
                          '' + str(obj.desc) + '\n\n----\n\n^^^^' + str(obj.raw_id))
-        # the brackets and parentheses are for hyperlinking the name, obj.raw_id is the unique ID of the submission
-        # message, in the congratulations.py program the bot will parse these comments looking for this code and
-        # use it to determine the winners.
 
-        # Now send a message to each contestant letting them know it's live.
+        # Send a message to each contestant letting them know it's live.
         try:
             r.redditor(obj.author).message('The monthly map contest is live!',
                                            'Thank you for contributing a map. '
                                            '[The voting on the monthly contest is '
                                            'open now at this link.](' + shortlink + ')    \n' + botDisclaimerText)
-        except Exception as e:
+        except praw.exceptions.APIException as e:
             print('Could not send message to ' + obj.author + '   \n' + str(e))
         try:
             cont_db.add_date_to_submission(raw_id=obj.raw_id, yearmonth=yyyymm)
@@ -82,6 +70,7 @@ def main():
             functions.send_reddit_message_to_self(title='Voting post error',
                                                   message="could not add contest date "
                                                           "to {}\n    {}".format(obj.raw_id, e))
+        my_urls_list.append(obj.url)  # Add URL to list for getting the grid collage
 
     # General Comment Thread so people don't post top level comments
     generalcomment = submission.reply('General Comment Thread')
@@ -97,38 +86,11 @@ def main():
     file.write(raw_id)
     file.close()
 
-    # TODO add the grid image
-    imagecount = len([name for name in os.listdir('voteimages/')])  # counts how many images are in the directory
-    randraw = random.randint(1, imagecount)  # Creates a random number between 1 and the image count.
-    # Return a random number with a leading zero if necessary. (i.e. 02 instead of 2)
-    image_file_name = str(randraw).zfill(2)
-    # Look in the directory and create a list of files with the name of the image.
-    #
-    # It's not elegant code, but it returns a full file name (i.e. 02.png instead of 02).
-    # The problem is that there are multiple file exensions: jpg, png, jpeg, etc.
-    # There is probably a better way to do it, but for now it works.
-    image_file_name = fnmatch.filter(os.listdir('voteimages/'), image_file_name + '.*')
-    image_file_name = image_file_name[0]    # There should only be one image with that name, so this returns the name of
-
-    # Post to social media
-    # Change the message so it includes URL of the Reddit voting post.
-    post_message_url = (post_message + '\n' + shortlink + '\n#MapPorn #Cartography #Contest')
-    image_file_name = ('voteimages/' + image_file_name)
-
-    # Run a function to post it to different social media accounts
-    try:
-        social_media_post = classes.GenericPost(filename=image_file_name, title=post_message_url)
-        socialmediadict = social_media_post.post_to_all_social()
-        functions.send_reddit_message_to_self('New Voting Post Posted',
-                                              'A new votingpost.py has been run. Check the post to make'
-                                              ' sure the bot did it right.   \nHere\'s the link to the '
-                                              'post: ' + shortlink + '   \nHere\'s the social media '
-                                              'links:    \n' + str(socialmediadict['tweet_url']))
-    except Exception as e:
-        error_message += "Could not post results to social media.   \n{}    \n\n".format(str(e))
+    # Advertise Contest on Social Media
+    functions.advertise_on_socmedia(list_of_urls=my_urls_list, month_year=month_year, voting_url=shortlink)
 
     try:
-        submission.mod.approve()  # Unsure if these two work
+        submission.mod.approve()
     except Exception as e:
         print('Could not approve post. Exception: ' + str(e))
     try:
@@ -138,8 +100,9 @@ def main():
     print(error_message)
 
     try:
-        cont_db = classes.ContestDB()
-        assert cont_db.current_count == numbersubmitted
+        cont_db.close()
+        refreshed_cont_db = classes.ContestDB()
+        assert refreshed_cont_db.current_count == numbersubmitted
     except AssertionError:
         functions.send_reddit_message_to_self(title="Error with current count",
                                               message="The current count in the ContestDB does not equal the number of"
