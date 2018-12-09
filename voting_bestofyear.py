@@ -47,14 +47,19 @@ def main() -> str:
     message_to_finalist = ('**The Annual Best Map of the Year contest is now live!**    \nThank you for contributing a '
                            'map. [The voting on the contest is open now at this link.](' + shortlink + ')    \n' +
                            bot_disclaimer_text)
+
+    authors_list = []
     for map_row in finalists_list:
         submission.reply('[' + str(map_row.map_name) + '](' + str(map_row.url) + ')   \n'
                          '' + str(map_row.desc) + '\n\n----\n\n^^^^' + str(map_row.raw_id))
+        authors_list.append(map_row.author)
 
+    authors_list = set(authors_list)
+    for author in authors_list:
         try:
-            r.redditor(map_row.author).message(title_to_finalist, message_to_finalist)
+            r.redditor(author).message(title_to_finalist, message_to_finalist)
         except Exception as e:
-            print('Error sending message to ' + map_row.author + '   \n' + str(e))
+            error_message += 'Error sending message to ' + author + '   \n' + str(e)
     generalcomment = submission.reply('General Comment Thread')
     generalcomment.mod.distinguish(sticky=True)
     generalcomment.reply('**What is with the ^^^small characters?**    \nThis contest is automated with a bot. The bot '
