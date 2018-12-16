@@ -116,6 +116,12 @@ if __name__ == "__main__":
     contest_year = (datetime.now() - timedelta(days=10)).year
     cont_db = classes.ContestDB()
     finalists_list = cont_db.get_top_posts_of_year()
+
+    # Verify that all the finalist maps have valid URLs:
+    for obj in finalists_list:
+        if urllib.request.urlopen(obj.url).getcode() != 200:
+            finalists_list.remove(obj)
+
     post_message = 'Vote Now for the best map of ' + str(contest_year) + '!'
     r = praw.Reddit('bot1')
     shortlink = main()
