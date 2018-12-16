@@ -1,13 +1,14 @@
 """Script for creating a voting post for best maps of the year."""
 
 import classes
+from datetime import datetime, timedelta
+import fnmatch
 import functions
 import GridCollage
 import os
 import praw
+import sys
 import random
-import fnmatch
-from datetime import datetime, timedelta
 import urllib.request
 
 dryrun = True
