@@ -17,7 +17,8 @@ if dryrun is False:
 else:
     subreddit = 'mappornsandbox'
 
-def prepare_voting_text():
+
+def prepare_voting_text() -> str:
     """Prepares the self text for the voting post
 
     :return: text of voting post
@@ -81,11 +82,18 @@ def main() -> str:
     return shortlink
 
 
-def post_advertisement_to_soc_media(shortlink: str) -> None:
+def post_advertisement_to_soc_media(shortlink: str, image_file_name: str = '') -> str:
     """Advertises the voting contest on social media
+
+
+    :param image_file_name: path to image that is to be posted to social media, default is none.
+    :type image_file_name: str
 
     :param shortlink: shortlink to Reddit contest
     :type shortlink: str
+
+    :return: URL to advertisement Tweet
+    :rtype: str
 
     """
     error_message = ''
