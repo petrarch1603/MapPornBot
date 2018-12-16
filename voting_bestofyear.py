@@ -97,25 +97,24 @@ def post_advertisement_to_soc_media(shortlink: str, image_file_name: str = '') -
 
     """
     error_message = ''
-    # Get random image_file_name
-    imagecount = len([name for name in os.listdir('voteimages/')])  # counts how many images are in the directory
-    randraw = random.randint(1, imagecount)  # Creates a random number between 1 and the image count.
-    # Return a random number with a leading zero if necessary. (i.e. 02 instead of 2)
-    image_file_name = str(randraw).zfill(2)
-    # Look in the directory and create a list of files with the name of the image.
-    #
-    # It's not elegant code, but it returns a full file name (i.e. 02.png instead of 02).
-    # The problem is that there are multiple file exensions: jpg, png, jpeg, etc.
-    # There is probably a better way to do it, but for now it works.
-    image_file_name = fnmatch.filter(os.listdir('voteimages/'), image_file_name + '.*')
-    image_file_name = image_file_name[0]
+    post_message_with_url = (post_message + '\n' + shortlink + '\n#MapPorn #Cartography #Contest')
 
-    # Post to social media
-    # Change the message so it includes URL of the Reddit voting post.
-    post_message_url = (post_message + '\n' + shortlink + '\n#MapPorn #Cartography #Contest')
-    image_file_name = ('voteimages/' + image_file_name)
+    if image_file_name == '':
+        # Get random image_file_name from the directory of vote images.
+        imagecount = len([name for name in os.listdir('voteimages/')])  # counts how many images are in the directory
+        randraw = random.randint(1, imagecount)  # Creates a random number between 1 and the image count.
+
+        # Return a random number with a leading zero if necessary. (i.e. 02 instead of 2)
+        image_file_name = str(randraw).zfill(2)
+
+        # Look in the directory and create a list of files with the name of the image.
+        image_file_name = fnmatch.filter(os.listdir('voteimages/'), image_file_name + '.*')
+        image_file_name = image_file_name[0]
+
+        # Post to social media
+        image_file_name = ('voteimages/' + image_file_name)
     try:
-        social_media_post = classes.GenericPost(filename=image_file_name, title=post_message_url)
+        social_media_post = classes.GenericPost(filename=image_file_name, title=post_message_with_url)
         socialmediadict = social_media_post.post_to_all_social()
         functions.send_reddit_message_to_self('New Voting Post Posted',
                                               'A new votingpost.py has been run. Check the post to make'
