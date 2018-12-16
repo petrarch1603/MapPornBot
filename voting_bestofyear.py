@@ -13,7 +13,7 @@ import urllib.request
 
 
 # Optional dryrun command line argument for testing purposes.
-if sys.argv[1] == 'dryrun':
+if len(sys.argv) > 1 and sys.argv[1] == 'dryrun':
     dryrun = True
     subreddit = 'mappornsandbox'
 else:
