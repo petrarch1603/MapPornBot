@@ -37,13 +37,14 @@ def get_images(url_list: list) -> list:
 
     cropped_images = []
     for i in url_list:
-        while len(cropped_images) != 9:
             url = i
             image_req = requests.get(url)
 
             if image_req.status_code == 200:
                 my_image = Image.open(io.BytesIO(image_req.content))
                 cropped_images.append(crop_image(my_image))
+            if len(cropped_images) == 9:
+                break
     return cropped_images
 
 
