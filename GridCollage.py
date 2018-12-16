@@ -30,19 +30,20 @@ def get_images(url_list: list) -> list:
 
     :param url_list:List of URL's
     :type url_list: list of strings
-    :return: List of cropped Image objects
+    :return: List of 9 cropped image objects
     :rtype: list
 
     """
 
     cropped_images = []
     for i in url_list:
-        url = i
-        image_req = requests.get(url)
+        while len(cropped_images) != 9:
+            url = i
+            image_req = requests.get(url)
 
-        if image_req.status_code == 200:
-            my_image = Image.open(io.BytesIO(image_req.content))
-            cropped_images.append(crop_image(my_image))
+            if image_req.status_code == 200:
+                my_image = Image.open(io.BytesIO(image_req.content))
+                cropped_images.append(crop_image(my_image))
     return cropped_images
 
 
@@ -100,9 +101,10 @@ def create_grid(url_list: List[str], text_content: str = '') -> str:
 
     """
 
-    if len(url_list) != 9:
+    if len(url_list) < 9:
         raise Exception
     my_cropped_list = get_images(url_list)
+    assert(len(my_cropped_list)) == 9
     background = Image.new('RGB', (1150, 1150))
     i = 0
     x = 0
