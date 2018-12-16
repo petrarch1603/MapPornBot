@@ -11,12 +11,16 @@ import sys
 import random
 import urllib.request
 
-dryrun = True
 
-if dryrun is False:
-    subreddit = 'mapporn'
-else:
+# Optional dryrun command line argument for testing purposes.
+if sys.argv[1] == 'dryrun':
+    dryrun = True
     subreddit = 'mappornsandbox'
+else:
+    dryrun = False
+    subreddit = 'mapporn'
+    exit()
+print("Dryrun: " + str(dryrun))
 
 
 def prepare_voting_text() -> str:
@@ -66,6 +70,7 @@ def main() -> str:
 
     authors_list = set(authors_list)  # This will remove duplicate names from the authors list
     if dryrun is False:
+        print('Sending message to a user')
         for author in authors_list:
             try:
                 r.redditor(author).message(title_to_finalist, message_to_finalist)
