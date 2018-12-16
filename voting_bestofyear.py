@@ -19,7 +19,7 @@ if sys.argv[1] == 'dryrun':
 else:
     dryrun = False
     subreddit = 'mapporn'
-    exit()
+
 print("Dryrun: " + str(dryrun))
 
 
@@ -154,9 +154,14 @@ if __name__ == "__main__":
     my_urls = []
     for i in finalists_list:
         my_urls.append(i.url)
-    collage_filepath: str = GridCollage.create_grid(url_list=my_urls, text_content="Best of " + str(contest_year))
 
+    try:
+        collage_filepath: str = GridCollage.create_grid(url_list=my_urls, text_content="Best of " + str(contest_year))
+    except Exception as e:
+        functions.send_reddit_message_to_self(title="Cannot create Grid Collage",
+                                              message="Exception: " + str(e))
+        collage_filepath = ''
     if dryrun is False:
         print(post_advertisement_to_soc_media(shortlink=shortlink, image_file_name=collage_filepath))
     else:
-        print(collage_filepath)
+        print("Collage filepath: " + collage_filepath)
