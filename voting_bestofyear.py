@@ -2,12 +2,20 @@
 
 import classes
 import functions
+import GridCollage
 import os
 import praw
 import random
 import fnmatch
 from datetime import datetime, timedelta
+import urllib.request
 
+dryrun = True
+
+if dryrun is False:
+    subreddit = 'mapporn'
+else:
+    subreddit = 'mappornsandbox'
 
 def prepare_voting_text():
     """Prepares the self text for the voting post
@@ -36,7 +44,7 @@ def main() -> str:
     """
     error_message = ''
     year_voting_text = prepare_voting_text()
-    submission = r.subreddit('mapporn').submit(post_message, selftext=year_voting_text)  # Submits the post to Reddit
+    submission = r.subreddit(subreddit).submit(post_message, selftext=year_voting_text)  # Submits the post to Reddit
     submission.mod.contest_mode()
     submission.mod.distinguish()
     shortlink = submission.shortlink
@@ -54,12 +62,13 @@ def main() -> str:
                          '' + str(map_row.desc) + '\n\n----\n\n^^^^' + str(map_row.raw_id))
         authors_list.append(map_row.author)
 
-    authors_list = set(authors_list)
-    for author in authors_list:
-        try:
-            r.redditor(author).message(title_to_finalist, message_to_finalist)
-        except Exception as e:
-            error_message += 'Error sending message to ' + author + '   \n' + str(e)
+    authors_list = set(authors_list)  # This will remove duplicate names from the authors list
+    if dryrun is False:
+        for author in authors_list:
+            try:
+                r.redditor(author).message(title_to_finalist, message_to_finalist)
+            except Exception as e:
+                error_message += 'Error sending message to ' + author + '   \n' + str(e)
     generalcomment = submission.reply('General Comment Thread')
     generalcomment.mod.distinguish(sticky=True)
     generalcomment.reply('**What is with the ^^^small characters?**    \nThis contest is automated with a bot. The bot '
@@ -105,6 +114,7 @@ def post_advertisement_to_soc_media(shortlink: str) -> None:
                                               ' sure the bot did it right.   \nHere\'s the link to the '
                                               'post: ' + shortlink + '   \nHere\'s the social media '
                                               'links:    \n' + str(socialmediadict['tweet_url']))
+        return str(socialmediadict['tweet_url'])
     except Exception as e:
         error_message += "Could not post results to social media.   \n{}    \n\n".format(str(e))
     if error_message != '':
