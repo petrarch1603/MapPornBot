@@ -120,4 +120,14 @@ if __name__ == "__main__":
     r = praw.Reddit('bot1')
     shortlink = main()
     print(shortlink)
-    post_advertisement_to_soc_media(shortlink)
+
+    # Create Grid Collage
+    my_urls = []
+    for i in finalists_list:
+        my_urls.append(i.url)
+    collage_filepath: str = GridCollage.create_grid(url_list=my_urls, text_content="Best of " + str(contest_year))
+
+    if dryrun is False:
+        print(post_advertisement_to_soc_media(shortlink=shortlink, image_file_name=collage_filepath))
+    else:
+        print(collage_filepath)
