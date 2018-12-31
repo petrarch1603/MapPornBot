@@ -22,7 +22,7 @@ if len(sys.argv) > 1 and sys.argv[1] == 'year':
     end_of_year = True
     finalists_list = cont_db.get_top_posts_of_year()
     contest_month_pretty = "Best of " + str(date_10_days_ago.year)
-    votingpostdata = open('data/year_end_votingtext.txt', 'r')
+    votingpostdata = open('data/votingpostdata.txt', 'r')
 elif len(sys.argv) == 1:
     end_of_year = False
     finalists_list = cont_db.current_list
@@ -31,6 +31,7 @@ elif len(sys.argv) == 1:
 else:
     functions.send_reddit_message_to_self(title="error in script", message="illegal number of sysargv's ")
     exit()
+
 
 def get_raw_id() -> object:
     """Get the raw ID of the voting post.
