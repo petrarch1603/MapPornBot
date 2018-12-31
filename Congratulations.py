@@ -7,13 +7,27 @@ import os
 import praw
 import re
 import requests
+import sys
+
+subreddit = 'mapporn'
 
 r = praw.Reddit('bot1')
 log_db = classes.LoggingDB()
 cont_db = classes.ContestDB()
 
 date_10_days_ago = datetime.now() - timedelta(days=10)
-contest_month_pretty = date_10_days_ago.strftime("%B")
+
+
+if len(sys.argv) > 1 and sys.argv[1] == 'year':
+    end_of_year = True
+    finalists_list = cont_db.get_top_posts_of_year()
+    contest_month_pretty = "Best of " + str(date_10_days_ago.year)
+    votingpostdata = open('data/year_end_votingtext.txt', 'r')
+else:
+    end_of_year = False
+    finalists_list = cont_db.current_list
+    contest_month_pretty = str(date_10_days_ago.strftime("%B")) + "\'s Monthly"
+    votingpostdata = open('data/votingpostdata.txt', 'r')
 
 
 def get_raw_id() -> object:
@@ -23,7 +37,6 @@ def get_raw_id() -> object:
     :rtype: object
 
     """
-    votingpostdata = open('data/votingpostdata.txt', 'r')
     raw_id = (votingpostdata.read())
     return r.submission(id=raw_id)
 
@@ -55,23 +68,44 @@ def main():
     # # The Loop
     # Gets top four highest upvoted comments and iterates thru them doing operations each time.
     yyyymm = 0
+    winning_objects_list = []
     for comment in voting_post.comments:
-        score = int(comment.score)
+        my_score = int(comment.score)
+        print(my_score)
         found_id = id_regex.search(comment.body)  # Find those ID's
         if found_id is None:
             continue
         message_id = str(found_id.group()).replace('^^^^', '')
 
-        for obj in cont_db.current_list:
+        for obj in finalists_list:
+            map_row_list = []
             if message_id == str(obj.raw_id):
                 mapcomment = comment.reply("Map by: " + str(obj.author))
                 mapcomment.mod.distinguish(how='yes')
-                cont_db.add_vote_count_to_submission(raw_id=message_id, votecount=score)
-                yyyymm = int(obj.cont_date)
+                if end_of_year is True:
+                    # The order of this list is important, do not rearrange!
+                    map_row_list.append(str(obj.map_name))
+                    map_row_list.append(str(obj.url))
+                    map_row_list.append('')
+                    map_row_list.append(str(obj.author))
+                    map_row_list.append('')
+                    map_row_list.append(my_score)
+                    my_map_row_obj = classes.MapRow(schema=cont_db.schema, table=cont_db.table, row=map_row_list)
+                    winning_objects_list.append(my_map_row_obj)
+                else:
+                    cont_db.add_vote_count_to_submission(raw_id=message_id, votecount=my_score)
+                    yyyymm = int(obj.cont_date)
+    winner, win_map_url = '', ''
+    if end_of_year is False:
+        winning_objects_list = cont_db.get_sorted_top_of_month(month=yyyymm)
+    else:
+        winning_objects_list.sort(key=lambda x: x.votes, reverse=True)
+        assert len(winning_objects_list) == len(cont_db.get_top_posts_of_year())
+
+    assert winning_objects_list[0].votes >= winning_objects_list[2].votes
 
     n = 0
-    winner, win_map_url = '', ''
-    for obj in cont_db.get_sorted_top_of_month(month=yyyymm)[:4]:
+    for obj in winning_objects_list[:4]:
         n += 1
         if n == 1:
             winner = obj.author
@@ -86,8 +120,8 @@ def main():
 # Put the contest post URL into the congratulations template.
     congrats_data = congrats_data.replace('%VOTINGPOSTURL%', voting_post.shortlink)
     congrats_data = congrats_data.replace('%MYUSERID%', functions.my_reddit_ID)
-    post_title = ('Congratulations to /u/{}: winner of {}\'s Monthly Map Contest!'.format(winner, contest_month_pretty))
-    congrats_submission = r.subreddit('mapporn').submit(post_title, selftext=congrats_data)
+    post_title = ('Congratulations to /u/{}: winner of {} Map Contest!'.format(winner, contest_month_pretty))
+    congrats_submission = r.subreddit(subreddit).submit(post_title, selftext=congrats_data)
     congrats_shortlink = congrats_submission.shortlink
     congrats_submission.mod.distinguish()
     try:
@@ -112,7 +146,6 @@ def main():
             winning_image = 'misc_images/01.png'  # This is a backup image to post in lieu of the winning map.
     else:
         winning_image = 'misc_images/01.png'
-
     # Post to social media.
     # Now that we have the image we can run the function to post it to the social media sites
     try:
