@@ -52,10 +52,13 @@ def main():
     my_diag.title = "Contest Congratulations"
     bot_disclaimer_text = functions.bot_disclaimer()
     voting_post.mod.sticky(state=False)
-
     # # Turn contest mode OFF on the original voting post
     # Need to do this in order to count the votes, otherwise all posts show 1 vote.
-    voting_post.mod.contest_mode(state=False)
+    try:
+        voting_post.mod.contest_mode(state=False)
+    except Exception:
+        functions.send_reddit_message_to_self(title="could not turn off contest mode",
+                                              message="turn it off here:" + str(voting_post.url))
 
     # Prepare the loop for parsing contestant maps
     # Prepare the text of the post.
