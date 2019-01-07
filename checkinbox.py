@@ -230,7 +230,7 @@ def dayinhistory_message(message: object, path: str = 'data/mapporn.db') -> None
 
 
 def other_message(message: object) -> None:
-    """Receives all other messages sent to bot, and passes it own to a human for further processing
+    """Receives all other messages sent to bot, and passes it on to a human for further processing
 
     :param message: praw message object
     :type message: obj
