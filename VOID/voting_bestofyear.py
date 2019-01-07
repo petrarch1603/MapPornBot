@@ -12,7 +12,6 @@ import random
 import urllib.request
 
 
-# TODO ADD voting post raw_id to 'data/votingpostdata.txt'!!!!!!!!!!!!!
 
 # Optional dryrun command line argument for testing purposes.
 if len(sys.argv) > 1 and sys.argv[1] == 'dryrun':
@@ -76,8 +75,8 @@ def main() -> str:
         for author in authors_list:
             try:
                 r.redditor(author).message(title_to_finalist, message_to_finalist)
-            except Exception as e:
-                error_message += 'Error sending message to ' + author + '   \n' + str(e)
+            except Exception as ee:
+                error_message += 'Error sending message to ' + author + '   \n' + str(ee)
     generalcomment = submission.reply('General Comment Thread')
     generalcomment.mod.distinguish(sticky=True)
     generalcomment.reply('**What is with the ^^^small characters?**    \nThis contest is automated with a bot. The bot '
@@ -130,8 +129,8 @@ def post_advertisement_to_soc_media(shortlink: str, image_file_name: str = '') -
                                               'post: ' + shortlink + '   \nHere\'s the social media '
                                               'links:    \n' + str(socialmediadict['tweet_url']))
         return str(socialmediadict['tweet_url'])
-    except Exception as e:
-        error_message += "Could not post results to social media.   \n{}    \n\n".format(str(e))
+    except Exception as eee:
+        error_message += "Could not post results to social media.   \n{}    \n\n".format(str(eee))
     if error_message != '':
         functions.send_reddit_message_to_self(title="error", message=error_message)
 
