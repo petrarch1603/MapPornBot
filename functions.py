@@ -120,17 +120,40 @@ def bot_disclaimer() -> str:
     return bot_disclaimer_message
 
 
-def send_reddit_message_to_self(title, message):
+def send_reddit_message_to_self(title: str, message: str) -> None:
+    """ Function for sending a reddit to my user account
+
+    :param title: title string
+    :type title: str
+    :param message: message string
+    :type message: str
+    """
     r = praw.Reddit('bot1')
     r.redditor(my_reddit_ID).message(title, message)
 
 
-def strip_punc(my_str):
+def strip_punc(my_str: str) -> str:
+    """ Strips punctuation and numbers from a string
+
+    :param my_str: raw string
+    :type my_str: str
+    :return: new, clean string
+    :rtype: str
+    """
+
     exclude = set(string.punctuation + '0123456789')
     return ''.join(ch for ch in my_str if ch not in exclude)
 
 
-def create_time_zone_table(zone_dict):
+def create_time_zone_table(zone_dict: dict) -> str:
+    """ Creates a well formatted time zone table for visualizing map collections by time zone
+
+    :param zone_dict: dictionary of time zones
+    :type zone_dict: dict
+    :return: well formatted table
+    :rtype: str
+    """
+
     time_zone_table = "Time Zone|Map Count\n-|-\n"
     for k, v in zone_dict.items():
         # Zone_dict is a dictionary key: zone, value: quantity of maps in that zone
