@@ -1,7 +1,7 @@
-# This is a project to have a weekly social media trivia post. This python script will
-# run a bot that posts a map image to social media and users will guess the location of
-# the map. The idea is to post it every Friday, hence the name "Where in the world
-# Friday."
+"""This is a project to have a weekly social media trivia post. This python script will
+run a bot that posts a map image to social media and users will guess the location of
+the map. The idea is to post it every Friday, hence the name "Where in the world
+Friday. """
 
 import classes
 import csv
@@ -19,7 +19,12 @@ log_db = classes.LoggingDB()
 my_diag = classes.Diagnostic(script=str(os.path.basename(__file__)))
 
 
-def get_image_name():
+def get_image_name() -> str:
+    """
+    Gets the image name for this week's mystery map
+    :return: image name
+    :rtype: str
+    """
     now = datetime.datetime.now()
     thisweek = str(now.isocalendar()[1]).zfill(2)
     two_digit_year = now.strftime('%y')
@@ -28,6 +33,10 @@ def get_image_name():
 
 
 def main():
+    """Main script for posting the weekly mystery map to social media."""
+    image_number = str(get_image_name()) + '.png'
+    image_file_name = image_number + '.png'
+
     try:
         # Post to Social Media
         os.chdir('WW')
