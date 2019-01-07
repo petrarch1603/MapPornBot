@@ -198,7 +198,7 @@ class MapRow:
                 soc_db.close()
                 soc_db = SocMediaDB(path=self.path)
             else:
-                raise Exception(str(self.raw_id) + "Already in Database")
+                raise Exception(str(self.raw_id) + " is already in Database")
             assert old_row_count + 1 == soc_db.rows_count
             soc_db.close()
         elif self.table == 'contest':
