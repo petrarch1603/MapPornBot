@@ -188,15 +188,17 @@ class MapRow:
             hist_db.close()
         elif self.table == 'socmediamaps':
             soc_db = SocMediaDB(path=self.path)
-            assert soc_db.check_if_already_in_db(raw_id=self.raw_id) is False
-            old_row_count = soc_db.rows_count
-            soc_db.add_row_to_db(raw_id=self.raw_id,
-                                 text=self.text,
-                                 time_zone=int(self.time_zone),
-                                 fresh=int(self.fresh),
-                                 date_posted=self.date_posted)
-            soc_db.close()
-            soc_db = SocMediaDB(path=self.path)
+            if soc_db.check_if_already_in_db(raw_id=self.raw_id) is False:
+                old_row_count = soc_db.rows_count
+                soc_db.add_row_to_db(raw_id=self.raw_id,
+                                     text=self.text,
+                                     time_zone=int(self.time_zone),
+                                     fresh=int(self.fresh),
+                                     date_posted=self.date_posted)
+                soc_db.close()
+                soc_db = SocMediaDB(path=self.path)
+            else:
+                raise Exception(str(self.raw_id) + "Already in Database")
             assert old_row_count + 1 == soc_db.rows_count
             soc_db.close()
         elif self.table == 'contest':
