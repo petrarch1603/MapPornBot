@@ -1681,3 +1681,4 @@ schema_dict = {'journal': jour_schema,
                'socmediamaps': soc_schema,
                'historymaps': hist_schema,
                'contest': cont_schema}
+
