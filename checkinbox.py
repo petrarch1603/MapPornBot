@@ -9,14 +9,12 @@ Checks for following message:
     * All other messages sent from users to the bot.
 
 """
+
 import classes
-import csv
 import functions
 import os
 import praw
 import time
-
-# TODO: add type annotations to functions
 
 script = str(os.path.basename(__file__))
 disclaimer = functions.bot_disclaimer()
@@ -171,8 +169,12 @@ def socmedia_message(message: object, path: str = 'data/mapporn.db'):
     try:
         my_maprow.add_row_to_db(script=script)
     except Exception as e:
+
         functions.send_reddit_message_to_self(title='error adding to database',
-                                              message="Socmedia Script Problem: {}   \n{}".format(e, script))
+                                              message="Socmedia Script Problem: {}   "
+                                                      "\n{}    \n{}".format(e,
+                                                                            script,
+                                                                            my_maprow_list))
     message.mark_read()
 
 
