@@ -12,6 +12,8 @@ import random
 import urllib.request
 
 
+# TODO ADD voting post raw_id to 'data/votingpostdata.txt'!!!!!!!!!!!!!
+
 # Optional dryrun command line argument for testing purposes.
 if len(sys.argv) > 1 and sys.argv[1] == 'dryrun':
     dryrun = True
