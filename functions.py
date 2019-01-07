@@ -4,7 +4,6 @@ import classes
 import csv
 from datetime import timedelta
 import GridCollage
-import logging
 import os
 import praw
 import random
@@ -16,23 +15,6 @@ import tweepy
 
 
 # TODO: add type annotations
-
-# def init_soc_posting():
-#     """Initialize Twitter and PRAW"""
-#     # TODO: is this function used anywhere in the codebase? can it be deleted?
-#     # Reddit Bot Login
-#
-#     # Twitter Authentication
-#     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-#     auth.set_access_token(access_token, access_secret)
-#
-#     # PRAW logging stuff
-#     handler = logging.StreamHandler()
-#     handler.setLevel(logging.DEBUG)
-#     logger = logging.getLogger('prawcore')
-#     logger.setLevel(logging.DEBUG)
-#     logger.addHandler(handler)
-#
 
 my_reddit_ID = 'petrarch1603'  # This is the human reddit user name, NOT the bot's user name.
 
@@ -47,7 +29,7 @@ def coin_toss():
     return random.randint(0, 1)
 
 
-def create_random_string(char_count):
+def create_random_string(char_count: int) -> str:
     """Creates a random string of n characters
 
     :param char_count:
@@ -61,7 +43,7 @@ def create_random_string(char_count):
     return rand_str
 
 
-def count_lines_of_file(fname):
+def count_lines_of_file(fname: str) -> int:
     """Count the number of lines of a file
 
     :param fname: name of file to be counted
@@ -73,7 +55,7 @@ def count_lines_of_file(fname):
     return sum(1 for _ in open(fname, 'r'))
 
 
-def get_time_zone(title_str):
+def get_time_zone(title_str: str) -> int:
     """Check words in a string and match it to a list of place names with time zones in a CSV
             If nothing is found, defaults to 99
 
@@ -93,7 +75,7 @@ def get_time_zone(title_str):
     return this_zone
 
 
-def split_message(message_str):
+def split_message(message_str: str) -> list:
     """Splits a string with line breaks into a list separated by those line breaks
 
     :param message_str:
@@ -124,7 +106,13 @@ def next_weekday(d, weekday):
     return d + timedelta(days_ahead)
 
 
-def bot_disclaimer():
+def bot_disclaimer() -> str:
+    """ Returns a disclaimer that the message is coming from a bot
+
+    :return: disclaimer message
+    :rtype: str
+    """
+
     bot_disclaimer_message = 'This is coming from a bot. If you have any feedback [contact the /r/MapPorn Moderators]' \
                              '(https://www.reddit.com/message/compose/?to=' + my_reddit_ID + \
                              '&subject=MapPorn%20bot%20feedback)' + '\n\n----\n\n ^^^MapPornBot ^^^by ' \
