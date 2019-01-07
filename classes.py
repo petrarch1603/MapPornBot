@@ -1283,6 +1283,10 @@ class ContestDB(MapDB):
         finalists_list = [item for sublist in finalists_list for item in sublist]
         return finalists_list
 
+    def list_live_maps(self):
+        for i in self.live_list:
+            print("Raw_id = " + str(i.raw_id) + "    | URL = " + str(i.url))
+
     def check_integrity(self):
         status = ''
         try:
