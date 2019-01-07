@@ -8,10 +8,8 @@ import os
 import praw
 import random
 import requests
-from secrets import *
 import string
 import time
-import tweepy
 
 
 # TODO: add type annotations
@@ -164,7 +162,15 @@ def create_time_zone_table(zone_dict: dict) -> str:
     return time_zone_table + "   \n"
 
 
-def fails_last_24_report(db_obj):
+def fails_last_24_report(db_obj: object) -> str:
+    """Gets a string of all failed scripts in the last 24 hours
+
+    :param db_obj: a database
+    :type db_obj: object
+    :return: message of failures
+    :rtype: str
+    """
+
     current_time = time.time()
     errors = ''
     message = ''
@@ -180,7 +186,15 @@ def fails_last_24_report(db_obj):
     return message
 
 
-def success_last_24_report(db_obj):
+def success_last_24_report(db_obj: object) -> str:
+    """Gets a string of all succesful scripts in the last 24 hours
+
+    :param db_obj: a database
+    :type db_obj: object
+    :return: message of successes
+    :rtype: str
+    """
+
     successes = ''
     for i in db_obj.get_successes_previous_24(current_time=time.time()):
         my_success = classes.Diagnostic.diag_dict_to_obj(i[2]).concise_diag()
