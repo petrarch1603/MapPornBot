@@ -1262,7 +1262,6 @@ class ContestDB(MapDB):
         sql = """UPDATE contest SET url = ? WHERE raw_id = ?"""
         self.curs.execute(sql, (url, raw_id))
         self.conn.commit()
-        print(str(self.get_row_by_raw_id(raw_id=raw_id).url))
         try:
             assert str(self.get_row_by_raw_id(raw_id=raw_id).url) == str(url)
         except AssertionError as e:
