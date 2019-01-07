@@ -29,25 +29,12 @@ def get_image_name():
 
 def main():
     try:
-        image_number = get_image_name()
-        image_file_name = image_number + '.png'
         # Post to Social Media
         os.chdir('WW')
 
         socmediadict = classes.GenericPost(image_file_name, post_message).post_to_all_social()
         my_diag.tweet = socmediadict['tweet_url']
         os.chdir('..')
-        with open('data/locations.csv') as current_csv:
-            csvreader = csv.reader(current_csv)
-            for row in csvreader:
-                if image_number == row[0]:
-                    true_location = row[1]
-                    functions.send_reddit_message_to_self(
-                        title="Where in world answer",
-                        message='The correct location is: ' + str(true_location) + '    '
-                                '\nThe Twitter thread is here: ' +
-                                str(my_diag.tweet))
-        log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
 
     except functions.tweepy.TweepError as e:
         if str(e) == 'Unable to access file: No such file or directory':
@@ -67,6 +54,20 @@ def main():
         my_diag.severity = 2
         functions.send_reddit_message_to_self(title="Error with WhereWorld", message=my_diag.traceback)
         log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
+    with open('data/locations.csv') as current_csv:
+        csvreader = csv.reader(current_csv)
+        for row in csvreader:
+            try:
+                if image_number == row[0]:
+                    true_location = row[1]
+                    functions.send_reddit_message_to_self(
+                        title="Where in world answer",
+                        message='The correct location is: ' + str(true_location) + '    '
+                                                                                   '\nThe Twitter thread is here: ' +
+                                str(my_diag.tweet))
+            except Exception as e:
+                print(str(e))
+    log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=1)
 
 
 if __name__ == '__main__':
