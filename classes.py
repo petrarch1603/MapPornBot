@@ -180,40 +180,6 @@ class _MapRow:
         self.diag = map_row_diag
         self.diag.table = self.table
 
-    def _blast(self) -> None:
-        """Method (private) for posting to social media."""
-        try:
-            my_blast = ShotgunBlast(praw_obj=self.praw, title=self.text, announce_input=self.announce_input)
-            assert my_blast.check_integrity() == 'PASS'
-            s_b_dict = my_blast.post_to_all_social()
-            self.diag.tweet = s_b_dict['tweet_url']
-            self.diag.add_to_logging(passfail=1)
-        except AssertionError as e:
-            functions.send_reddit_message_to_self(
-                title='error',
-                message="shotgun blast intergirty check failed!   \n"
-                        "{}".format(str(e)))
-            self.diag.severity = 2
-            self.diag.traceback = e
-            self.diag.add_to_logging(passfail=0)
-        except tweepy.TweepError as e:
-            functions.send_reddit_message_to_self(
-                title='tweepy error',
-                message='Error doing maprow blast:   \n{}'.format(e))
-            self.diag.severity = 1
-            self.diag.traceback = e
-            self.diag.add_to_logging(passfail=0)
-
-    def post_to_social_media(self, script: str) -> None:
-        """Method posts the map row to social media
-
-        :param script:
-        :type script:
-
-        """
-        self._create_diagnostic(script=script)
-        self._blast()
-
 
 class Diagnostic:
     """This is a class for diagnosing failures and success of scripts."""
@@ -525,7 +491,8 @@ class HistoryDB(_MapDB):
 
 
 class HistRow(_MapRow):
-    def __init__(self, schema=hist_schema, row=[], table='historymaps', path='data/mapporn.db'):
+    """A _MapRow object for Day In History posts"""
+    def __init__(self, schema=hist_schema, row=None, table='historymaps', path='data/mapporn.db'):
         self.day_of_year = 0
         self.text = ''
         _MapRow.__init__(self, schema, row, table, path)
@@ -547,6 +514,40 @@ class HistRow(_MapRow):
         hist_db = HistoryDB(path=self.path)
         assert old_row_count + 1 == hist_db.rows_count
         hist_db.close()
+
+    def _blast(self) -> None:
+        """Method (private) for posting to social media."""
+        try:
+            my_blast = ShotgunBlast(praw_obj=self.praw, title=self.text, announce_input=self.announce_input)
+            assert my_blast.check_integrity() == 'PASS'
+            s_b_dict = my_blast.post_to_all_social()
+            self.diag.tweet = s_b_dict['tweet_url']
+            self.diag.add_to_logging(passfail=1)
+        except AssertionError as e:
+            functions.send_reddit_message_to_self(
+                title='error',
+                message="shotgun blast intergirty check failed!   \n"
+                        "{}".format(str(e)))
+            self.diag.severity = 2
+            self.diag.traceback = e
+            self.diag.add_to_logging(passfail=0)
+        except tweepy.TweepError as e:
+            functions.send_reddit_message_to_self(
+                title='tweepy error',
+                message='Error doing maprow blast:   \n{}'.format(e))
+            self.diag.severity = 1
+            self.diag.traceback = e
+            self.diag.add_to_logging(passfail=0)
+
+    def post_to_social_media(self, script: str) -> None:
+        """Method posts the map row to social media
+
+        :param script:
+        :type script:
+
+        """
+        self._create_diagnostic(script=script)
+        self._blast()
 
 
 class SocMediaDB(_MapDB):
@@ -946,7 +947,7 @@ class SocMediaDB(_MapDB):
 class SocRow(_MapRow):
     """Class for a Social Media Map Row"""
 
-    def __init__(self, schema=soc_schema, row=[], table='socmediamaps', path='data/mapporn.db'):
+    def __init__(self, schema=soc_schema, row=None, table='socmediamaps', path='data/mapporn.db'):
         self.date_posted = ''
         self.fresh = ''
         self.text = ''
@@ -954,7 +955,7 @@ class SocRow(_MapRow):
         _MapRow.__init__(self, schema, row, table, path)
         self.praw = praw.Reddit('bot1').submission(id=self.dict['raw_id'])
 
-    def add_row_to_db(self, script):
+    def add_row_to_db(self):
         soc_db = SocMediaDB(path=self.path)
         if soc_db.check_if_already_in_db(raw_id=self.raw_id) is False:
             old_row_count = soc_db.rows_count
@@ -990,6 +991,30 @@ class SocRow(_MapRow):
         self._create_diagnostic(script=script)
         self.make_not_fresh()
         self._blast()
+
+    def _blast(self) -> None:
+        """Method (private) for posting to social media."""
+        try:
+            my_blast = ShotgunBlast(praw_obj=self.praw, title=self.text, announce_input=self.announce_input)
+            assert my_blast.check_integrity() == 'PASS'
+            s_b_dict = my_blast.post_to_all_social()
+            self.diag.tweet = s_b_dict['tweet_url']
+            self.diag.add_to_logging(passfail=1)
+        except AssertionError as e:
+            functions.send_reddit_message_to_self(
+                title='error',
+                message="shotgun blast intergirty check failed!   \n"
+                        "{}".format(str(e)))
+            self.diag.severity = 2
+            self.diag.traceback = e
+            self.diag.add_to_logging(passfail=0)
+        except tweepy.TweepError as e:
+            functions.send_reddit_message_to_self(
+                title='tweepy error',
+                message='Error doing maprow blast:   \n{}'.format(e))
+            self.diag.severity = 1
+            self.diag.traceback = e
+            self.diag.add_to_logging(passfail=0)
 
 
 class LoggingDB(_MapDB):
@@ -1365,7 +1390,9 @@ class ContestDB(_MapDB):
 
 
 class ContRow(_MapRow):
-    def __init__(self, schema=cont_schema, row=[], table='contest', path='data/mapporn.db'):
+    """A _MapRow object for monthly map contest submissions"""
+
+    def __init__(self, schema=cont_schema, row=None, table='contest', path='data/mapporn.db'):
         self.author = ''
         self.desc = ''
         self.map_name = ''
@@ -1743,44 +1770,3 @@ class GenericPost:
             "title": self.title}
         print(socialmediadict)
         return socialmediadict
-
-
-hist_schema = OrderedDict([('raw_id', 'TEXT'),
-                           ('text', 'TEXT'),
-                           ('day_of_year', 'NUMERIC')])
-
-soc_schema = OrderedDict([('raw_id', 'TEXT'),
-                          ('text', 'TEXT'),
-                          ('time_zone', 'NUMERIC'),
-                          ('fresh', 'NUMERIC'),
-                          ('date_posted', 'DATE'),
-                          ('post_error', 'NUMERIC')])
-
-log_schema = OrderedDict([('date', 'NUMERIC'),
-                          ('error_text', 'TEXT'),
-                          ('diagnostics', 'TEXT'),
-                          ('passfail', 'NUMERIC')])
-
-jour_schema = OrderedDict([('date', 'NUMERIC'),
-                           ('hist_rows', 'NUMERIC'),
-                           ('log_rows', 'NUMERIC'),
-                           ('soc_rows', 'NUMERIC'),
-                           ('fresh_rows', 'NUMERIC'),
-                           ('errors_24', 'NUMERIC'),
-                           ('successes_24', 'NUMERIC'),
-                           ('benchmark_time', 'REAL'),
-                           ('dict', 'TEXT')])
-
-cont_schema = OrderedDict([('map_name', 'TEXT'),
-                           ('url', 'TEXT'),
-                           ('desc', 'TEXT'),
-                           ('author', 'TEXT'),
-                           ('raw_id', 'TEXT'),
-                           ('votes', 'NUMERIC'),
-                           ('cont_date', 'NUMERIC')])
-
-schema_dict = {'journal': jour_schema,
-               'logging': log_schema,
-               'socmediamaps': soc_schema,
-               'historymaps': hist_schema,
-               'contest': cont_schema}
