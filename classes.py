@@ -345,8 +345,16 @@ class Diagnostic:
         log_db.add_row_to_db(diagnostics=self.make_dict(), passfail=passfail)
 
 
-class MapDB:
-    """This is a super class that makes database objects."""
+class _MapDB:
+    """
+    This is a super class that makes database objects.
+
+    It's primary use is to be inherited by other classes. There probably won't be a use in instantiating this class
+    on it's own.
+
+    """
+
+    # TODO should we make this private?
 
     def __init__(self, table: str, path: str = 'data/mapporn.db') -> None:
         """ Constructor for the MapDB Class
@@ -452,7 +460,7 @@ class MapDB:
             return []
 
 
-class HistoryDB(MapDB):
+class HistoryDB(_MapDB):
     """Database of Day in History Maps"""
 
     def __init__(self, table: str = 'historymaps', path: str = 'data/mapporn.db') -> None:
@@ -464,7 +472,7 @@ class HistoryDB(MapDB):
         :type path: str
 
         """
-        MapDB.__init__(self, table, path)
+        _MapDB.__init__(self, table, path)
 
     def get_rows_by_date(self, date: int) -> list:
         """Gets a list of row by date (1-365)
@@ -535,7 +543,7 @@ class HistoryDB(MapDB):
             return status
 
 
-class SocMediaDB(MapDB):
+class SocMediaDB(_MapDB):
     """Database of general maps for posting to social media.
 
     Subclass of MapDB. This is a database containing a multitude of maps. Every set number of hours a map will be
@@ -557,7 +565,7 @@ class SocMediaDB(MapDB):
         :type path: str
 
         """
-        MapDB.__init__(self, table, path)
+        _MapDB.__init__(self, table, path)
         self.fresh_count = self.curs.execute("SELECT count(*) FROM {} WHERE fresh=1"
                                              .format(self.table)).fetchall()[0][0]
         zone_dict = {
@@ -929,7 +937,7 @@ class SocMediaDB(MapDB):
         os.remove(test_db_path)
 
 
-class LoggingDB(MapDB):
+class LoggingDB(_MapDB):
     """Database of logs
 
     Keeps records of successes and failures in of scripts in the form of diagnostics dictionaries
@@ -945,7 +953,7 @@ class LoggingDB(MapDB):
         :param path:
         :type path: str
         """
-        MapDB.__init__(self, table, path)
+        _MapDB.__init__(self, table, path)
 
     def add_row_to_db(self, diagnostics: dict, passfail: int, error_text: str = None) -> None:
         """Adds a diagnostics row to logging database
@@ -1064,7 +1072,7 @@ class LoggingDB(MapDB):
             return status
 
 
-class JournalDB(MapDB):
+class JournalDB(_MapDB):
     """Database keeping a daily journal of results of status.py script exection"""
     def __init__(self, table: str = 'journal', path: str = 'data/mapporn.db') -> None:
         """Constructor for JournalDB
@@ -1075,7 +1083,7 @@ class JournalDB(MapDB):
         :type path: str
 
         """
-        MapDB.__init__(self, table, path)
+        _MapDB.__init__(self, table, path)
 
     def update_todays_status(self, benchmark_time: float) -> None:
         """Updates today's status in the database
@@ -1146,11 +1154,11 @@ class JournalDB(MapDB):
         return my_sum / counter
 
 
-class ContestDB(MapDB):
+class ContestDB(_MapDB):
     """Database Object for tracking submissions to the monthly map contest."""
 
     def __init__(self, table: str = 'contest', path: str = 'data/mapporn.db') -> None:
-        MapDB.__init__(self, table, path)
+        _MapDB.__init__(self, table, path)
         my_live_list = [x for x in (self.curs.execute("SELECT * from {} WHERE cont_date IS NULL;".format(self.table))
                                     .fetchall())]
         self.live_count = len(my_live_list)
