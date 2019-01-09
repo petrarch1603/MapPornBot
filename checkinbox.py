@@ -98,7 +98,7 @@ def contest_message(message: object, path: str = 'data/mapporn.db'):
         functions.send_reddit_message_to_self(title='New Map Submitted!',
                                               message=my_table)
 
-    row_obj = classes.MapRow(schema=cont_db.schema, row=my_list, table=cont_db.table, path=path)
+    row_obj = classes.ContRow(schema=cont_db.schema, row=my_list, table=cont_db.table, path=path)
     row_obj.add_row_to_db(script=script)
     message.reply(MessageReply)
     message.mark_read()
@@ -165,7 +165,7 @@ def socmedia_message(message: object, path: str = 'data/mapporn.db'):
                       post_error]
 
     # Create MapRow Object and add to database
-    my_maprow = classes.MapRow(schema=classes.schema_dict[table], row=my_maprow_list, table=table, path=path)
+    my_maprow = classes.SocRow(schema=classes.schema_dict[table], row=my_maprow_list, table=table, path=path)
     try:
         my_maprow.add_row_to_db(script=script)
     except Exception as e:
@@ -220,7 +220,7 @@ def dayinhistory_message(message: object, path: str = 'data/mapporn.db') -> None
 
     # Create MapRow and add to database
     my_maprow_list = [raw_id, title, day_of_year]
-    my_maprow = classes.MapRow(schema=classes.schema_dict[table], row=my_maprow_list, table=table, path=path)
+    my_maprow = classes.HistRow(schema=classes.schema_dict[table], row=my_maprow_list, table=table, path=path)
     try:
         my_maprow.add_row_to_db(script=script)
     except Exception as e:
