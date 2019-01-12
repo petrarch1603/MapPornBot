@@ -8,6 +8,7 @@ import csv
 import datetime
 import functions
 import os
+import tweepy
 
 
 post_message = "#WhereInTheWorld #MapPorn\n" \
@@ -46,7 +47,7 @@ def main():
         my_diag.tweet = socmediadict['tweet_url']
         os.chdir('..')
 
-    except functions.tweepy.TweepError as e:
+    except tweepy.error.TweepError as e:
         if str(e) == 'Unable to access file: No such file or directory':
             os.chdir('..')
             error_message = "No where in the world maps left. Add more!     \n{}    \n\n".format(e)
@@ -56,7 +57,7 @@ def main():
         else:
             error_message = e
             my_diag.traceback = error_message
-            functions.send_reddit_message_to_self(title='ERROR posting Where World', message=error_message)
+            functions.send_reddit_message_to_self(title='ERROR posting Where World', message=str(error_message))
             log_db.add_row_to_db(diagnostics=my_diag.make_dict(), passfail=0)
     except Exception as e:
         os.chdir('..')
