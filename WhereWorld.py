@@ -34,7 +34,7 @@ def get_image_name() -> str:
 
 def main():
     """Main script for posting the weekly mystery map to social media."""
-    image_number = str(get_image_name()) + '.png'
+    image_number = str(get_image_name())
     image_file_name = image_number + '.png'
     print("Looking for image: " + str(image_file_name))
 
