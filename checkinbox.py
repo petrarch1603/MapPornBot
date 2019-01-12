@@ -62,6 +62,29 @@ def main() -> None:
             message.mark_read()
 
 
+def clean_message(text):
+    text = os.linesep.join([s for s in str(text).splitlines() if s])
+    text_list = text.splitlines()
+    text_list = [w.replace('Link:', '') for w in text_list]  # Replace the title 'Link: ' with blankspace.
+    text_list = [w.replace('Map Name:', '') for w in text_list]
+    for i, v in enumerate(text_list):
+        text_list[i] = text_list[i].lstrip().rstrip()
+    map_name = text_list[0]
+    url = text_list[1]
+    if len(text_list) > 3:
+        desc = ""
+        for i in range(2, len(text_list)):
+            desc += "   \n" + str(text_list[i])
+        desc = text_list.rstrip()
+    else:
+        desc = text_list[3]
+    if desc.startswith("Description: "):
+        desc = str(desc)[13:]
+
+
+    # TODO: NEED TO FINISH WRITING THIS FUNCTION
+
+
 def contest_message(message: object, path: str = 'data/mapporn.db'):
     """Parse the praw message object and create a list for each map contest submission
 
