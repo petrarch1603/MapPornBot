@@ -190,7 +190,7 @@ def socmedia_message(message: object, path: str = 'data/mapporn.db'):
     # Create MapRow Object and add to database
     my_maprow = classes.SocRow(schema=classes.schema_dict[table], row=my_maprow_list, table=table, path=path)
     try:
-        my_maprow.add_row_to_db(script=script)
+        my_maprow.add_row_to_db()
     except Exception as e:
 
         functions.send_reddit_message_to_self(title='error adding to database',
