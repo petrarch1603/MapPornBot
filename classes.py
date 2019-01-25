@@ -56,7 +56,48 @@ import tweepy
 from typing import List, Optional, Union
 
 
-class MapRow:
+hist_schema = OrderedDict([('raw_id', 'TEXT'),
+                           ('text', 'TEXT'),
+                           ('day_of_year', 'NUMERIC')])
+
+soc_schema = OrderedDict([('raw_id', 'TEXT'),
+                          ('text', 'TEXT'),
+                          ('time_zone', 'NUMERIC'),
+                          ('fresh', 'NUMERIC'),
+                          ('date_posted', 'DATE'),
+                          ('post_error', 'NUMERIC')])
+
+log_schema = OrderedDict([('date', 'NUMERIC'),
+                          ('error_text', 'TEXT'),
+                          ('diagnostics', 'TEXT'),
+                          ('passfail', 'NUMERIC')])
+
+jour_schema = OrderedDict([('date', 'NUMERIC'),
+                           ('hist_rows', 'NUMERIC'),
+                           ('log_rows', 'NUMERIC'),
+                           ('soc_rows', 'NUMERIC'),
+                           ('fresh_rows', 'NUMERIC'),
+                           ('errors_24', 'NUMERIC'),
+                           ('successes_24', 'NUMERIC'),
+                           ('benchmark_time', 'REAL'),
+                           ('dict', 'TEXT')])
+
+cont_schema = OrderedDict([('map_name', 'TEXT'),
+                           ('url', 'TEXT'),
+                           ('desc', 'TEXT'),
+                           ('author', 'TEXT'),
+                           ('raw_id', 'TEXT'),
+                           ('votes', 'NUMERIC'),
+                           ('cont_date', 'NUMERIC')])
+
+schema_dict = {'journal': jour_schema,
+               'logging': log_schema,
+               'socmediamaps': soc_schema,
+               'historymaps': hist_schema,
+               'contest': cont_schema}
+
+
+class _MapRow:
     """Class for turning a map row into an object.
 
     Attributes:
@@ -64,6 +105,8 @@ class MapRow:
         row (list): List of all the elements of a single database row instance
 
     """
+
+    # TODO Make sub-classes for each relevant database
 
     def __init__(self, schema: dict, row: Union[list, tuple], table: str, path: str = 'data/mapporn.db') -> None:
         """The constructor for MapRow class.
@@ -80,23 +123,24 @@ class MapRow:
             raise ValueError("length of elements of schema and length of elements in row must be equal")
         self.dict = dict(zip(self.schema, row))
         self.announce_input = ''
-        self.author = ''
-        self.date_posted = ''
-        self.day_of_year = 0
-        self.desc = ''
-        self.fresh = ''
-        self.map_name = ''
         self.raw_id = ''
-        self.text = ''
-        self.time_zone = ''
-        self.url = ''
+        # self.url = ''
         # Set attributes from keys of row dictionary
         for k, v in self.dict.items():
             self.__dict__[str(k)] = v
-        if self.table == 'socmediamaps' or self.table == 'historymaps':
-            self.praw = praw.Reddit('bot1').submission(id=self.dict['raw_id'])
         self.diag = None
         self.path = path
+
+    @staticmethod
+    def handle_map_row(schema, row, table, path='data/mapporn.db'):
+        if table == 'socmediamaps':
+            return SocRow(schema, row, table, path)
+        elif table == 'historymaps':
+            return HistRow(schema, row, table, path)
+        elif table == 'contest':
+            return ContRow(schema, row, table, path)
+        else:
+            return _MapRow(schema, row, table, path)
 
     def date(self) -> Optional[str]:
         """Method to get a date in a human readable format
@@ -104,6 +148,9 @@ class MapRow:
         :return: (str) date in human readable format
 
         """
+
+        # TODO Why is this here?
+
         try:
             self.dict['day_of_year']
         except KeyError:
@@ -114,7 +161,7 @@ class MapRow:
         dtdelta = datetime.timedelta(days=self.dict['day_of_year'])
         return (dt + dtdelta).strftime('%Y/%m/%d')
 
-    def __create_diagnostic(self, script: str) -> None:
+    def _create_diagnostic(self, script: str) -> None:
         """Method for creating a diagnostic instance attribute as part of the MapRow object
 
         Private method, meant to be run from other methods.
@@ -132,106 +179,6 @@ class MapRow:
                 map_row_diag.zone = int(v)
         self.diag = map_row_diag
         self.diag.table = self.table
-
-    def __blast(self) -> None:
-        """Method (private) for posting to social media."""
-        try:
-            my_blast = ShotgunBlast(praw_obj=self.praw, title=self.text, announce_input=self.announce_input)
-            assert my_blast.check_integrity() == 'PASS'
-            s_b_dict = my_blast.post_to_all_social()
-            self.diag.tweet = s_b_dict['tweet_url']
-            self.diag.add_to_logging(passfail=1)
-        except AssertionError as e:
-            functions.send_reddit_message_to_self(
-                title='error',
-                message="shotgun blast intergirty check failed!   \n"
-                        "{}".format(str(e)))
-            self.diag.severity = 2
-            self.diag.traceback = e
-            self.diag.add_to_logging(passfail=0)
-        except tweepy.TweepError as e:
-            functions.send_reddit_message_to_self(
-                title='tweepy error',
-                message='Error doing maprow blast:   \n{}'.format(e))
-            self.diag.severity = 1
-            self.diag.traceback = e
-            self.diag.add_to_logging(passfail=0)
-
-    def post_to_social_media(self, script: str) -> None:
-        """Method posts the map row to social media
-
-        :param script:
-        :type script:
-
-        """
-        self.__create_diagnostic(script=script)
-        if self.table == 'socmediamaps':
-            self.make_not_fresh()
-        self.__blast()
-
-    def add_row_to_db(self, script: str) -> None:
-        """Add this row to the database
-
-        :param script: script as a string, passed in for use in the diagnostic object
-        :type script: str
-
-        """
-        self.__create_diagnostic(script=script)
-
-        if self.table == 'historymaps':
-            hist_db = HistoryDB(path=self.path)
-            old_row_count = hist_db.rows_count
-            hist_db.add_row_to_db(raw_id=self.raw_id, text=self.text, day_of_year=self.day_of_year)
-            hist_db.close()
-            hist_db = HistoryDB(path=self.path)
-            assert old_row_count + 1 == hist_db.rows_count
-            hist_db.close()
-        elif self.table == 'socmediamaps':
-            soc_db = SocMediaDB(path=self.path)
-            if soc_db.check_if_already_in_db(raw_id=self.raw_id) is False:
-                old_row_count = soc_db.rows_count
-                soc_db.add_row_to_db(raw_id=self.raw_id,
-                                     text=self.text,
-                                     time_zone=int(self.time_zone),
-                                     fresh=int(self.fresh),
-                                     date_posted=self.date_posted)
-                soc_db.close()
-                soc_db = SocMediaDB(path=self.path)
-            else:
-                raise Exception(str(self.raw_id) + " is already in Database")
-            assert old_row_count + 1 == soc_db.rows_count
-            soc_db.close()
-        elif self.table == 'contest':
-            cont_db = ContestDB(path=self.path)
-            assert cont_db.check_if_already_in_db(raw_id=self.raw_id) is False
-            old_row_count = cont_db.rows_count
-            cont_db.add_to_contest(map_name=self.map_name,
-                                   url=self.url,
-                                   desc=self.desc,
-                                   author=self.author,
-                                   raw_id=self.raw_id)
-            cont_db.close()
-            cont_db = ContestDB(path=self.path)
-            assert old_row_count + 1 == cont_db.rows_count
-            cont_db.close()
-        else:
-            self.diag.traceback = "Problem with adding this table: {} to logging database. ".format(self.table)
-            self.diag.table = self.table
-            self.diag.add_to_logging(passfail=0)
-            return
-        self.diag.add_to_logging(passfail=1)
-
-    def make_not_fresh(self) -> None:
-        """Makes the map row not fresh"""
-        assert self.table == 'socmediamaps'
-        soc_db = SocMediaDB(path=self.path)
-        soc_db.update_to_not_fresh(raw_id=self.raw_id)
-        soc_db.close()
-
-    def change_raw_id(self, old_raw_id, new_raw_id):
-        if self.table == 'socmediamaps':
-            soc_db = SocMediaDB(path=self.path)
-            soc_db.change_raw_id(old_raw_id=old_raw_id, new_raw_id=new_raw_id)
 
 
 class Diagnostic:
@@ -389,12 +336,12 @@ class _MapDB:
 
         """
         rows_list = [x for x in (self.curs.execute("SELECT * FROM {}".format(self.table)))]
-        obj_list = []
+        list_of_objs = []
         if len(rows_list) > 0:
             for i, v in enumerate(rows_list):
-                my_row = MapRow(schema=self.schema, row=rows_list[i], table=self.table)
-                obj_list.append(my_row)
-        return obj_list
+                my_row = _MapRow.handle_map_row(schema=self.schema, row=rows_list[i], table=self.table)
+                list_of_objs.append(my_row)
+        return list_of_objs
 
     def get_random_row(self, count: int = 1) -> List[object]:
         """Gets a random row from the database.
@@ -407,12 +354,12 @@ class _MapDB:
         """
         rows_list = [x for x in (self.curs.execute("SELECT * FROM {} ORDER BY RANDOM() LIMIT {}"
                                                    .format(self.table, count)))]
-        obj_list = []
+        list_of_objs = []
         if len(rows_list) > 0:
             for i, v in enumerate(rows_list):
-                my_row = MapRow(schema=self.schema, row=rows_list[i], table=self.table)
-                obj_list.append(my_row)
-        return obj_list
+                my_row = _MapRow.handle_map_row(schema=self.schema, row=rows_list[i], table=self.table)
+                list_of_objs.append(my_row)
+        return list_of_objs
 
     def delete_by_raw_id(self, raw_id_to_delete: str) -> Optional[str]:
         """Delete a row by its raw_id
@@ -455,7 +402,7 @@ class _MapDB:
             raw_id
             )).fetchall()
         if len(my_row) != 0:
-            return MapRow(schema=self.schema, row=my_row[0], table=self.table)
+            return _MapRow.handle_map_row(schema=self.schema, row=my_row[0], table=self.table)
         else:
             return []
 
@@ -479,7 +426,7 @@ class HistoryDB(_MapDB):
 
         :param date: Date number between 1-365
         :type date: int
-        :return: List of Maprow Objects
+        :return: List of HistRow Objects
         :rtype: list
 
         """
@@ -488,7 +435,7 @@ class HistoryDB(_MapDB):
         obj_list = []
         if len(rows_list) > 0:
             for i in range(len(rows_list)):
-                my_row = MapRow(schema=self.schema, row=rows_list[i], table=self.table)
+                my_row = HistRow(schema=self.schema, row=rows_list[i], table=self.table)
                 obj_list.append(my_row)
         return obj_list
 
@@ -541,6 +488,66 @@ class HistoryDB(_MapDB):
             return 'PASS: {} integrity test passed.'.format(self.table)
         else:
             return status
+
+
+class HistRow(_MapRow):
+    """A _MapRow object for Day In History posts"""
+    def __init__(self, schema=hist_schema, row=None, table='historymaps', path='data/mapporn.db'):
+        self.day_of_year = 0
+        self.text = ''
+        _MapRow.__init__(self, schema, row, table, path)
+        self.praw = praw.Reddit('bot1').submission(id=self.dict['raw_id'])
+
+    def add_row_to_db(self, script: str) -> None:
+        """Add this row to the History database
+
+        :param script: script as a string, passed in for use in the diagnostic object
+        :type script: str
+
+        """
+        self._create_diagnostic(script=script)
+
+        hist_db = HistoryDB(path=self.path)
+        old_row_count = hist_db.rows_count
+        hist_db.add_row_to_db(raw_id=self.raw_id, text=self.text, day_of_year=self.day_of_year)
+        hist_db.close()
+        hist_db = HistoryDB(path=self.path)
+        assert old_row_count + 1 == hist_db.rows_count
+        hist_db.close()
+
+    def _blast(self) -> None:
+        """Method (private) for posting to social media."""
+        try:
+            my_blast = ShotgunBlast(praw_obj=self.praw, title=self.text, announce_input=self.announce_input)
+            assert my_blast.check_integrity() == 'PASS'
+            s_b_dict = my_blast.post_to_all_social()
+            self.diag.tweet = s_b_dict['tweet_url']
+            self.diag.add_to_logging(passfail=1)
+        except AssertionError as e:
+            functions.send_reddit_message_to_self(
+                title='error',
+                message="shotgun blast intergirty check failed!   \n"
+                        "{}".format(str(e)))
+            self.diag.severity = 2
+            self.diag.traceback = e
+            self.diag.add_to_logging(passfail=0)
+        except tweepy.TweepError as e:
+            functions.send_reddit_message_to_self(
+                title='tweepy error',
+                message='Error doing maprow blast:   \n{}'.format(e))
+            self.diag.severity = 1
+            self.diag.traceback = e
+            self.diag.add_to_logging(passfail=0)
+
+    def post_to_social_media(self, script: str) -> None:
+        """Method posts the map row to social media
+
+        :param script:
+        :type script:
+
+        """
+        self._create_diagnostic(script=script)
+        self._blast()
 
 
 class SocMediaDB(_MapDB):
@@ -628,7 +635,7 @@ class SocMediaDB(_MapDB):
                                                        .format(self.table, time_zone, fresh)))]
             if len(rows_list) > 0:
                 for i, v in enumerate(rows_list):
-                    my_row = MapRow(schema=self.schema, row=rows_list[i], table=self.table)
+                    my_row = SocRow(schema=self.schema, row=rows_list[i], table=self.table)
                     obj_list.append(my_row)
             return obj_list
 
@@ -640,7 +647,7 @@ class SocMediaDB(_MapDB):
                     time_zone_list.append(j)
             if len(time_zone_list) > 0:
                 for i, v in enumerate(time_zone_list):
-                    my_row = MapRow(schema=self.schema, row=time_zone_list[i], table=self.table)
+                    my_row = SocRow(schema=self.schema, row=time_zone_list[i], table=self.table)
                     obj_list.append(my_row)
             return obj_list
 
@@ -687,7 +694,7 @@ class SocMediaDB(_MapDB):
 
         :param target_zone:
         :type target_zone: int
-        :return: MapRow
+        :return: SocRow
         :rtype: object
 
         """
@@ -712,7 +719,7 @@ class SocMediaDB(_MapDB):
         if len(filtered_map_list) == 0:
             return print("No fresh maps in database!")
         my_row = random.choice(filtered_map_list)
-        return MapRow(schema=self.schema, row=my_row, table=self.table)
+        return SocRow(schema=self.schema, row=my_row, table=self.table)
 
     def add_row_to_db(self,
                       raw_id: str,
@@ -935,6 +942,79 @@ class SocMediaDB(_MapDB):
                 assert i == j
         copyfile(test_db_path, source_db_path)
         os.remove(test_db_path)
+
+
+class SocRow(_MapRow):
+    """Class for a Social Media Map Row"""
+
+    def __init__(self, schema=soc_schema, row=None, table='socmediamaps', path='data/mapporn.db'):
+        self.date_posted = ''
+        self.fresh = ''
+        self.text = ''
+        self.time_zone = ''
+        _MapRow.__init__(self, schema, row, table, path)
+        self.praw = praw.Reddit('bot1').submission(id=self.dict['raw_id'])
+
+    def add_row_to_db(self):
+        soc_db = SocMediaDB(path=self.path)
+        if soc_db.check_if_already_in_db(raw_id=self.raw_id) is False:
+            old_row_count = soc_db.rows_count
+            soc_db.add_row_to_db(raw_id=self.raw_id,
+                                 text=self.text,
+                                 time_zone=int(self.time_zone),
+                                 fresh=int(self.fresh),
+                                 date_posted=self.date_posted)
+            soc_db.close()
+            soc_db = SocMediaDB(path=self.path)
+        else:
+            raise Exception(str(self.raw_id) + " is already in Database")
+        assert old_row_count + 1 == soc_db.rows_count
+        soc_db.close()
+
+    def make_not_fresh(self) -> None:
+        """Makes the map row not fresh"""
+        soc_db = SocMediaDB(path=self.path)
+        soc_db.update_to_not_fresh(raw_id=self.raw_id)
+        soc_db.close()
+
+    def change_raw_id(self, old_raw_id, new_raw_id):
+        soc_db = SocMediaDB(path=self.path)
+        soc_db.change_raw_id(old_raw_id=old_raw_id, new_raw_id=new_raw_id)
+
+    def post_to_social_media(self, script: str) -> None:
+        """Method posts the map row to social media
+
+        :param script:
+        :type script:
+
+        """
+        self._create_diagnostic(script=script)
+        self.make_not_fresh()
+        self._blast()
+
+    def _blast(self) -> None:
+        """Method (private) for posting to social media."""
+        try:
+            my_blast = ShotgunBlast(praw_obj=self.praw, title=self.text, announce_input=self.announce_input)
+            assert my_blast.check_integrity() == 'PASS'
+            s_b_dict = my_blast.post_to_all_social()
+            self.diag.tweet = s_b_dict['tweet_url']
+            self.diag.add_to_logging(passfail=1)
+        except AssertionError as e:
+            functions.send_reddit_message_to_self(
+                title='error',
+                message="shotgun blast intergirty check failed!   \n"
+                        "{}".format(str(e)))
+            self.diag.severity = 2
+            self.diag.traceback = e
+            self.diag.add_to_logging(passfail=0)
+        except tweepy.TweepError as e:
+            functions.send_reddit_message_to_self(
+                title='tweepy error',
+                message='Error doing maprow blast:   \n{}'.format(e))
+            self.diag.severity = 1
+            self.diag.traceback = e
+            self.diag.add_to_logging(passfail=0)
 
 
 class LoggingDB(_MapDB):
@@ -1165,7 +1245,7 @@ class ContestDB(_MapDB):
         self.live_list = []
         if self.live_count > 0:
             for i in my_live_list:
-                my_row = MapRow(schema=self.schema, row=i, table=self.table)
+                my_row = ContRow(schema=self.schema, row=i, table=self.table)
                 self.live_list.append(my_row)
 
         self.current_list = []
@@ -1174,7 +1254,7 @@ class ContestDB(_MapDB):
         self.current_count = len(my_current_list)
         if self.current_count > 0:
             for i in my_current_list:
-                my_row = MapRow(schema=self.schema, row=i, table=self.table)
+                my_row = ContRow(schema=self.schema, row=i, table=self.table)
                 self.current_list.append(my_row)
 
     def add_to_contest(self, map_name: str, url: str, desc: str, author: str, raw_id: str) -> None:
@@ -1256,7 +1336,7 @@ class ContestDB(_MapDB):
         sql = '''SELECT * FROM contest WHERE cont_date = {}'''.format(month)
         row_list = []
         for i in self.curs.execute(sql).fetchall():
-            row_list.append(MapRow(schema=self.schema, row=i, table=self.table))
+            row_list.append(ContRow(schema=self.schema, row=i, table=self.table))
         row_list.sort(key=lambda x: x.votes, reverse=True)
         return row_list
 
@@ -1307,6 +1387,38 @@ class ContestDB(_MapDB):
             return "PASS"
         else:
             return status
+
+
+class ContRow(_MapRow):
+    """A _MapRow object for monthly map contest submissions"""
+
+    def __init__(self, schema=cont_schema, row=None, table='contest', path='data/mapporn.db'):
+        self.author = ''
+        self.desc = ''
+        self.map_name = ''
+        self.url = ''
+        _MapRow.__init__(self, schema, row, table, path)
+
+    def add_row_to_db(self, script: str) -> None:
+        """Add this row to the database
+
+        :param script: script as a string, passed in for use in the diagnostic object
+        :type script: str
+
+        """
+        self._create_diagnostic(script=script)
+        cont_db = ContestDB(path=self.path)
+        assert cont_db.check_if_already_in_db(raw_id=self.raw_id) is False
+        old_row_count = cont_db.rows_count
+        cont_db.add_to_contest(map_name=self.map_name,
+                               url=self.url,
+                               desc=self.desc,
+                               author=self.author,
+                               raw_id=self.raw_id)
+        cont_db.close()
+        cont_db = ContestDB(path=self.path)
+        assert old_row_count + 1 == cont_db.rows_count
+        cont_db.close()
 
 
 class ShotgunBlast:
@@ -1658,44 +1770,3 @@ class GenericPost:
             "title": self.title}
         print(socialmediadict)
         return socialmediadict
-
-
-hist_schema = OrderedDict([('raw_id', 'TEXT'),
-                           ('text', 'TEXT'),
-                           ('day_of_year', 'NUMERIC')])
-
-soc_schema = OrderedDict([('raw_id', 'TEXT'),
-                          ('text', 'TEXT'),
-                          ('time_zone', 'NUMERIC'),
-                          ('fresh', 'NUMERIC'),
-                          ('date_posted', 'DATE'),
-                          ('post_error', 'NUMERIC')])
-
-log_schema = OrderedDict([('date', 'NUMERIC'),
-                          ('error_text', 'TEXT'),
-                          ('diagnostics', 'TEXT'),
-                          ('passfail', 'NUMERIC')])
-
-jour_schema = OrderedDict([('date', 'NUMERIC'),
-                           ('hist_rows', 'NUMERIC'),
-                           ('log_rows', 'NUMERIC'),
-                           ('soc_rows', 'NUMERIC'),
-                           ('fresh_rows', 'NUMERIC'),
-                           ('errors_24', 'NUMERIC'),
-                           ('successes_24', 'NUMERIC'),
-                           ('benchmark_time', 'REAL'),
-                           ('dict', 'TEXT')])
-
-cont_schema = OrderedDict([('map_name', 'TEXT'),
-                           ('url', 'TEXT'),
-                           ('desc', 'TEXT'),
-                           ('author', 'TEXT'),
-                           ('raw_id', 'TEXT'),
-                           ('votes', 'NUMERIC'),
-                           ('cont_date', 'NUMERIC')])
-
-schema_dict = {'journal': jour_schema,
-               'logging': log_schema,
-               'socmediamaps': soc_schema,
-               'historymaps': hist_schema,
-               'contest': cont_schema}
