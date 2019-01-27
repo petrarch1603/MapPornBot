@@ -1011,7 +1011,7 @@ class SocRow(_MapRow):
         except tweepy.TweepError as e:
             functions.send_reddit_message_to_self(
                 title='tweepy error',
-                message='Error doing maprow blast:   \n{}'.format(e))
+                message='Error doing maprow blast:   \n{}   \n{}    \n{}'.format(e, self.text, self.raw_id))
             self.diag.severity = 1
             self.diag.traceback = e
             self.diag.add_to_logging(passfail=0)
