@@ -95,7 +95,7 @@ def create_grid(url_list: List[str], text_content: str = '') -> str:
 
     :param url_list: list of URL's (strings)
     :type url_list: list
-    :param text_content: optional text content
+    :param text_content: optional text content, if blank, script will add in current month and year.
     :type text_content: str
     :return: filepath
     :rtype: str
