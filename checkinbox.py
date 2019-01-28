@@ -176,7 +176,7 @@ def socmedia_message(message: object, path: str = 'data/mapporn.db'):
     if time_zone == 99 and path == 'data/mapporn.db':
         my_message = ("No time zone parsed from this title.    \n"
                       "Check it and see if there are any "
-                      "locations to add to the CSV.    \n" + str(title))
+                      "locations to add to the CSV.    \n" + str(title) + "   \n" + str(soc_db.fresh_count))
         functions.send_reddit_message_to_self(title="No time zones found", message=my_message)
 
     # Put all the variables in the list to pass to MapRow
