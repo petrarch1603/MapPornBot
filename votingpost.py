@@ -87,6 +87,7 @@ def main():
     file.close()
 
     # Advertise Contest on Social Media
+    print("Attempting to post on social media....")
     functions.advertise_on_socmedia(list_of_urls=my_urls_list, month_year=month_year, voting_url=shortlink)
 
     try:
