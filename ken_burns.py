@@ -4,13 +4,20 @@ import os
 from PIL import Image
 import subprocess
 
-my_box_dim = [300, 300]
+
 
 im = Image.open('img/paper.jpg')
+image_width = im.size[0]
+image_height = im.size[1]
+ratio = image_height/image_width
+my_box_dim = [int(300/ratio), 300]
 
-box = [50, 50, (my_box_dim[0]+50), (my_box_dim[1]+50)]
+initial_width = int(image_width*.05)
+initial_height = int(image_height*.05)
 
-full_speed = 10
+box = [initial_width, initial_height, (my_box_dim[0]+initial_width), (my_box_dim[1]+initial_height)]
+
+full_speed = int(min(image_height, image_width)/100)
 
 accel_speed = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05,
                0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
@@ -38,9 +45,9 @@ my_frames = []
 i = 1
 for v in accel_speed:
     name = ('temp/' + ('%0*d' % (3, i)) + '.png')
-    box[0] = box[0] + 2
+    box[0] = box[0] + int(full_speed * v)
     box[1] = box[1] + int(full_speed * v)
-    box[2] = box[2] + 2
+    box[2] = box[2] + int(full_speed * v)
     box[3] = box[3] + int(full_speed * v)
     frame = im.resize(my_box_dim, box=box)
     frame.save(name, format='png')
@@ -52,10 +59,10 @@ decel_speed.reverse()
 
 for _ in range(50):
     name = ('temp/' + ('%0*d' % (3, i)) + '.png')
-    box[0] = box[0] + 2
-    box[1] = box[1] + int(full_speed * v)
-    box[2] = box[2] + 2
-    box[3] = box[3] + int(full_speed * v)
+    box[0] = box[0] + full_speed
+    box[1] = box[1] + full_speed
+    box[2] = box[2] + full_speed
+    box[3] = box[3] + full_speed
     frame = im.resize(my_box_dim, box=box)
     frame.save(name, format='png')
     i += 1
@@ -63,9 +70,9 @@ for _ in range(50):
 
 for v in decel_speed:
     name = ('temp/' + ('%0*d' % (3, i)) + '.png')
-    box[0] = box[0] + 2
+    box[0] = box[0] + int(full_speed * v)
     box[1] = box[1] + int(full_speed * v)
-    box[2] = box[2] + 2
+    box[2] = box[2] + int(full_speed * v)
     box[3] = box[3] + int(full_speed * v)
     frame = im.resize(my_box_dim, box=box)
     frame.save(name, format='png')
