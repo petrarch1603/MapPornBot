@@ -78,4 +78,4 @@ if os.path.isfile(my_movie_path):
     os.remove(my_movie_path)
 
 # For some reason this script won't run in Pycharm
-cmd = subprocess.Popen(['bash', 'make_movie.sh'])
+cmd = subprocess.Popen(['bash', 'shell_scripts/make_movie.sh'])
