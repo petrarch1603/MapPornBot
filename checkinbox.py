@@ -46,7 +46,7 @@ class WhereWorldRow:
     def _get_next_date(self):
         list_of_images = []
         for file in os.listdir('WW/'):
-            print('file')
+            print(file)
             if file[:4] == int(file[:4]):
                 list_of_images.append(int(file[:4]))
         print('List of images: ' + str(list_of_images))
