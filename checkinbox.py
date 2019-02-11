@@ -46,8 +46,8 @@ class WhereWorldRow:
     def _get_next_date(self):
         list_of_images = []
         for file in os.listdir('WW/'):
-            print(file)
-            if file[:4] == int(file[:4]):
+            print(file[:4])
+            if file[:4].isdigit():
                 list_of_images.append(int(file[:4]))
         print('List of images: ' + str(list_of_images))
         self.next_date = max(list_of_images)
