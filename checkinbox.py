@@ -52,6 +52,7 @@ class WhereWorldRow:
         this_week = int(get_image_name())
         if self.next_date <= (this_week + 1):
             self.next_date = this_week + 2
+        print(self.next_date)
 
     def _parse_message(self):
 
@@ -75,6 +76,7 @@ class WhereWorldRow:
         with open(self.csv_path, 'a') as f:
             writer = csv.writer(f)
             writer.writerow(my_csv_row)
+        print("Added row to csv")
 
     def _download_image(self):
         try:
@@ -87,8 +89,10 @@ class WhereWorldRow:
             return False
         r = requests.get(self.url)
         my_file_name = 'WW/' + str(self.next_date) + '.png'
+        print("New File Name: " + str(my_file_name))
         with open(my_file_name, 'wb') as f:
             f.write(r.content)
+        print('Finished Downloading')
 
     def main(self):
         while self.script_execution is True:
