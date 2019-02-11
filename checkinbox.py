@@ -103,9 +103,7 @@ class WhereWorldRow:
             self._add_ww_to_csv()
             self._download_image()
             print('Added WW map successfully')
-        if self.script_execution is False:
-            functions.send_reddit_message_to_self(title='Error with Where World Inbox checking',
-                                                  message='check script for errors.')
+            self.script_execution = False
 
 
 def init(path: str = 'data/mapporn.db') -> None:
