@@ -14,12 +14,91 @@ import classes
 import functions
 import os
 import praw
+import requests
 import time
+from WhereWorld import get_image_name
 
+
+my_reddit_id = 'Petrarch1603'
 script = str(os.path.basename(__file__))
 disclaimer = functions.bot_disclaimer()
 MessageReply = 'Your map has been received.   ' + '\n' + 'Look for the voting post for the contest soon.    ' + '\n' + \
                '&nbsp;       ' + '\n' + disclaimer
+
+
+class WhereWorldRow:
+    """
+    Self-running class to parse Where World Messages.
+    * Downloads the image locally
+    * Adds row to CSV with url, and answer
+    """
+
+    def __init__(self, msg_obj, csv_path='data/locations.csv'):
+        self.csv_path = csv_path
+        self.msg_obj = msg_obj
+        self.next_date = ''
+        self.answer_text = ''
+        self.url = ''
+        self.script_execution = True
+        self.main()
+
+    def _get_next_date(self):
+        list_of_images = []
+        for file in os.listdir('WW'):
+            if file[:4] == int(file[:4]):
+                list_of_images.append(int(file[:4]))
+        self.next_date = max(list_of_images)
+        this_week = int(get_image_name())
+        if self.next_date <= (this_week + 1):
+            self.next_date = this_week + 2
+
+    def _parse_message(self):
+
+        msg = functions.split_message(self.msg_obj.body)
+        try:
+            assert len(msg) == 2
+        except AssertionError:
+            functions.send_reddit_message_to_self(title="Error with Where World Inbox Check",
+                                                  message='Length of message not two lines.')
+            self.script_execution = False
+            return False
+        if msg[0].startswith("http"):
+            self.url = msg[0]
+            self.answer_text = msg[1]
+        else:
+            self.url = msg[1]
+            self.answer_text = msg[0]
+
+    def _add_ww_to_csv(self):
+        my_csv_row = [self.next_date, self.answer_text, self.url]
+        with open(self.csv_path, 'a') as f:
+            writer = csv.writer(f)
+            writer.writerow(my_csv_row)
+
+    def _download_image(self):
+        try:
+            assert len(str(self.next_date)) == 4
+        except AssertionError:
+            functions.send_reddit_message_to_self(title="Error with Where World Check inbox",
+                                                  message="Problem getting file name right, cannot"
+                                                          "download image.")
+            self.script_execution = False
+            return False
+        r = requests.get(self.url)
+        my_file_name = 'WW/' + str(self.next_date) + '.png'
+        with open(my_file_name, 'wb') as f:
+            f.write(r.content)
+
+    def main(self):
+        while self.script_execution is True:
+            self._get_next_date()
+            self._parse_message()
+            self._add_ww_to_csv()
+            self._download_image()
+            print('Added WW map successfully')
+        if self.script_execution is False:
+            functions.send_reddit_message_to_self(title='Error with Where World Inbox checking',
+                                                  message='check script for errors.')
 
 
 def init(path: str = 'data/mapporn.db') -> None:
@@ -47,13 +126,17 @@ def main() -> None:
             message.mark_read()
 
         # # Social Media Maps
-        elif message.subject == 'socmedia' and message.author == 'Petrarch1603':
+        elif message.subject == 'socmedia' and message.author == my_reddit_id:
             socmedia_message(message=message)
             message.mark_read()
 
         # # Day in History Messages
-        elif message.subject == 'dayinhistory' and message.author == 'Petrarch1603':
+        elif message.subject == 'dayinhistory' and message.author == my_reddit_id:
             dayinhistory_message(message=message)
+            message.mark_read()
+
+        elif message.subject == 'WW' and message.author == my_reddit_id:
+            WhereWorldRow(message)
             message.mark_read()
 
         # # Catch any other message a random user might have sent to the bot
