@@ -17,7 +17,7 @@ initial_height = int(image_height*.05)
 
 box = [initial_width, initial_height, (my_box_dim[0]+initial_width), (my_box_dim[1]+initial_height)]
 
-full_speed = int(min(image_height, image_width)/100)
+full_speed = int(min(image_height, image_width)/200)
 
 accel_speed = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05,
                0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
@@ -57,7 +57,7 @@ for v in accel_speed:
 decel_speed = accel_speed
 decel_speed.reverse()
 
-for _ in range(50):
+for _ in range(100):
     name = ('temp/' + ('%0*d' % (3, i)) + '.png')
     box[0] = box[0] + full_speed
     box[1] = box[1] + full_speed
