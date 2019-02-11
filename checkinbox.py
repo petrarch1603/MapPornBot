@@ -87,11 +87,11 @@ class WhereWorldRow:
                                                           "download image.")
             self.script_execution = False
             return False
-        r = requests.get(self.url)
+        req = requests.get(self.url)
         my_file_name = 'WW/' + str(self.next_date) + '.png'
         print("New File Name: " + str(my_file_name))
         with open(my_file_name, 'wb') as f:
-            f.write(r.content)
+            f.write(req.content)
         print('Finished Downloading')
 
     def main(self):
