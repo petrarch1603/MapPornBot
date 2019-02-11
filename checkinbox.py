@@ -11,6 +11,7 @@ Checks for following message:
 """
 
 import classes
+import csv
 import functions
 import os
 import praw
