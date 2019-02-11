@@ -1,4 +1,4 @@
 #!/bin/bash
 cd temp
 echo $PWD
-avconv -i %03d.png temp.mp4
+avconv -i %04d.png temp.mp4
