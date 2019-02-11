@@ -5,6 +5,7 @@ import csv
 from datetime import timedelta
 import GridCollage
 import os
+from PIL import Image
 import praw
 import random
 import requests
@@ -260,4 +261,13 @@ def advertise_on_socmedia(list_of_urls: list, month_year: str, voting_url: str) 
     except Exception as e:
         send_reddit_message_to_self(title="Could not run advertise_on_socmedia()",
                                     message="Problem encountered: " + str(e))
+
+
+def resize_image(image_path, file_size_max=3200000):
+    pil_img = Image.open(image_path)
+    current_size = os.path.getsize(image_path)
+    while current_size > file_size_max:
+        pil_img.save(image_path, quality=95)
+        current_size = os.path.getsize(image_path)
+
 
