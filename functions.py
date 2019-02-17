@@ -131,6 +131,10 @@ def send_reddit_message_to_self(title: str, message: str) -> None:
     r.redditor(my_reddit_ID).message(title, message)
 
 
+def send_reddit_message_to_user(title: str, message: str, user: str) -> None:
+    r = praw.Reddit('bot1')
+    r.redditor(user).message(title, message)
+
 def strip_punc(my_str: str) -> str:
     """ Strips punctuation and numbers from a string
 
@@ -266,8 +270,13 @@ def advertise_on_socmedia(list_of_urls: list, month_year: str, voting_url: str) 
 def resize_image(image_path, file_size_max=3200000):
     pil_img = Image.open(image_path)
     current_size = os.path.getsize(image_path)
+    print(pil_img.size)
     while current_size > file_size_max:
+        pil_img.resize((int(pil_img.size[0]*.9),
+                       int(pil_img.size[1]*.9))
+                       )
+        print(pil_img.size)
         pil_img.save(image_path, quality=95)
         current_size = os.path.getsize(image_path)
-
+        print(current_size)
 
