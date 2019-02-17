@@ -94,12 +94,8 @@ class WhereWorldRow:
             f.write(req.content)
         fsize = os.stat(my_file_name).st_size
         if fsize >= 3200000:
-            functions.resize_image(my_file_name, file_size_max=3200000)
-            try:
-                assert os.stat(my_file_name).st_size < 3200000
-            except AssertionError:
-                functions.send_reddit_message_to_self(title='Error with checkinbox WW',
-                                                      message='File size was not automatically shrunk')
+            functions.send_reddit_message_to_self(title='ww error',
+                                                  message='image too big!')
         print('Finished Downloading')
 
     def main(self):
