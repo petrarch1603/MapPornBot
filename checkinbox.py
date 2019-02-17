@@ -192,6 +192,16 @@ def contest_message(message: object, path: str = 'data/mapporn.db'):
     cont_db = classes.ContestDB(path=path)
     map_name = submission[0]
     url = submission[1]
+    if url == 'http://imgur.com/replacethis.png':
+        my_title = 'Problem with Map Contest Submission'
+        my_message = 'There was a problem with your map contest submission for: ' + map_name + '   \n' + \
+                  'The URL: ' + url + ' appears to be invalid.   \n' + \
+                  '[Please resubmit your submission.](https://www.reddit.com/message/compose/?to=mappornbot&subject=' \
+                  'Map%20Contest%20Submission&message=Map%20Name:%20Your%20Map%27s%20Name%0A%0ALink:%20' \
+                  'http://imgur.com/replacethis.png%0A%0ADescription:%20Replace%20with%201-3%20Sentences.)'
+        functions.send_reddit_message_to_user(title=my_title, message=my_message, user=message.author)
+        message.mark_read()
+        return
     if len(submission) > 3:
         submission[2] = str(submission[2]) + '\n' + str(submission[3])
     desc = submission[2]
@@ -373,3 +383,4 @@ if __name__ == '__main__':
         log_db.add_row_to_db(diagnostics=mydiag.make_dict(), passfail=1)
         exit()
     main()
+
