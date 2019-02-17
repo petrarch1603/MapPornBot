@@ -199,7 +199,7 @@ def contest_message(message: object, path: str = 'data/mapporn.db'):
                   '[Please resubmit your submission.](https://www.reddit.com/message/compose/?to=mappornbot&subject=' \
                   'Map%20Contest%20Submission&message=Map%20Name:%20Your%20Map%27s%20Name%0A%0ALink:%20' \
                   'http://imgur.com/replacethis.png%0A%0ADescription:%20Replace%20with%201-3%20Sentences.)'
-        functions.send_reddit_message_to_user(title=my_title, message=my_message, user=message.author)
+        functions.send_reddit_message_to_user(title=my_title, message=my_message, user=str(message.author))
         message.mark_read()
         return
     if len(submission) > 3:
