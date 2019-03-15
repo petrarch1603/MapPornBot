@@ -284,7 +284,7 @@ def resize_image(image_path, file_size_max=3200000):
 def find_word_in_comments(word):
     list_of_urls = []
     r = praw.Reddit('bot1')
-    for post in r.subreddit('mapporn').new(limit=10):
+    for post in r.subreddit('mapporn').hot(limit=10):
         for comment in post.comments:
             if word in comment.body.upper():
                 list_of_urls.append('https://www.reddit.com' + str(comment.permalink))
@@ -294,5 +294,8 @@ def find_word_in_comments(word):
 def check_for_word_and_process(word='MAP_PORN'):
     my_list = find_word_in_comments(word)
     if len(my_list) >= 1:
+        my_string = ''
+        for i in my_list:
+            my_string += str(i) + '    \n\n'
         send_reddit_message_to_self(title='Someone used the word: ' + word,
-                                    message="Here's the link(s)   \n\n" + str(my_list))
+                                    message="Here's the link(s)   \n\n" + my_string)
