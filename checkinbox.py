@@ -32,6 +32,9 @@ class WhereWorldRow:
     Self-running class to parse Where World Messages.
     * Downloads the image locally
     * Adds row to CSV with url, and answer
+    * Send Message to bot, subject: 'WW' with two lines:
+    *                                                      url
+    *                                                      answer_text
     """
 
     def __init__(self, msg_obj, csv_path='data/locations.csv'):
@@ -142,6 +145,7 @@ def main() -> None:
             dayinhistory_message(message=message)
             message.mark_read()
 
+        # # Where World Maps
         elif message.subject == 'WW' and message.author == my_reddit_id:
             WhereWorldRow(message)
             message.mark_read()
