@@ -353,6 +353,7 @@ def other_message(message: r.inbox.message()) -> None:
 
 
 if __name__ == '__main__':
+    functions.check_for_word_and_process()
     new_message = False
     r = praw.Reddit('bot1')
     init()
