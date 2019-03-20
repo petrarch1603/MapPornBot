@@ -333,7 +333,7 @@ def dayinhistory_message(message, path: str = 'data/mapporn.db') -> None:
     message.mark_read()
 
 
-def other_message(message: r.inbox.message()) -> None:
+def other_message(message) -> None:
     """Receives all other messages sent to bot, and passes it on to a human for further processing
 
     :param message: praw message object
