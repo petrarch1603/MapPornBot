@@ -208,7 +208,7 @@ def contest_message(message, path: str = 'data/mapporn.db'):
     message.mark_read()
 
 
-def socmedia_message(message: r.inbox.message(), path: str = 'data/mapporn.db'):
+def socmedia_message(message, path: str = 'data/mapporn.db'):
     """Parses social media message and adds it to SocMediaDB
 
     :param message: Praw message object
