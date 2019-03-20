@@ -156,7 +156,7 @@ def main() -> None:
             message.mark_read()
 
 
-def contest_message(message: r.inbox.message(), path: str = 'data/mapporn.db'):
+def contest_message(message, path: str = 'data/mapporn.db'):
     """Parse the praw message object and create a list for each map contest submission
 
     :param message: praw message object
