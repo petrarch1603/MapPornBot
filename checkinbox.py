@@ -282,7 +282,7 @@ def socmedia_message(message, path: str = 'data/mapporn.db'):
     message.mark_read()
 
 
-def dayinhistory_message(message: r.inbox.SubredditMessage, path: str = 'data/mapporn.db') -> None:
+def dayinhistory_message(message, path: str = 'data/mapporn.db') -> None:
     """Parses dayinhistory message and adds it to HistoryDB
 
     :param message: Praw message object
