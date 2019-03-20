@@ -19,7 +19,7 @@ import requests
 import time
 from WhereWorld import get_image_name
 
-
+r = praw.Reddit('bot1')
 my_reddit_id = 'Petrarch1603'
 script = str(os.path.basename(__file__))
 disclaimer = functions.bot_disclaimer()
@@ -355,7 +355,6 @@ def other_message(message: r.inbox.message()) -> None:
 if __name__ == '__main__':
     functions.check_for_word_and_process()
     new_message = False
-    r = praw.Reddit('bot1')
     init()
     for _ in r.inbox.unread():
         new_message = True
