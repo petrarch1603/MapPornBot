@@ -87,6 +87,7 @@ def main():
     file.close()
 
     # Advertise Contest on Social Media
+    # TODO need to make sure all urls are image files...jpg, jpeg, png etc.
     print("Attempting to post on social media....")
     try:
         functions.advertise_on_socmedia(list_of_urls=my_urls_list, month_year=month_year, voting_url=shortlink)
