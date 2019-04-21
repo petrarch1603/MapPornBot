@@ -1374,7 +1374,7 @@ class ContestDB(_MapDB):
 
     def list_live_maps(self):
         for i in self.live_list:
-            print("Raw_id = " + str(i.raw_id) + "    | URL = " + str(i.url))
+            print("Raw_id = " + str(i.raw_id) + "    | URL = " + str(i.url) + "     | Desc = " + str(i.desc))
 
     def check_integrity(self):
         status = ''
