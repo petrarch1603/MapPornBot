@@ -41,6 +41,7 @@ def get_images(url_list: list) -> list:
             image_req = requests.get(url)
 
             if image_req.status_code == 200:
+                print(i)
                 my_image = Image.open(io.BytesIO(image_req.content))
                 cropped_images.append(crop_image(my_image))
             if len(cropped_images) == 9:
@@ -122,5 +123,6 @@ def create_grid(url_list: List[str], text_content: str = '') -> str:
         text_content = (datetime.now() - timedelta(days=7)).strftime("%B") + " " + datetime.now().strftime("%Y")
     final_image = add_text(background, text_content)
     filepath = "voteimages/" + str(datetime.now().year) + str(datetime.now().month) + "votenow.png"
+    print(filepath)
     final_image.save(filepath, "PNG")
     return filepath
