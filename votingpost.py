@@ -88,7 +88,10 @@ def main():
 
     # Advertise Contest on Social Media
     print("Attempting to post on social media....")
-    functions.advertise_on_socmedia(list_of_urls=my_urls_list, month_year=month_year, voting_url=shortlink)
+    try:
+        functions.advertise_on_socmedia(list_of_urls=my_urls_list, month_year=month_year, voting_url=shortlink)
+    except Exception as e:
+        print('Could not advertise on social media. Exception:  ' + str(e))
 
     try:
         submission.mod.approve()
