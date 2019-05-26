@@ -595,6 +595,8 @@ class SocMediaDB(_MapDB):
         }
         self.zone_dict = zone_dict
         self.not_fresh_list = self.curs.execute("SELECT * FROM {} WHERE fresh=0".format(self.table)).fetchall()
+        self.fresh_list = self.get_fresh_list()
+
 
     @classmethod
     def get_time_zone(cls, title_str: str) -> int:
@@ -617,6 +619,13 @@ class SocMediaDB(_MapDB):
             if place in functions.strip_punc(title_str.upper()):
                 this_zone = int(zonedict[place])
         return this_zone
+
+    def get_fresh_list(self):
+        fresh_list = []
+        for i in self.all_rows_list():
+            if i.fresh == 1:
+                fresh_list.append(i)
+        return fresh_list
 
     def get_rows_by_time_zone(self, time_zone: Union[int, list], fresh: Union[int, str] = 1) -> list:
         """Return a list of all the rows in a time zone
@@ -704,6 +713,12 @@ class SocMediaDB(_MapDB):
             "SELECT * FROM {} WHERE fresh=1 AND time_zone >= {} AND time_zone <= {}"
             .format(self.table, min_target, max_target)
         ))
+        # If the queue is large I want to clear out the older maps
+        if len(filtered_map_list) == 0 and self.fresh_count > 200:
+            for i in self.fresh_list:
+                filtered_map_list.append(i.raw_id)
+            my_row = self.get_row_by_raw_id(filtered_map_list[0])
+            return my_row
         if len(filtered_map_list) == 0:
             filtered_map_list = list(row for row in self.curs.execute(
                 "SELECT * FROM {} WHERE fresh=1 AND time_zone = 99"
