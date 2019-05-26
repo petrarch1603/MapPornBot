@@ -192,7 +192,7 @@ def contest_message(message, path: str = 'data/mapporn.db'):
     raw_id = str(message.id)
     my_list = [str(map_name), str(url), str(desc), str(author), str(raw_id)]
 
-    my_table = "Time Zone|Map Count\n-|-\n"
+    my_table = "Title|Text\n-|-\n"
     my_table += "Map Name:|{}\n".format(str(map_name))
     my_table += "URL:|{}\n".format(str(url))
     my_table += "Desc:|{}\n".format(str(desc))
