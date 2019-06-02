@@ -1356,7 +1356,7 @@ class ContestDB(_MapDB):
         return row_list
 
     def change_url(self, raw_id: str, url: str):
-        """Change the time zone by raw_id
+        """Change the URL
 
         :param raw_id:
         :type raw_id:
@@ -1371,6 +1371,24 @@ class ContestDB(_MapDB):
             assert str(self.get_row_by_raw_id(raw_id=raw_id).url) == str(url)
         except AssertionError as e:
             print(str(e))
+
+    def change_desc(self, raw_id: str, desc: str):
+        """Change the desc
+
+                :param raw_id:
+                :type raw_id:
+                :param url: new url
+                :type url: str
+
+                """
+        sql = """UPDATE contest SET desc = ? WHERE raw_id = ?"""
+        self.curs.execute(sql, (desc, raw_id))
+        self.conn.commit()
+        try:
+            assert str(self.get_row_by_raw_id(raw_id=raw_id).desc) == str(desc)
+        except AssertionError as e:
+            print(str(e))
+
 
     def get_top_posts_of_year(self):
         """Get a list of the two top voted maps from each month's contest
