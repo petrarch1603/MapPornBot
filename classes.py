@@ -715,9 +715,7 @@ class SocMediaDB(_MapDB):
         ))
         # If the queue is large I want to clear out the older maps
         if len(filtered_map_list) == 0 and self.fresh_count > 200:
-            for i in self.fresh_list:
-                filtered_map_list.append(i.raw_id)
-            my_row = self.get_row_by_raw_id(filtered_map_list[0])
+            my_row = self.get_row_by_raw_id(random.choice(self.fresh_list).raw_id)
             return my_row
         if len(filtered_map_list) == 0:
             filtered_map_list = list(row for row in self.curs.execute(
