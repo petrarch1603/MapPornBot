@@ -713,24 +713,18 @@ class SocMediaDB(_MapDB):
             "SELECT * FROM {} WHERE fresh=1 AND time_zone >= {} AND time_zone <= {}"
             .format(self.table, min_target, max_target)
         ))
-        # If the queue is large I want to clear out the older maps
-        if len(filtered_map_list) == 0 and self.fresh_count > 200:
-            my_row = self.get_row_by_raw_id(random.choice(self.fresh_list).raw_id)
-            return my_row
+        if self.fresh_count == 0:
+            return print("No fresh maps in database!")
         if len(filtered_map_list) == 0:
             filtered_map_list = list(row for row in self.curs.execute(
                 "SELECT * FROM {} WHERE fresh=1 AND time_zone = 99"
                 .format(self.table)
             ))
+        if len(filtered_map_list) == 0 and self.fresh_count > 100:
+            my_row = self.get_row_by_raw_id(random.choice(self.fresh_list).raw_id)
+            return my_row
         if len(filtered_map_list) == 0:
-            filtered_map_list = list(row for row in self.curs.execute(
-                "SELECT * FROM {} WHERE fresh=1 AND time_zone = {}".format(
-                    self.table,
-                    # Sort the time zones and return the time_zone with the highest count of fresh maps
-                    sorted(self.zone_dict.items(), key=lambda x: x[1], reverse=True)[0][1])
-            ))
-        if len(filtered_map_list) == 0:
-            return print("No fresh maps in database!")
+            return 0
         my_row = random.choice(filtered_map_list)
         return SocRow(schema=self.schema, row=my_row, table=self.table)
 
