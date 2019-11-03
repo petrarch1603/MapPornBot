@@ -55,7 +55,7 @@ def main():
     message += functions.create_time_zone_table(soc_db.zone_dict)
 
     # Make posts older than a year fresh again
-    if soc_db.fresh_count < 20:
+    if soc_db.fresh_count < 40:
         try:
             soc_db.make_fresh_again(current_time=int(time.time()), limit=10)
         except Exception as e:
