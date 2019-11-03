@@ -868,11 +868,10 @@ class SocMediaDB(_MapDB):
 
         """
         assert len(str(int(current_time))) == 10
-        default_time_past = 43200000
+        default_time_past = 31536000
         # Code below here will increase the amount of time to make fresh when the number of maps in the database is over
         # 4000. My objective is to take a long time before making the maps fresh again.
-        time_past = max(int((len(self)/8)*24*59*60), default_time_past)
-        cutoff_time = (current_time - int(time_past))
+        cutoff_time = (current_time - default_time_past)
         count = 0
         for i in self.not_fresh_list:
             if int(i[4]) <= cutoff_time:
