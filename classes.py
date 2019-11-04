@@ -823,13 +823,13 @@ class SocMediaDB(_MapDB):
                 )
 
             # Is the following code necessary? Sometimes older posts will stay not-fresh until they are refreshed.
-            try:
-                if i.fresh == 0:
-                    assert int(i.date_posted) >= (time.time() - 37500000)
-            except AssertionError as e:
-                status += "* Item {} has a date_posted older than a year.   \n{}    \n{}   \n".format(
-                    str(i), str(e), str(type(e))
-                )
+            # try:
+            #     if i.fresh == 0:
+            #         assert int(i.date_posted) >= (time.time() - 37500000)
+            # except AssertionError as e:
+            #     status += "* Item {} has a date_posted older than a year.   \n{}    \n{}   \n".format(
+            #         str(i), str(e), str(type(e))
+            #     )
             try:
                 assert self.check_if_already_in_db(raw_id=i.raw_id) is True
             except AssertionError as e:
