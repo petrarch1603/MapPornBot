@@ -1010,7 +1010,7 @@ class SocRow(_MapRow):
             functions.send_reddit_message_to_self(
                 title='error',
                 message="shotgun blast intergirty check failed!   \n"
-                        "{}".format(str(e)))
+                        "{} ".format(str(e)) + str(self.raw_id))
             self.diag.severity = 2
             self.diag.traceback = e
             self.diag.add_to_logging(passfail=0)
