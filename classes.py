@@ -1380,7 +1380,7 @@ class ContestDB(_MapDB):
         except AssertionError as e:
             print(str(e))
 
-    def change_change_map_name(self, raw_id: str, map_name: str):
+    def change_map_name(self, raw_id: str, map_name: str):
         """Change the desc
 
                 :param raw_id:
