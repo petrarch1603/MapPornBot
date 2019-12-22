@@ -40,7 +40,7 @@ def main():
     contest_year = str(date_7_days_ago.date().year)
     month_year = (str(contest_month) + ' ' + str(contest_year))
     post_message = ('Vote Now for the best map of ' + contest_year + '!')
-    yyyymm = int(str(contest_year) + str(date_7_days_ago.strftime("%m")))
+    # yyyymm = int(str(contest_year) + str(date_7_days_ago.strftime("%m")))
 
     submission = r.subreddit('mapporn').submit(post_message, selftext=voting_text)  # Submits the post to Reddit
     submission.mod.contest_mode()
