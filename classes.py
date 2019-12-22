@@ -1380,6 +1380,23 @@ class ContestDB(_MapDB):
         except AssertionError as e:
             print(str(e))
 
+    def change_change_map_name(self, raw_id: str, map_name: str):
+        """Change the desc
+
+                :param raw_id:
+                :type raw_id:
+                :param map_name: new map name
+                :type map_name: str
+
+                """
+        sql = """UPDATE contest SET map_name = ? WHERE raw_id = ?"""
+        self.curs.execute(sql, (map_name, raw_id))
+        self.conn.commit()
+        try:
+            assert str(self.get_row_by_raw_id(raw_id=raw_id).map_name) == str(map_name)
+        except AssertionError as e:
+            print(str(e))
+
 
     def get_top_posts_of_year(self):
         """Get a list of the two top voted maps from each month's contest
