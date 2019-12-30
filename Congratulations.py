@@ -96,7 +96,7 @@ def main():
                     map_row_list.append(str(obj.author))
                     map_row_list.append('')
                     map_row_list.append(my_score)
-                    my_map_row_obj = classes.MapRow(schema=cont_db.schema, table=cont_db.table, row=map_row_list)
+                    my_map_row_obj = classes.ContRow(schema=cont_db.schema, table=cont_db.table, row=map_row_list)
                     winning_objects_list.append(my_map_row_obj)
                 else:
                     cont_db.add_vote_count_to_submission(raw_id=message_id, votecount=my_score)
