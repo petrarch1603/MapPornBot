@@ -42,7 +42,10 @@ def get_images(url_list: list) -> list:
 
             if image_req.status_code == 200:
                 print(i)
-                my_image = Image.open(io.BytesIO(image_req.content))
+                try:
+                    my_image = Image.open(io.BytesIO(image_req.content))
+                except OSError:
+                    continue
                 cropped_images.append(crop_image(my_image))
             if len(cropped_images) == 9:
                 break
@@ -83,8 +86,8 @@ def add_text(image_obj: object, contest_month: str) -> object:
     :rtype: object
 
     """
-
-    font = ImageFont.truetype("fonts/Caudex-Bold.ttf", 145)
+    font = ImageFont.truetype("sandbox/Caudex-Bold.ttf", 145)
+    # font = ImageFont.truetype("fonts/Caudex-Bold.ttf", 145)
     draw = ImageDraw.Draw(image_obj)
     w, h = draw.textsize(contest_month, font=font)
     draw.text(((1150-w)/2, 700), contest_month, fill="black", font=font)
