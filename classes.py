@@ -857,7 +857,7 @@ class SocMediaDB(_MapDB):
             return status
 
     def make_fresh_again(self, current_time: int, limit: int = 10) -> None:
-        """Looks for rows older than a certain time and makes a number of them fresh again.
+        """Looks for rows older than a certain time and makes a number of them fresh again (refresh).
 
             Time past is set as 500 days, can be changed as needed.
 
