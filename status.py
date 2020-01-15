@@ -58,6 +58,7 @@ def main():
     if soc_db.fresh_count < 10:
         try:
             soc_db.make_fresh_again(current_time=int(time.time()), limit=10)
+            message += "Ran the Make Fresh Again script   \n"
         except Exception as e:
             error_message = ("Could not run soc_db.make_fresh_again   \n{}   \n{}    \n".format(str(e), str(type(e))))
             my_diag.traceback = error_message
