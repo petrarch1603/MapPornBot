@@ -1399,7 +1399,7 @@ class ContestDB(_MapDB):
 
     def print_live_list(self):
         for i in self.live_list:
-            print("ID: " + i.raw_id + " URL: " + i.url + "\n")
+            print("ID: " + i.raw_id + "Name: " + i.map_name + " URL: " + i.url + "\n")
 
 
     def get_top_posts_of_year(self):
