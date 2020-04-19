@@ -1397,6 +1397,10 @@ class ContestDB(_MapDB):
         except AssertionError as e:
             print(str(e))
 
+    def print_live_list(self):
+        for i in self.live_list:
+            print("ID: " + i.raw_id + " URL: " + i.url + "\n")
+
 
     def get_top_posts_of_year(self):
         """Get a list of the two top voted maps from each month's contest
