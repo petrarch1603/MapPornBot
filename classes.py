@@ -382,6 +382,7 @@ class _MapDB:
                     raw_id_to_delete)).fetchall()) == 0
             except AssertionError as e:
                 return "Unable to delete raw_id, row still in database. {}".format(e)
+            self.conn.commit()
 
     def close(self) -> None:
         """Closes Database"""
