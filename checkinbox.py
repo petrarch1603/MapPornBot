@@ -132,8 +132,8 @@ def main() -> None:
 
         # # Map Contest Submissions
         if message.subject == "Map Contest Submission":
-            contest_message(message=message)
             message.mark_read()
+            contest_message(message=message)
 
         # # Social Media Maps
         elif message.subject == 'socmedia' and message.author == my_reddit_id:
